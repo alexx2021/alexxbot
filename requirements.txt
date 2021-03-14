@@ -1,0 +1,8 @@
+discord
+requests
+python-dotenv
+psutil
+aiohttp
+buttons
+DiscordUtils
+aiosqlite
