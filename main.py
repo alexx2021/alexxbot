@@ -24,22 +24,50 @@ intents.messages = True
 intents.typing = False
 intents.presences = False
 
-async def get_prefix():
-    pass
 
-bot = commands.Bot(command_prefix=('1'), case_insensitive=True, help_command=None, intents=intents)
+
+async def get_prefix(bot, msg):
+
+    user_id = bot.user.id
+    base = [f'<@!{user_id}> ', f'<@{user_id}> ']
+    if msg.guild is None:
+        base.append('_')
+    else:
+        custom = await bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(msg.guild.id,),)
+        if custom !=[]:
+            #print(custom[0][1])
+            base.append(custom[0][1])
+        else:
+            base.append('_')
+
+    return base
+
+bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, help_command=None, intents=intents)
+loop = asyncio.get_event_loop()
+bot.bl =  loop.run_until_complete(aiosqlite.connect('blacklists.db'))
+bot.pr =  loop.run_until_complete(aiosqlite.connect('prefix.db'))
 
 
 #creates databases if they havent been made yet before loading the cogs
+conn = sqlite3.connect('prefix.db')
+c = conn.cursor()
+conn2 = sqlite3.connect('prefix.db')
+c2 = conn.cursor()
+
 def blacklist_setup():
-        conn = sqlite3.connect('blacklists.db')
-        c = conn.cursor()
-        c.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
-        c.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
-        c.close()
-        conn.close()
+    c2.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
+    c2.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
+    c2.close()
+    conn2.close()
+
+def prefix_setup():
+    c.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id INTERGER, prefix TEXT)")
+    c.close()
+    conn.close()
+
 
 blacklist_setup()
+prefix_setup()
 
 
 
@@ -58,7 +86,7 @@ except: #if it fails, looks in a different path (for my own testing purposes)
 @bot.event
 async def on_ready():
     await bot.wait_until_ready()
-    await bot.change_presence(activity=Activity(name=f"alexx.lol | _help", type=ActivityType.playing))
+    await bot.change_presence(activity=Activity(name=f"alexx.lol | help", type=ActivityType.playing))
     print('--------------------------')
     print(f'Logged in as: {bot.user.name}')
     print(f'With ID: {bot.user.id}')
@@ -80,17 +108,16 @@ async def on_ready():
 #             return True
 
 
-@bot.event
-async def on_message(message: discord.Message):
-    await bot.wait_until_ready()
+# @bot.event
+# async def on_message(message: discord.Message):
+#     await bot.wait_until_ready()
 
-    if message.content.startswith('_'): # only query database if a command is run
-        async with aiosqlite.connect('blacklists.db') as c:
-            rows = await c.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
-            if rows != []:
-                return 
+#     if message.content.startswith(await get_prefix(bot, message)): # only query database if a command is run
+#         rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
+#         if rows != []:
+#             return 
 
-    await bot.process_commands(message)
+#     await bot.process_commands(message)
 
 @bot.command(aliases=["commands", "invite"])
 async def help(ctx):
@@ -100,6 +127,8 @@ async def help(ctx):
     embed.add_field(name="Other links", value='[Invite link (recommended permissions)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
     + '\n[Invite link (required permissions)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
     + '\n[Support Server](https://discord.gg/zPWMRMXQ7H)')
+    embed.add_field(name="Prefix", value='You can find my prefix by doing `@alexx prefix` and change it with\n`@alexx setprefix <newprefix>`')
+    embed.add_field(name="About", value='A multi-purpose discord bot written in python by `Alexx#7687` that is straightforward and easy to use. \nOh, and how could I forget? Cats. Lots of cats. 🐱')
     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
     
     await ctx.send(embed=embed)
@@ -125,6 +154,34 @@ async def botinfo(ctx):
     embed.timestamp = datetime.datetime.utcnow()
     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
+
+@bot.command()
+async def prefix(ctx):
+    custom = await bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(ctx.guild.id,),)
+    if custom:
+        await ctx.send(f'The custom prefix for this guild is `{custom[0][1]}` . You can change it with `{custom[0][1]}setprefix <newprefix>')
+    else:
+        await ctx.send(f'The prefix for this guild is `_` . You can change it with `_setprefix <newprefix>')
+
+@bot.command(aliases=["changeprefix"])
+async def setprefix(ctx, prefix: str):
+    if len(prefix) > 20:
+        return await ctx.send('Prefix is too long.')
+    
+    custom = await bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(ctx.guild.id,),)
+    if custom:
+        await bot.pr.execute("UPDATE prefixes SET prefix = ? WHERE guild_id = ?",(prefix, ctx.guild.id,),)
+        await bot.pr.commit()
+    else:    
+        await bot.pr.execute("INSERT INTO prefixes VALUES (?, ?)",(ctx.guild.id, prefix),)
+        await bot.pr.commit()
+    await ctx.send(f'Set prefix to `{prefix}`')
+
+@bot.command()
+async def dumppr(ctx):
+    custom = await bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(ctx.guild.id,),)
+    await ctx.send(f'{custom}')
+
 
 
 TOKEN = os.getenv("DISCORD_TOKEN2")
