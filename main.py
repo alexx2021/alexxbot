@@ -108,16 +108,17 @@ async def on_ready():
 #             return True
 
 
-# @bot.event
-# async def on_message(message: discord.Message):
-#     await bot.wait_until_ready()
+@bot.event
+async def on_message(message: discord.Message):
+    await bot.wait_until_ready()
+    p = tuple(await get_prefix(bot,message))
 
-#     if message.content.startswith(await get_prefix(bot, message)): # only query database if a command is run
-#         rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
-#         if rows != []:
-#             return 
+    if message.content.startswith(p): # only query database if a command is run #idk if this is neeeded anymore
+        rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
+        if rows != []:
+            return 
 
-#     await bot.process_commands(message)
+    await bot.process_commands(message)
 
 @bot.command(aliases=["commands", "invite"])
 async def help(ctx):
@@ -159,9 +160,9 @@ async def botinfo(ctx):
 async def prefix(ctx):
     custom = await bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(ctx.guild.id,),)
     if custom:
-        await ctx.send(f'The custom prefix for this guild is `{custom[0][1]}` . You can change it with `{custom[0][1]}setprefix <newprefix>')
+        await ctx.send(f'The custom prefix for this guild is `{custom[0][1]}`\n You can change it with `{custom[0][1]}setprefix <newprefix>`')
     else:
-        await ctx.send(f'The prefix for this guild is `_` . You can change it with `_setprefix <newprefix>')
+        await ctx.send(f'The prefix for this guild is `_`\n You can change it with `_setprefix <newprefix>`')
 
 @bot.command(aliases=["changeprefix"])
 async def setprefix(ctx, prefix: str):
