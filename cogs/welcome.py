@@ -7,8 +7,8 @@ from discord.ext.commands.core import has_permissions
 
 
 class Welcome(commands.Cog):
-    def __init__(self, client):
-        self.client = client    
+    def __init__(self, bot):
+        self.bot = bot    
 
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @has_permissions(manage_guild=True)
@@ -31,7 +31,7 @@ class Welcome(commands.Cog):
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
-                    welcomeM = await self.client.wait_for('message', check=check, timeout=120)
+                    welcomeM = await self.bot.wait_for('message', check=check, timeout=120)
                     
                     wMsg = welcomeM.content
                     if len(wMsg) >= 1024:
@@ -41,7 +41,7 @@ class Welcome(commands.Cog):
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
-                    goodbyeM = await self.client.wait_for('message', check=check, timeout=120)
+                    goodbyeM = await self.bot.wait_for('message', check=check, timeout=120)
                     
                     bMsg = goodbyeM.content
                     if len(bMsg) >= 1024:
@@ -51,21 +51,21 @@ class Welcome(commands.Cog):
                     return await ctx.send(f'Message creation timed out. Please try again.')
 
                 
-                self.bot.sc.execute("INSERT INTO welcome VALUES(?, ?, ?, ?)", (server_id, log_channel, wMsg, bMsg))
-                self.bot.sc.commit()
+                await self.bot.sc.execute("INSERT INTO welcome VALUES(?, ?, ?, ?)", (server_id, log_channel, wMsg, bMsg))
+                await self.bot.sc.commit()
                 await ctx.send(f'Done! Welcome/goodbye channel set to {channel.mention}.')
 
             else:
                 rows2 = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server_id,),)
                 if rows2 != []:
 
-                    self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server_id,))
-                    self.bot.sc.commit()
+                    await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server_id,))
+                    await self.bot.sc.commit()
                     await ctx.send('Welcome/goodbye channel has been reset. Run the command again to set the new channel.')
 
         if channel is None:
             local_log_channel = ctx.channel.id
-            rows = self.c.execute("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server_id,),).fetchall()
+            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server_id,),)
             
             if rows == []:
                 
@@ -74,7 +74,7 @@ class Welcome(commands.Cog):
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
                     
-                    welcomeM = await self.client.wait_for('message', check=check, timeout=120)
+                    welcomeM = await self.bot.wait_for('message', check=check, timeout=120)
                     
                     wMsg = welcomeM.content
                     if len(wMsg) >= 1024:
@@ -84,7 +84,7 @@ class Welcome(commands.Cog):
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
-                    goodbyeM = await self.client.wait_for('message', check=check, timeout=120)
+                    goodbyeM = await self.bot.wait_for('message', check=check, timeout=120)
                     
                     bMsg = goodbyeM.content
                     if len(bMsg) >= 1024:
@@ -95,23 +95,23 @@ class Welcome(commands.Cog):
                 
                 
                 
-                self.c.execute("INSERT INTO welcome VALUES(?, ?, ?, ?)", (server_id, local_log_channel, wMsg, bMsg))
-                self.conn.commit()
+                await self.bot.sc.execute("INSERT INTO welcome VALUES(?, ?, ?, ?)", (server_id, local_log_channel, wMsg, bMsg))
+                await self.bot.sc.commit()
                 await ctx.send(f'Done! Welcome/goodbye channel set to {ctx.channel.mention}.')
 
             else:
-                rows2 = self.c.execute("SELECT server_id FROM welcome WHERE server_id = ?",(server_id,),).fetchall()
+                rows2 = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server_id,),)
                 if rows2 != []:
 
-                    self.c.execute("DELETE FROM welcome WHERE server_id = ?",(server_id,))
-                    self.conn.commit()
+                    await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server_id,))
+                    await self.bot.sc.commit()
                     await ctx.send('Welcome/goodbye channel has been reset. Run the command again to set the new channel.')
 
 
     @commands.is_owner()
     @commands.command(hidden=True)
     async def dumpW(self, ctx):
-        rows = self.c.execute("SELECT server_id, log_channel, wMsg, bMsg FROM welcome").fetchall()
+        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome")
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')
@@ -122,8 +122,8 @@ class Welcome(commands.Cog):
     @commands.command(hidden=True)
     async def delwelcome(self, ctx):
         guild = ctx.guild.id
-        self.c.execute("DELETE FROM welcome WHERE server_id = ?",(guild,))
-        self.conn.commit()
+        await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(guild,))
+        await self.bot.sc.commit()
         
         await ctx.channel.send('done.')
 
@@ -134,10 +134,10 @@ class Welcome(commands.Cog):
         await asyncio.sleep(1)
         server = guild.id
 
-        rows = self.c.execute("SELECT server_id FROM welcome WHERE server_id = ?",(server,),).fetchall()
+        rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server,),)
         if rows != []:
-            self.c.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-            self.conn.commit()
+            await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
+            await self.bot.sc.commit()
             return
 
 
@@ -148,7 +148,7 @@ class Welcome(commands.Cog):
     async def on_member_join(self, member):
         
         server = member.guild.id
-        rows = self.c.execute("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),).fetchall()
+        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
         if rows != []:
             toprow = rows[0] 
             logCH = toprow[1]
@@ -163,21 +163,21 @@ class Welcome(commands.Cog):
             except discord.errors.Forbidden:
                 server = member.guild.id
 
-                rows = self.c.execute("SELECT server_id FROM welcome WHERE server_id = ?",(server,),).fetchall()
+                rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server,),)
                 if rows != []:
-                    self.c.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-                    self.conn.commit()
+                    await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
+                    await self.bot.sc.commit()
                     print(f'deleted welcome data b/c no perms 2 speak for ({member.guild.id})')
 
 
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        if member == self.client.user:
+        if member == self.bot.user:
             return
 
         server = member.guild.id
-        rows = self.c.execute("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),).fetchall()
+        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
         if rows != []:
             toprow = rows[0] 
             logCH = toprow[1]
@@ -193,10 +193,10 @@ class Welcome(commands.Cog):
             except discord.errors.Forbidden:
                 server = member.guild.id
 
-                rows = self.c.execute("SELECT server_id FROM welcome WHERE server_id = ?",(server,),).fetchall()
+                rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server,),)
                 if rows != []:
-                    self.c.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-                    self.conn.commit()
+                    await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
+                    await self.bot.sc.commit()
                     print(f'deleted welcome data b/c no perms 2 speak for ({member.guild.id})')
 
  
@@ -204,5 +204,5 @@ class Welcome(commands.Cog):
 
 
 
-def setup(client):
-	client.add_cog(Welcome(client))
+def setup(bot):
+	bot.add_cog(Welcome(bot))
