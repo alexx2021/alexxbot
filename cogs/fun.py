@@ -199,11 +199,25 @@ class Fun(commands.Cog):
     @commands.cooldown(5, 10, commands.BucketType.channel)
     async def cat(self, ctx):
         async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://aws.random.cat/meow') as r:
+            async with cs.get('https://nekos.life/api/v2/img/meow') as r:  #https://aws.random.cat/meow
                 data = await r.json()
                 embed = discord.Embed(color=0x7289da)
                 embed.title = "Catz" 
-                embed.set_image(url=(data['file']))
+                embed.set_image(url=(data['url']))
+                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                await ctx.send(embed=embed)
+
+    #fact command
+    @commands.guild_only()
+    @commands.command(help=('free infinite facts'))
+    @commands.cooldown(4, 10, commands.BucketType.channel)
+    async def fact(self, ctx):
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://nekos.life/api/v2/fact') as r:  #https://aws.random.cat/meow
+                data = await r.json()
+                embed = discord.Embed(color=0x7289da)
+                embed.title = "Random Fact" 
+                embed.description = (data['fact'])
                 embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
