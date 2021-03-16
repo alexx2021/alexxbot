@@ -146,6 +146,10 @@ async def on_ready():
 @bot.event
 async def on_message(message: discord.Message):
     await bot.wait_until_ready()
+
+    if not message.guild:
+        return
+        
     p = tuple(await get_prefix(bot, message))
 
     if message.content.startswith(p): # only query database if a command is run #idk if this is neeeded anymore
