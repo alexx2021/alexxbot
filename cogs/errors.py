@@ -13,6 +13,7 @@ from discord import Webhook, AsyncWebhookAdapter
 import aiohttp
 import os
 from discord.ext.commands.errors import MaxConcurrencyReached
+from discord.ext.commands.errors import NSFWChannelRequired
 
 
 class Errors(commands.Cog):
@@ -88,6 +89,9 @@ class Errors(commands.Cog):
         
         elif isinstance(error, MaxConcurrencyReached):
             await ctx.send(f'This command cannot be run while there is a another instance currenly running in this channel.')
+            
+        elif isinstance(error, commands.errors.NSFWChannelRequired):
+            await ctx.send(f'{ctx.author.mention} This command cannot be run in a non-nsfw marked channel...')
         
         ###################################################
         # the following are for the music portion of the bot
