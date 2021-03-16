@@ -175,7 +175,7 @@ class Fun(commands.Cog):
                 async with cs.get('https://nekos.life/api/v2/img/hug') as r: 
                     data = await r.json()
                     embed = discord.Embed(color=0x7289da)
-                    embed.title = f"{member} hugged themselves!" 
+                    embed.title = f"{ctx.author} hugged themselves!" 
                     embed.set_image(url=(data['url']))
                     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
@@ -199,7 +199,7 @@ class Fun(commands.Cog):
                 async with cs.get('https://nekos.life/api/v2/img/slap') as r: 
                     data = await r.json()
                     embed = discord.Embed(color=0x7289da)
-                    embed.title = f"{member} slapped themselves!" 
+                    embed.title = f"{ctx.author} slapped themselves!" 
                     embed.set_image(url=(data['url']))
                     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
