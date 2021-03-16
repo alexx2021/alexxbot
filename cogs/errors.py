@@ -87,7 +87,7 @@ class Errors(commands.Cog):
             await ctx.send(f'You cannot use this command in DMs!.')
         
         elif isinstance(error, MaxConcurrencyReached):
-            await ctx.send(f'You cannot use this command in DMs!.')
+            await ctx.send(f'This command cannot be run while there is a another instance currenly running in this channel.')
         
         ###################################################
         # the following are for the music portion of the bot
