@@ -363,7 +363,12 @@ class Moderation(commands.Cog):
                 except discord.errors.Forbidden:
                     await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
                     await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')      
+                    print('deleted log channel b/c no perms to speak')
+            
+            try:
+                await member.send(f'You were kicked from **{member.guild}** for "{reason}"')
+            except discord.errors.Forbidden:
+                print(f'dm upon kick failed - Guild: {member.guild} ({member.guild.id})')      
 
         except:
             return await ctx.send("Could not kick this user.")
@@ -409,7 +414,12 @@ class Moderation(commands.Cog):
                 except discord.errors.Forbidden:
                     await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
                     await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')    
+                    print('deleted log channel b/c no perms to speak')  
+            if member:
+                try:
+                    await member.send(f'You were kicked from **{member.guild}** for "{reason}"')
+                except discord.errors.Forbidden:
+                    print(f'dm upon kick failed - Guild: {member.guild} ({member.guild.id})')  
         
         except:
             return await ctx.send("Could not softban this user.")
