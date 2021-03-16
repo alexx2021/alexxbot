@@ -60,36 +60,45 @@ bot.prefixes = {}
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
 bot.pr = loop.run_until_complete(aiosqlite.connect('prefix.db'))
+bot.sc = loop.run_until_complete(aiosqlite.connect('serverconfigs.db'))
+bot.rm = loop.run_until_complete(aiosqlite.connect('reminders.db'))
+bot.m = loop.run_until_complete(aiosqlite.connect('muted.db'))
+bot.i = loop.run_until_complete(aiosqlite.connect('invites.db'))
 
 
 #creates databases if they havent been made yet before loading the cogs
 
-def blacklist_setup():
-    conn2 = sqlite3.connect('blacklists.db')
-    c2 = conn2.cursor()
-    c2.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
-    c2.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
-    c2.close()
-    conn2.close()
+async def blacklist_setup():
+    await bot.bl.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
+    await bot.bl.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
 
-def prefix_setup():
-    conn = sqlite3.connect('prefix.db')
-    c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id INTERGER, prefix TEXT)")
-    c.close()
-    conn.close()
+async def setup_db():
+    await bot.pr.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id INTERGER, prefix TEXT)")
 
-async def refresh_cache():
+    await bot.rm.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id INTERGER, channel_id INTERGER, message_id INTERGER, user_id INTERGER, future INTERGER)")
+    await bot.rm.execute("CREATE TABLE IF NOT EXISTS reminders(id INTERGER, future INTERGER, remindtext TEXT)")
+
+    await bot.m.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id INTERGER, user_id INTERGER)")
+
+    await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
+    #bot.sc.execute("CREATE TABLE IF NOT EXISTS welcomeinvite(server_id INTERGER, log_channel INTERGER, whURL TEXT)") #not sure if I want to keep this, might merge with welcome
+    await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
+    
+    await bot.i.execute("CREATE TABLE IF NOT EXISTS invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)")
+
+
+
+async def setup_stuff():
     guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes")
     for guild in guilds:
         bot.prefixes[f"{guild[0]}"] = f"{guild[1]}"
+    await blacklist_setup()
+    await setup_db()
     
     print('cache is setup!!')
     print(f'prefixes - {bot.prefixes}')
 
 
-blacklist_setup()
-prefix_setup()
 
 
 
@@ -111,7 +120,7 @@ except: #if it fails, looks in a different path (for my own testing purposes)
 @bot.event
 async def on_ready():
     await bot.wait_until_ready()
-    await refresh_cache()
+    await setup_stuff()
     await bot.change_presence(activity=Activity(name=f"alexx.lol | help", type=ActivityType.playing))
     print('--------------------------')
     print(f'Logged in as: {bot.user.name}')
