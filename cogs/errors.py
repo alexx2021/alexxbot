@@ -12,6 +12,7 @@ import sys
 from discord import Webhook, AsyncWebhookAdapter
 import aiohttp
 import os
+from discord.ext.commands.errors import MaxConcurrencyReached
 
 
 class Errors(commands.Cog):
@@ -84,7 +85,9 @@ class Errors(commands.Cog):
 
         elif isinstance(error, commands.NoPrivateMessage):
             await ctx.send(f'You cannot use this command in DMs!.')
-
+        
+        elif isinstance(error, MaxConcurrencyReached):
+            await ctx.send(f'You cannot use this command in DMs!.')
         
         ###################################################
         # the following are for the music portion of the bot
