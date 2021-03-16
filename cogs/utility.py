@@ -60,7 +60,7 @@ class Utility(commands.Cog):
         roles2 = [role.mention for role in roles]
         if roles2 == []:
             roles2 = ['None']
-        if len(roles2) > 2:
+        if len(roles2) > 10:
             roles2 = ['Error. User has too many roles.']
 
         embed.add_field(name="Roles:", value="".join(roles2))
