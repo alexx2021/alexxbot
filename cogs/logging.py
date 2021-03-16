@@ -38,8 +38,6 @@ class Logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot    
 
-    
-    @bot_has_permissions(manage_webhooks=True) # remember NotFound error, and delete entry if not found
     @has_permissions(manage_guild=True)
     @commands.cooldown(3, 15, commands.BucketType.guild)
     @commands.command(help='Use this to set your logging channel!', hidden=False)
@@ -73,7 +71,7 @@ class Logging(commands.Cog):
                 if rows == []:
                     await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, local_log_channel, null))
                     await self.bot.sc.commit()
-                    await ctx.send(f'Done! Logging channel set to {channel.mention}.')
+                    await ctx.send(f'Done! Logging channel set to {ctx.channel.mention}.')
 
                 else:
                     rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
@@ -294,8 +292,8 @@ class Logging(commands.Cog):
             try:
                 await ch.send(embed=embed)
             except discord.errors.Forbidden:
-                self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                self.bot.sc.commit()
+                await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
+                await self.bot.sc.commit()
                 print('deleted log channel b/c no perms to speak')  
 
     # user updates - 0x9b59b6 is the color for all
@@ -351,8 +349,6 @@ class Logging(commands.Cog):
             return
         
         if before.display_name != after.display_name:
-
-            guild = before.guild
 
             embed = discord.Embed(color=0x9b59b6)
             embed.set_author(name=f"{before.name}#{before.discriminator}", icon_url=before.avatar_url)
