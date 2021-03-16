@@ -157,13 +157,60 @@ class Fun(commands.Cog):
     #     await user.send(embed=embed)
     
     
-    #hugs
+    # #hugs
+    # @commands.guild_only()
+    # @commands.command(help=('Hug another user!'))
+    # async def hug(self, ctx, user: discord.User):
+    #     hugstring = ["https://i.imgur.com/OgcCCPE.gifv","https://tenor.com/view/hug-love-hi-bye-cat-gif-15999080","https://tenor.com/view/milk-and-mocha-hug-love-heart-couple-gif-17258498","https://tenor.com/view/virtual-hug-penguin-love-heart-gif-14712845","https://tenor.com/view/cat-cuddling-kitty-kittens-hug-gif-17782164","https://tenor.com/view/kitten-cuddle-cat-cats-hug-gif-12568441","https://tenor.com/view/hugs-cats-hug-me-come-here-gif-13347201"]
+    #     await ctx.send(f'**{ctx.author} hugged {user} :3**') 
+    #     await ctx.send(f'{random.choice(hugstring)}') 
+    
+    
     @commands.guild_only()
-    @commands.command(help=('Hug another user!'))
-    async def hug(self, ctx, user: discord.User):
-        hugstring = ["https://i.imgur.com/OgcCCPE.gifv","https://tenor.com/view/hug-love-hi-bye-cat-gif-15999080","https://tenor.com/view/milk-and-mocha-hug-love-heart-couple-gif-17258498","https://tenor.com/view/virtual-hug-penguin-love-heart-gif-14712845","https://tenor.com/view/cat-cuddling-kitty-kittens-hug-gif-17782164","https://tenor.com/view/kitten-cuddle-cat-cats-hug-gif-12568441","https://tenor.com/view/hugs-cats-hug-me-come-here-gif-13347201"]
-        await ctx.send(f'**{ctx.author} hugged {user} :3**') 
-        await ctx.send(f'{random.choice(hugstring)}') 
+    @commands.command(help=('free infinite hugs'))
+    @commands.cooldown(4, 10, commands.BucketType.channel)
+    async def hug(self, ctx, member: discord.Member=None):
+        if member is None:
+            async with aiohttp.ClientSession() as cs:
+                async with cs.get('https://nekos.life/api/v2/img/hug') as r: 
+                    data = await r.json()
+                    embed = discord.Embed(color=0x7289da)
+                    embed.title = f"{member} hugged themselves!" 
+                    embed.description = (data['url'])
+                    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                    await ctx.send(embed=embed)
+            
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://nekos.life/api/v2/img/hug') as r: 
+                data = await r.json()
+                embed = discord.Embed(color=0x7289da)
+                embed.title = f"{ctx.author} hugged {member} <3!" 
+                embed.description = (data['url'])
+                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                await ctx.send(embed=embed)
+
+    @commands.guild_only()
+    @commands.command(help=('free infinite slaps'))
+    @commands.cooldown(4, 10, commands.BucketType.channel)
+    async def slap(self, ctx, member: discord.Member=None):
+        if member is None:
+            async with aiohttp.ClientSession() as cs:
+                async with cs.get('https://nekos.life/api/v2/img/slap') as r: 
+                    data = await r.json()
+                    embed = discord.Embed(color=0x7289da)
+                    embed.title = f"{member} slapped themselves!" 
+                    embed.description = (data['url'])
+                    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                    await ctx.send(embed=embed)
+            
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://nekos.life/api/v2/img/slap') as r: 
+                data = await r.json()
+                embed = discord.Embed(color=0x7289da)
+                embed.title = f"{ctx.author} slapped {member}!" 
+                embed.description = (data['url'])
+                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                await ctx.send(embed=embed)
 
     #chooses random result and tells you if you are gay :)
     @commands.guild_only()
@@ -213,7 +260,7 @@ class Fun(commands.Cog):
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def fact(self, ctx):
         async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://nekos.life/api/v2/fact') as r:  #https://aws.random.cat/meow
+            async with cs.get('https://nekos.life/api/v2/fact') as r: 
                 data = await r.json()
                 embed = discord.Embed(color=0x7289da)
                 embed.title = "Random Fact" 
@@ -221,22 +268,34 @@ class Fun(commands.Cog):
                 embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
-    #dog command
+    #cat command
     @commands.guild_only()
     @commands.command(help=('free infinite dogz'))
     @commands.cooldown(5, 10, commands.BucketType.channel)
     async def dog(self, ctx):
         async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://dog.ceo/api/breeds/image/random') as r:
+            async with cs.get('https://nekos.life/api/v2/img/woof') as r: #https://dog.ceo/api/breeds/image/random
+                data = await r.json()
+                embed = discord.Embed(color=0x7289da)
+                embed.title = "Dogz" 
+                embed.set_image(url=(data['url']))
+                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                await ctx.send(embed=embed)
+
+    #goose command 
+    @commands.guild_only()
+    @commands.command()
+    @commands.cooldown(5, 10, commands.BucketType.channel)
+    async def goose(self, ctx):
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://nekos.life/api/v2/img/goose') as r:
                 if r.status == 200:
                     data = await r.json()
-
                     embed = discord.Embed(color=0x7289da)
-                    embed.title = "Dogz" 
-                    embed.set_image(url=(data['message']))
+                    embed.title = "Gooses ;)" 
+                    embed.set_image(url=(data['url']))
                     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
-
 
     #duck command
     @commands.guild_only()
