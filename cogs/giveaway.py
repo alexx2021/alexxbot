@@ -4,7 +4,7 @@ import asyncio
 import datetime
 import time
 import random
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands.core import bot_has_permissions, has_permissions
 
@@ -120,8 +120,8 @@ class Giveaway(commands.Cog):
         user_id = int(ctx.author.id)
         channel_id = int(ctx.channel.id)
 
-        self.c.execute("INSERT INTO giveaways VALUES(?, ?, ?, ?, ?)", (guild_id, channel_id, message_id, user_id, future))
-        self.conn.commit()
+        await self.bot.rm.execute("INSERT INTO giveaways VALUES(?, ?, ?, ?, ?)", (guild_id, channel_id, message_id, user_id, future))
+        await self.bot.rm.commit()
 
     
     
@@ -131,19 +131,19 @@ class Giveaway(commands.Cog):
     @commands.is_owner()
     @commands.command(hidden=True)
     async def dumpG(self, ctx):
-        rows = self.c.execute("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways").fetchall()
+        rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways")
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')
         
         await ctx.channel.send('done.')
 
+    @tasks.loop(seconds=12.0)
     async def check_giveaways(self):
         await self.bot.wait_until_ready()
         while True:
-            await asyncio.sleep(12)
             current_time1 = f"{int(time.time())}"
-            rows = self.c.execute("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time1,),).fetchall()
+            rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time1,),)
 
             while rows != []:
                 await asyncio.sleep(2)
@@ -166,8 +166,8 @@ class Giveaway(commands.Cog):
                     author = await self.bot.fetch_user(theuserid)
                 except:
                     TRID = f'{int(therowID)}'
-                    self.c.execute("DELETE FROM giveaways WHERE OID = ?",(TRID,))
-                    self.conn.commit()
+                    await self.bot.rm.execute("DELETE FROM giveaways WHERE OID = ?",(TRID,))
+                    await self.bot.rm.commit()
                     return
                 
                 users.pop(users.index(bot))
@@ -181,16 +181,15 @@ class Giveaway(commands.Cog):
                     await message.channel.send(f"**Congrats {winner.mention}!**\nPlease contact {author.mention} about your prize.")                                       
 
                 TRID = f'{int(therowID)}'
-                self.c.execute("DELETE FROM giveaways WHERE OID = ?",(TRID,))
-                self.conn.commit()
+                await self.bot.rm.execute("DELETE FROM giveaways WHERE OID = ?",(TRID,))
+                await self.bot.rm.commit()
                 
                 current_time = f"{int(time.time())}"
-                rows = self.c.execute("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time,),).fetchall()
-
-
+                rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time,),)
+    
+    @check_giveaways.before_loop
+    async def wait(self):
+        await self.bot.wait_until_ready()
 
 def setup(bot):
     bot.add_cog(Giveaway(bot))
-    z = Giveaway(bot)
-    loop = asyncio.get_event_loop()
-    loop.create_task(z.check_giveaways())
