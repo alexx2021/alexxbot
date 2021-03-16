@@ -15,6 +15,7 @@ TEST_BOT_ID = int(715446479837462548)
 class Giveaway(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.check_giveaways.start()
 
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @has_permissions(manage_messages=True)
@@ -140,52 +141,50 @@ class Giveaway(commands.Cog):
 
     @tasks.loop(seconds=12.0)
     async def check_giveaways(self):
-        await self.bot.wait_until_ready()
-        while True:
-            current_time1 = f"{int(time.time())}"
-            rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time1,),)
+        current_time1 = f"{int(time.time())}"
+        rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time1,),)
 
-            while rows != []:
-                await asyncio.sleep(2)
+        while rows != []:
+            await asyncio.sleep(2)
+            
+            toprow = rows[0]
+
+            therowID = toprow[0]
+            theguildID = toprow[1]
+            thechannelid = toprow[2]
+            themessageid = toprow[3]
+            theuserid = toprow[4]
+            
+            bot = self.bot.get_user(BOT_ID)
+            try:
+                guild = self.bot.get_guild(theguildID)
+                guildchannel = guild.get_channel(thechannelid)
+                message = await guildchannel.fetch_message(themessageid)
                 
-                toprow = rows[0]
-
-                therowID = toprow[0]
-                theguildID = toprow[1]
-                thechannelid = toprow[2]
-                themessageid = toprow[3]
-                theuserid = toprow[4]
-                
-                bot = self.bot.get_user(BOT_ID)
-                try:
-                    guild = self.bot.get_guild(theguildID)
-                    guildchannel = guild.get_channel(thechannelid)
-                    message = await guildchannel.fetch_message(themessageid)
-                    
-                    users = await message.reactions[0].users().flatten()
-                    author = await self.bot.fetch_user(theuserid)
-                except:
-                    TRID = f'{int(therowID)}'
-                    await self.bot.rm.execute("DELETE FROM giveaways WHERE OID = ?",(TRID,))
-                    await self.bot.rm.commit()
-                    return
-                
-                users.pop(users.index(bot))
-                #users.pop(users.index(author))
-
-                if len(users) == 0:
-                    await message.channel.send("No winner was decided")
-                else:
-                    winner = random.choice(users)
-
-                    await message.channel.send(f"**Congrats {winner.mention}!**\nPlease contact {author.mention} about your prize.")                                       
-
+                users = await message.reactions[0].users().flatten()
+                author = await self.bot.fetch_user(theuserid)
+            except:
                 TRID = f'{int(therowID)}'
                 await self.bot.rm.execute("DELETE FROM giveaways WHERE OID = ?",(TRID,))
                 await self.bot.rm.commit()
-                
-                current_time = f"{int(time.time())}"
-                rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time,),)
+                return
+            
+            users.pop(users.index(bot))
+            #users.pop(users.index(author))
+
+            if len(users) == 0:
+                await message.channel.send("No winner was decided")
+            else:
+                winner = random.choice(users)
+
+                await message.channel.send(f"**Congrats {winner.mention}!**\nPlease contact {author.mention} about your prize.")                                       
+
+            TRID = f'{int(therowID)}'
+            await self.bot.rm.execute("DELETE FROM giveaways WHERE OID = ?",(TRID,))
+            await self.bot.rm.commit()
+            
+            current_time = f"{int(time.time())}"
+            rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time,),)
     
     @check_giveaways.before_loop
     async def wait(self):
