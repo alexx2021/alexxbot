@@ -32,8 +32,6 @@ class Utility(commands.Cog):
     @commands.guild_only()
     @commands.command(aliases=["avatar"], help=('Mention a user to get their profile picture link!'))
     async def pfp(self, ctx, *,  user : discord.User):
-        if not user:
-            user = ctx.author
         ext = 'gif' if user.is_avatar_animated() else 'png'
         await ctx.send(file=discord.File(BytesIO(await user.avatar_url.read()), f"{user.id}.{ext}"))
 
@@ -42,9 +40,6 @@ class Utility(commands.Cog):
     @commands.guild_only()
     @commands.command(aliases=["whois"], help='Displays information about a mentioned user')
     async def userinfo(self, ctx, member: discord.Member):
-        if not member:
-            member = ctx.author
-
         roles = [role for role in member.roles]
         del roles[0]
         embed = discord.Embed(color=0x7289da, title=f"User Information")
