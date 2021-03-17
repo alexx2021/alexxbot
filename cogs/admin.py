@@ -149,6 +149,9 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def adduser(self, ctx, user: discord.User):
         userid = str(user.id)
+        if user.id == OWNER_ID:
+            return await ctx.send('oops, you tried to blacklist yourself...')
+
         async with aiosqlite.connect('blacklists.db') as c:    
             await c.execute("INSERT INTO userblacklist VALUES(?)", (userid,))
             await c.commit()

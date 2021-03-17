@@ -159,7 +159,9 @@ async def on_message(message: discord.Message):
 
     if not message.author.bot:
         if bot.user in message.mentions:
-            await message.channel.send(f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
+            rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
+            if rows == []:
+                await message.channel.send(f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
 
     await bot.process_commands(message)
 
