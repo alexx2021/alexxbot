@@ -56,6 +56,7 @@ async def get_prefix(bot, msg):
 
 bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, help_command=None, intents=intents)
 bot.prefixes = {}
+bot.ubl = {}
 
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -89,14 +90,26 @@ async def setup_db():
 
 
 async def setup_stuff():
-    guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes")
-    for guild in guilds:
-        bot.prefixes[f"{guild[0]}"] = f"{guild[1]}"
     await blacklist_setup()
     await setup_db()
     
+    guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes")
+    for guild in guilds:
+        bot.prefixes[f"{guild[0]}"] = f"{guild[1]}"
+    
+    users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist")
+    totalusers = [1234567890]
+
+    for user in users:
+        totalusers.append(user[0])
+    
+    bot.ubl[f"users"] = f"{totalusers}"
+    
+
+    
     print('cache is setup!!')
     print(f'prefixes - {bot.prefixes}')
+    print(f'blacklist - {bot.ubl}')
 
 
 
@@ -152,16 +165,32 @@ async def on_message(message: discord.Message):
         
     p = tuple(await get_prefix(bot, message))
 
-    if message.content.startswith(p): # only query database if a command is run #idk if this is neeeded anymore
-        rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
-        if rows != []:
-            return 
-
+    if message.content.startswith(p): # only query database if a command is run
+#################
+        if str(message.author.id) in bot.ubl["users"]:
+            return
+        
+        # rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
+        # print('used db for bl')
+        # if rows != []:
+        #     everyone = list(bot.ubl["users"])
+        #     everyone.append(message.author.id)
+        #     bot.ubl.update({f"users" : f"{everyone}"})
+        #     return
+#################
     if not message.author.bot:
         if bot.user in message.mentions:
-            rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
-            if rows == []:
-                await message.channel.send(f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
+            if str(message.author.id) in bot.ubl["users"]:
+                return
+            
+            # rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
+            # print('used db for bl')
+            # if rows != []:
+            #     everyone = list(bot.ubl["users"])
+            #     everyone.append(message.author.id)
+            #     bot.ubl.update({f"users" : f"{everyone}"})
+            #     return
+            await message.channel.send(f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
 
     await bot.process_commands(message)
 
