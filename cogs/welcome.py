@@ -27,7 +27,7 @@ class Welcome(commands.Cog):
             
             if rows == []:
                 try:
-                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}` and, `{membercount}` are available.'
+                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
@@ -37,7 +37,7 @@ class Welcome(commands.Cog):
                     if len(wMsg) >= 1024:
                         return await ctx.send(f'Welcome message was **{len(wMsg)}** chars long, but it cannot be longer than 1024.')
                     
-                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}` and, `{membercount}` are available.'
+                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
@@ -70,7 +70,7 @@ class Welcome(commands.Cog):
             if rows == []:
                 
                 try:
-                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}` and, `{membercount}` are available.'
+                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
                     
@@ -80,7 +80,7 @@ class Welcome(commands.Cog):
                     if len(wMsg) >= 1024:
                         return await ctx.send(f'Welcome message was **{len(wMsg)}** chars long, but it cannot be longer than 1024.')
                     
-                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}` and, `{membercount}` are available.'
+                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
@@ -142,7 +142,14 @@ class Welcome(commands.Cog):
 
 
 
+    ### on join
+    # check db to see who invited them by checking the inv_by
+    # if they were invited send a message to the channel with who invited them and that person's new inv count
+    # if they were invited by 4, send the message and mention that the inviter could not be determined
 
+    ### on leave 
+    # check db to see who invited them, if its not 4, send who invited them and their new count
+    # if it is 4, send message saying they left and bot doesnt know who invited them
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -150,6 +157,39 @@ class Welcome(commands.Cog):
         server = member.guild.id
         rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
         if rows != []:
+            gid = member.guild.id
+            uid = member.id
+
+            query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+            params = (gid, uid)
+            rows = await self.bot.i.execute_fetchall(query, params)
+            if rows != []:
+                toprow = rows[0]
+                userid = toprow[1]
+                invcount = toprow[2]
+                invby = toprow[3]
+
+                if invby == 4:
+                    user = str('???')
+                    invcount = str('?')
+
+                else:
+                    user = self.bot.get_user(invby)
+                    if not user:
+                        await self.bot.fetch_user(invby)
+                        print('fetched user for inv log on join msg')
+                        
+                    query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+                    params = (gid, invby)
+                    rows = await self.bot.i.execute_fetchall(query, params)
+                    if rows != []:
+                        toprow = rows[0]
+                        invcount = toprow[2]
+            else:
+                user = str('???')
+                invcount = str('?')     
+                #end of inv tracking
+       
             toprow = rows[0] 
             logCH = toprow[1]
             wMsg = toprow[2]
@@ -157,7 +197,7 @@ class Welcome(commands.Cog):
             if not channel:
                 return
             try:
-                await channel.send(wMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}"))
+                await channel.send(wMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}", invitedby = f"{user}", invitecount = f"{invcount}"))
             except KeyError:
                 await channel.send('One or more of the placeholders you used in the welcome message was incorrect, or not a placeholder. To remove this message, please change it.')
             except discord.errors.Forbidden:
@@ -173,12 +213,49 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
+        
         if member == self.bot.user:
             return
+        
 
         server = member.guild.id
         rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
         if rows != []:
+            gid = member.guild.id
+            uid = member.id
+
+            query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+            params = (gid, uid)
+            rows = await self.bot.i.execute_fetchall(query, params)
+            if rows != []:
+                toprow = rows[0]
+                userid = toprow[1]
+                invcount = toprow[2]
+                invby = toprow[3]
+
+                if invby == 4:
+                    user = str('???')
+                    invcount = str('?')
+
+
+                else:
+                    user = self.bot.get_user(invby)
+                    if not user:
+                        user = await self.bot.fetch_user(invby)
+                        print('fetched user for inv log on leave msg')
+                        
+                    query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+                    params = (gid, invby)
+                    rows = await self.bot.i.execute_fetchall(query, params)
+                    if rows != []:
+                        toprow = rows[0]
+                        invcount = toprow[2]
+            else:
+                user = str('???')
+                invcount = str('?')
+                #end inv user fetcher
+
+
             toprow = rows[0] 
             logCH = toprow[1]
             bMsg = toprow[3]
@@ -187,7 +264,7 @@ class Welcome(commands.Cog):
             if not channel:
                 return
             try:    
-                await channel.send(bMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}"))
+                await channel.send(bMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}", invitedby = f"{user}", invitecount = f"{invcount}"))
             except KeyError:
                 await channel.send('One or more of the placeholders you used in the goodbye message was incorrect, or not a placeholder. To remove this message, please change it.')
             except discord.errors.Forbidden:
