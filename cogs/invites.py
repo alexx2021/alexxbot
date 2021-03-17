@@ -1,39 +1,7 @@
 import discord
 from discord.ext import commands
-from discord import Webhook, AsyncWebhookAdapter
-import aiohttp
 import asyncio
-import sqlite3
-import aiosqlite
 import datetime
-import os
-
-
-
-
-async def send_wh2(url, whContent, whC2): #sends 2 embeds in one message instead of 1
-    async with aiohttp.ClientSession() as session:
-        webhook = Webhook.from_url(url, adapter=AsyncWebhookAdapter(session))
-        try:
-            await webhook.send(embeds=[whContent, whC2], username='Alexx-Bot Logging', avatar_url='https://cdn.discordapp.com/avatars/752585938630082641/852c5fb3bfe7d0eb18d62d8dfa2e77d0.png?size=1024')
-        except discord.errors.NotFound:
-            connection = sqlite3.connect('serverconfigs.db')
-            cursor = connection.cursor()
-            rows = cursor.execute("SELECT whURL FROM logging WHERE whURL = ?",(url,),).fetchall()
-            if rows != []:
-                cursor.execute("DELETE FROM logging WHERE whURL = ?",(url,))
-                connection.commit()
-                cursor.close()
-                connection.close()
-                print('deleted db data due to wh not found err')
-            else:
-                cursor.close()
-                connection.close()
-
-async def send_statsHook(whContent):
-    async with aiohttp.ClientSession() as session:
-        webhook = Webhook.from_url(os.getenv('SWH'), adapter=AsyncWebhookAdapter(session))
-        await webhook.send(embed=whContent, username='Alexx-Bot Stats', avatar_url='https://cdn.discordapp.com/avatars/752585938630082641/852c5fb3bfe7d0eb18d62d8dfa2e77d0.png?size=1024')
 
 
 async def on_join_db_update(member, inviter):
@@ -108,12 +76,12 @@ async def on_join_db_update(member, inviter):
 # these functions belong to the discordutils lib
 #
 class InviteTracker(object):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
         self._cache = {}
         
     async def cache_invites(self):
-        for guild in self.client.guilds:
+        for guild in self.bot.guilds:
             self._cache[guild.id] = {}
             if guild.me.guild_permissions.manage_guild: #added perms check
                 #print(f'{guild} cached')
@@ -184,9 +152,9 @@ class InviteTracker(object):
 
 
 class Invites(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        self.tracker = InviteTracker(client)
+    def __init__(self, bot):
+        self.bot = bot
+        self.tracker = InviteTracker(bot)
 
         self.conn = sqlite3.connect('serverconfigs.db')
         self.c = self.conn.cursor()
@@ -282,7 +250,7 @@ class Invites(commands.Cog):
         print('--------------------------')
         print('Finished caching invites!')
         print('Bot is ready!')
-        print(f"Servers - {str(len(self.client.guilds))}")
+        print(f"Servers - {str(len(self.bot.guilds))}")
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -351,7 +319,6 @@ class Invites(commands.Cog):
                 embed1.set_author(name=f"{member}", icon_url=member.avatar_url)
                 embed1.title = f"Member joined" 
                 embed1.description = f'Account created on {created_at}'
-                embed1.title = f"Was invited" 
                 embed1.add_field(name='Inviter', value=f'{inviter}', inline = True)
                 embed1.timestamp = datetime.datetime.utcnow()
                 embed1.set_footer(text=f'ID: {member.id}' + '\u200b')               
@@ -389,6 +356,6 @@ class Invites(commands.Cog):
 
 
 
-def setup(client):
-    client.add_cog(Invites(client))
+def setup(bot):
+    bot.add_cog(Invites(bot))
 
