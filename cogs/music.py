@@ -273,8 +273,8 @@ class Music(commands.Cog):
     async def volume(self, ctx, vol:int ):
         await check_in_vc(ctx)
 
-        if vol >= 100:
-            await ctx.channel.send('Volume cannot be greater than 100%!')
+        if vol > 200:
+            await ctx.channel.send('Volume cannot be greater than 200%!')
             return
 
         player = self.music.get_player(guild_id=ctx.guild.id)
