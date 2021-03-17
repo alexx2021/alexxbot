@@ -8,16 +8,43 @@ from discord.ext.commands.cooldowns import BucketType
 
 
 class Events(commands.Cog):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
         
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         try:
-            await guild.text_channels[0].send(f"Hello {guild.name}! I am {self.client.user.display_name}. Thank you for inviting me! \nThe bot wiki link and the support server can be found with `_help`")
+            await guild.text_channels[0].send(f"Hello {guild.name}! I am {self.bot.user.display_name}. Thank you for inviting me! \nThe bot wiki link and the support server can be found with `_help`")
             await guild.text_channels[0].send('https://cdn.discordapp.com/attachments/386995303066107907/533479547589623810/unknown.png')
         except:
             return
+
+
+#################################################
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        await asyncio.sleep(2)
+        server = guild.id
+
+
+        await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server,))
+        await self.bot.sc.commit()
+
+        await asyncio.sleep(1)
+        await self.bot.i.execute("DELETE FROM invites WHERE guild_id = ?",(server,))
+        await self.bot.i.commit()
+
+        await asyncio.sleep(1)
+        await self.bot.pr.execute("DELETE FROM prefixes WHERE guild_id = ?",(server,))
+        await self.bot.pr.commit()
+
+        await asyncio.sleep(1)
+        await self.bot.m.execute("DELETE FROM pmuted_users WHERE guild_id = ?",(server,))
+        await self.bot.m.commit()
+
+        await asyncio.sleep(1)
+        await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
+        await self.bot.sc.commit()
 
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
@@ -30,12 +57,12 @@ class Events(commands.Cog):
 
         try:
             firstmessage = await ctx.send(f'{ctx.author.mention}, UWU! THIS IS A SECRET COMMAND! Enter anything to continue o.O')
-            m1 = await self.client.wait_for('message', check=check, timeout=30)
+            m1 = await self.bot.wait_for('message', check=check, timeout=30)
             
         
             secondmessage = await ctx.send(f'{ctx.author.mention}, Minty is a cool person and friend UWUWU, they are a big supporter of the bot and for that I say thank u! :) \n Minty club invite code: nnhu5yEh9x')
             thirdmessage = await ctx.send('To delete these messages, enter anything into chat again.')
-            m2 = await self.client.wait_for('message', check=check, timeout=120)
+            m2 = await self.bot.wait_for('message', check=check, timeout=120)
            
             
 
@@ -60,9 +87,9 @@ class Events(commands.Cog):
     
     # @commands.Cog.listener()
     # async def on_message(self, message):
-    #     #await self.client.process_commands(message)
+    #     #await self.bot.process_commands(message)
     #     message.content = message.content.lower()
-    #     if message.author == self.client.user:
+    #     if message.author == self.bot.user:
     #         return
 
         # #checks if the channel is blacklisted for on_message reactions/functions
@@ -71,7 +98,7 @@ class Events(commands.Cog):
 
         # if 'alex' in message.content:
             
-        #     user = self.client.get_user(247932598599417866)
+        #     user = self.bot.get_user(247932598599417866)
 
         #     if not message.guild:
         #         await user.send(f'`{message.author}` mentioned you in dms with the bot! \n [{message.content}]')
@@ -104,5 +131,5 @@ class Events(commands.Cog):
         #     except:
         #         return
         
-def setup(client):
-	client.add_cog(Events(client))
+def setup(bot):
+	bot.add_cog(Events(bot))

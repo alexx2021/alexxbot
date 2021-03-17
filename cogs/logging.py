@@ -105,43 +105,6 @@ class Logging(commands.Cog):
         await ctx.channel.send('done.')
 
 
-    @commands.Cog.listener()
-    async def on_guild_remove(self, guild):
-        await asyncio.sleep(2)
-        server = guild.id
-
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server,),)
-        if rows != []:
-            await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server,))
-            await self.bot.sc.commit()
-
-        await asyncio.sleep(1)
-        rows = await self.bot.i.execute_fetchall("SELECT guild_id FROM invites WHERE guild_id = ?",(server,),)
-        if rows != []:
-            await self.bot.i.execute("DELETE FROM invites WHERE guild_id = ?",(server,))
-            await self.bot.i.commit()
-
-        await asyncio.sleep(1)
-        rows = await self.bot.pr.execute_fetchall("SELECT guild_id FROM prefixes WHERE guild_id = ?",(server,),)
-        if rows != []:
-            await self.bot.pr.execute("DELETE FROM prefixes WHERE guild_id = ?",(server,))
-            await self.bot.pr.commit()
-
-        await asyncio.sleep(1)
-        rows = await self.bot.m.execute_fetchall("SELECT guild_id FROM pmuted_users WHERE guild_id = ?",(server,),)
-        if rows != []:
-            await self.bot.m.execute("DELETE FROM pmuted_users WHERE guild_id = ?",(server,))
-            await self.bot.m.commit()
-
-
-
-
-
-
-
-
-
-
 
     #message deletion logger
     @commands.Cog.listener()
