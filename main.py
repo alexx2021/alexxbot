@@ -73,25 +73,27 @@ async def blacklist_setup():
     await bot.bl.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
     await bot.bl.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
 
-async def setup_db():
-    await bot.pr.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id INTERGER, prefix TEXT)")
+async def setup_db(choice):
+    if choice == True:
+        print('bop')    
+        await bot.pr.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id INTERGER, prefix TEXT)")
 
-    await bot.rm.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id INTERGER, channel_id INTERGER, message_id INTERGER, user_id INTERGER, future INTERGER)")
-    await bot.rm.execute("CREATE TABLE IF NOT EXISTS reminders(id INTERGER, future INTERGER, remindtext TEXT)")
+        await bot.rm.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id INTERGER, channel_id INTERGER, message_id INTERGER, user_id INTERGER, future INTERGER)")
+        await bot.rm.execute("CREATE TABLE IF NOT EXISTS reminders(id INTERGER, future INTERGER, remindtext TEXT)")
 
-    await bot.m.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id INTERGER, user_id INTERGER)")
+        await bot.m.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id INTERGER, user_id INTERGER)")
 
-    await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
-    #bot.sc.execute("CREATE TABLE IF NOT EXISTS welcomeinvite(server_id INTERGER, log_channel INTERGER, whURL TEXT)") #not sure if I want to keep this, might merge with welcome
-    await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
-    
-    await bot.i.execute("CREATE TABLE IF NOT EXISTS invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)")
+        await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
+        #bot.sc.execute("CREATE TABLE IF NOT EXISTS welcomeinvite(server_id INTERGER, log_channel INTERGER, whURL TEXT)") #not sure if I want to keep this, might merge with welcome
+        await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
+        
+        await bot.i.execute("CREATE TABLE IF NOT EXISTS invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)")
 
 
 
 async def setup_stuff():
     await blacklist_setup()
-    await setup_db()
+    await setup_db(True) # set to false if you do not need tables to be created
     
     guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes")
     for guild in guilds:
