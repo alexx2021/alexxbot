@@ -27,81 +27,76 @@ class WelcomeInvite(commands.Cog):
         if member == self.bot.user:
             return
         await asyncio.sleep(1)
-            
         
-        async with aiosqlite.connect('invites.db') as c:
-        
-            gid = member.guild.id
-            uid = member.id
+        gid = member.guild.id
+        uid = member.id
 
-            query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-            params = (gid, uid)
-            rows = await c.execute_fetchall(query, params)
-            if rows != []:
-                toprow = rows[0]
-                userid = toprow[1]
-                invcount = toprow[2]
-                invby = toprow[3]
+        query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+        params = (gid, uid)
+        rows = await self.bot.i.execute_fetchall(query, params)
+        if rows != []:
+            toprow = rows[0]
+            userid = toprow[1]
+            invcount = toprow[2]
+            invby = toprow[3]
 
-                if invby == 4:
-                    user = str('???')
-                    invcount = str('?')
-
-
-                else:
-                    user = self.bot.get_user(invby)
-                    if not user:
-                        user = await self.bot.fetch_user(invby)
-                        print('fetched user for inv log on leave msg')
-                        
-                    query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-                    params = (gid, invby)
-                    rows = await c.execute_fetchall(query, params)
-                    if rows != []:
-                        toprow = rows[0]
-                        invcount = toprow[2]
-            else:
+            if invby == 4:
                 user = str('???')
                 invcount = str('?')
+
+
+            else:
+                user = self.bot.get_user(invby)
+                if not user:
+                    user = await self.bot.fetch_user(invby)
+                    print('fetched user for inv log on leave msg')
+                    
+                query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+                params = (gid, invby)
+                rows = await self.bot.i.execute_fetchall(query, params)
+                if rows != []:
+                    toprow = rows[0]
+                    invcount = toprow[2]
+        else:
+            user = str('???')
+            invcount = str('?')
                 
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
         await asyncio.sleep(1)
-
-        async with aiosqlite.connect('invites.db') as c:
         
-            gid = member.guild.id
-            uid = member.id
+        gid = member.guild.id
+        uid = member.id
 
-            query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-            params = (gid, uid)
-            rows = await c.execute_fetchall(query, params)
-            if rows != []:
-                toprow = rows[0]
-                userid = toprow[1]
-                invcount = toprow[2]
-                invby = toprow[3]
+        query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+        params = (gid, uid)
+        rows = await self.bot.i.execute_fetchall(query, params)
+        if rows != []:
+            toprow = rows[0]
+            userid = toprow[1]
+            invcount = toprow[2]
+            invby = toprow[3]
 
-                if invby == 4:
-                    user = str('???')
-                    invcount = str('?')
-
-                else:
-                    user = self.bot.get_user(invby)
-                    if not user:
-                        await self.bot.fetch_user(invby)
-                        print('fetched user for inv log on join msg')
-                        
-                    query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-                    params = (gid, invby)
-                    rows = await c.execute_fetchall(query, params)
-                    if rows != []:
-                        toprow = rows[0]
-                        invcount = toprow[2]
-            else:
+            if invby == 4:
                 user = str('???')
                 invcount = str('?')
+
+            else:
+                user = self.bot.get_user(invby)
+                if not user:
+                    await self.bot.fetch_user(invby)
+                    print('fetched user for inv log on join msg')
+                    
+                query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+                params = (gid, invby)
+                rows = await self.bot.i.execute_fetchall(query, params)
+                if rows != []:
+                    toprow = rows[0]
+                    invcount = toprow[2]
+        else:
+            user = str('???')
+            invcount = str('?')
 
 
 
