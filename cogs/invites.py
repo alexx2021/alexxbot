@@ -3,71 +3,17 @@ from discord.ext import commands
 import asyncio
 import datetime
 
+async def get_or_fetch_channel(self, guild, channel_id):
+        ch = guild.get_channel(channel_id)
+        if ch is not None:
+            return ch
 
-async def on_join_db_update(member, inviter):
-    #### on join:
-    # inviter is fetched
-    # if it is NOT none
-    # check db if user who made inv link exists by searching for the member.guild.id AND the inviter.id
-    # 
-    # if user does exist, add 1 to their count
-    # else add them, and make their inv_count 1, and make their inv_by a special number, lets just say "4" cause thats a cool number 
-    # (will symbolize an unknown for who was their original inviter)
-    # 
-    # if new member has an entry, update their inv_by
-    # else add an entry and enter their inv by and set their inv_count to 0
-
-    #invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)
-    
-
-
-    async with aiosqlite.connect('invites.db') as c:
-        #does not need a logging entry check because under on_join it is already checked
-        gid = member.guild.id
-        uid = inviter.id
-        
-        if inviter is None:
-            return
-
-        query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-        params = (gid, uid)
-        rows = await c.execute_fetchall(query, params)
-        
-        #inviter queries
-        if rows != []:
-            toprow = rows[0]
-            invcount = toprow[2]
-            newinvcount = invcount + 1
-
-            query = 'UPDATE invites SET inv_count = ? WHERE guild_id = ? AND user_id = ?'
-            params = (newinvcount, gid, uid)
-            await c.execute(query, params)
-            await c.commit()
-
+        try:
+            ch = await guild.fetch_channel(channel_id)
+        except discord.HTTPException:
+            return None
         else:
-            noinvhistory = 4
-            oneinv = 1
-            await c.execute("INSERT INTO invites VALUES(?, ?, ?, ?)", (gid, uid, oneinv, noinvhistory))
-            await c.commit()
-        
-        
-        #member who got invited queries
-        query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-        params = (gid, member.id)
-        rows2 = await c.execute_fetchall(query, params)
-        
-        if rows2 != []:
-
-            query = 'UPDATE invites SET inv_by = ? WHERE guild_id = ? AND user_id = ?' #update inv_by
-            params = (inviter.id, gid, member.id)
-            await c.execute(query, params)
-            await c.commit()
-
-        else:
-            zeroinv = 0
-            await c.execute("INSERT INTO invites VALUES(?, ?, ?, ?)", (gid, member.id, zeroinv, inviter.id))
-            await c.commit()
-
+            return ch
 
 
 #I am using this because I want the bot to check if it has proper permissions before attemping to cache invites. 
@@ -156,18 +102,6 @@ class Invites(commands.Cog):
         self.bot = bot
         self.tracker = InviteTracker(bot)
 
-        self.conn = sqlite3.connect('serverconfigs.db')
-        self.c = self.conn.cursor()
-        self.conn2 = sqlite3.connect('blacklists.db')
-        self.c2 = self.conn2.cursor()
-
-        self.conn3 = sqlite3.connect('invites.db')
-        self.c3 = self.conn3.cursor()
-        self.c3.execute("CREATE TABLE IF NOT EXISTS invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)")
-        self.c3.close()
-        self.conn3.close() # I want to use aiosqlite so im creating the table on the main thread, and closing it so it doesnt interfere with the async stuff
-
-
     # invites per server
     # invites are subtracted if people leave
     #
@@ -198,33 +132,32 @@ class Invites(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         server = member.guild.id
-        rows2 = self.c.execute("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),).fetchall()
+        rows2 = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
 
         if rows2 != []:    
-            async with aiosqlite.connect('invites.db') as c:
                 
-                gid = member.guild.id
-                uid = member.id
+            gid = member.guild.id
+            uid = member.id
 
-                query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-                params = (gid, uid)
-                rows = await c.execute_fetchall(query, params)
-                
-                if rows != []:
-                    toprow = rows[0]
-                    invby = toprow[3]
-                    if invby != 4:
-                        query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-                        params = (gid, invby)
-                        rows = await c.execute_fetchall(query, params)
-                        if rows != []:
-                            toprow = rows[0]
-                            invcount = toprow[2]
-                            newinvcount = invcount - 1
-                            query = 'UPDATE invites SET inv_count = ? WHERE guild_id = ? AND user_id = ?' 
-                            params = (newinvcount, gid, invby)
-                            await c.execute(query, params)
-                            await c.commit()
+            query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+            params = (gid, uid)
+            rows = await self.bot.i.execute_fetchall(query, params)
+            
+            if rows != []:
+                toprow = rows[0]
+                invby = toprow[3]
+                if invby != 4:
+                    query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+                    params = (gid, invby)
+                    rows = await self.bot.i.execute_fetchall(query, params)
+                    if rows != []:
+                        toprow = rows[0]
+                        invcount = toprow[2]
+                        newinvcount = invcount - 1
+                        query = 'UPDATE invites SET inv_count = ? WHERE guild_id = ? AND user_id = ?' 
+                        params = (newinvcount, gid, invby)
+                        await self.bot.i.execute(query, params)
+                        await self.bot.i.commit()
 
 
 
@@ -257,7 +190,7 @@ class Invites(commands.Cog):
         await asyncio.sleep(1)
 
         god = guild.owner.id
-        rows = self.c2.execute("SELECT user_id FROM userblacklist WHERE user_id = ?",(god,),).fetchall() #checks if a user in BL owns the server
+        rows = await self.bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(god,),) #checks if a user in BL owns the server
         if rows != []:
             await guild.leave()
             
@@ -269,12 +202,16 @@ class Invites(commands.Cog):
             "\n" + "Created at " + str(guild.created_at), inline=False)
             embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
             embed.set_thumbnail(url=guild.icon_url)
-            await send_statsHook(embed)
+            ch = self.bot.get_channel(813600852576829470)
+            if not ch:
+                ch = self.bot.fetch_channel(813600852576829470)
+                print('fetched channel for guild bl msg')
+            await ch.send(embed)
             
             return
 
         
-        rows = self.c2.execute("SELECT guild_id FROM guildblacklist WHERE guild_id = ?",(guild.id,),).fetchall() #checks if its a guild in the BL 
+        rows = await self.bot.bl.execute_fetchall("SELECT guild_id FROM guildblacklist WHERE guild_id = ?",(guild.id,),)#checks if its a guild in the BL 
         if rows != []:
             await guild.leave()
             
@@ -286,12 +223,15 @@ class Invites(commands.Cog):
             "\n" + "Created at " + str(guild.created_at), inline=False)
             embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
             embed.set_thumbnail(url=guild.icon_url)
-            await send_statsHook(embed)
+            ch = self.bot.get_channel(813600852576829470)
+            if not ch:
+                ch = self.bot.fetch_channel(813600852576829470)
+                print('fetched channel for guild bl msg')
+            await ch.send(embed)
             
             return
         
-        else:
-            await self.tracker.update_guild_cache(guild) #finally does the updating if all is good
+        await self.tracker.update_guild_cache(guild) #finally does the updating if all is good
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite):
@@ -309,7 +249,7 @@ class Invites(commands.Cog):
     async def on_member_join(self, member):
 
         server = member.guild.id
-        rows = self.c.execute("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),).fetchall()
+        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
 
         if rows != []:
             inviter = await self.tracker.fetch_inviter(member)  # inviter is the member who invited
@@ -323,7 +263,66 @@ class Invites(commands.Cog):
                 embed1.timestamp = datetime.datetime.utcnow()
                 embed1.set_footer(text=f'ID: {member.id}' + '\u200b')               
                 
-                await on_join_db_update(member, inviter) #function that updates the invites db on join
+                #### on join:
+                # inviter is fetched
+                # if it is NOT none
+                # check db if user who made inv link exists by searching for the member.guild.id AND the inviter.id
+                # 
+                # if user does exist, add 1 to their count
+                # else add them, and make their inv_count 1, and make their inv_by a special number, lets just say "4" cause thats a cool number 
+                # (will symbolize an unknown for who was their original inviter)
+                # 
+                # if new member has an entry, update their inv_by
+                # else add an entry and enter their inv by and set their inv_count to 0
+
+                #invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)
+                
+                #does not need a logging entry check because under on_join it is already checked
+                gid = member.guild.id
+                uid = inviter.id
+                
+                if inviter is None:
+                    return
+
+                query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+                params = (gid, uid)
+                rows = await self.bot.i.execute_fetchall(query, params)
+                
+                #inviter queries
+                if rows != []:
+                    toprow = rows[0]
+                    invcount = toprow[2]
+                    newinvcount = invcount + 1
+
+                    query = 'UPDATE invites SET inv_count = ? WHERE guild_id = ? AND user_id = ?'
+                    params = (newinvcount, gid, uid)
+                    await self.bot.i.execute(query, params)
+                    await self.bot.i.commit()
+
+                else:
+                    noinvhistory = 4
+                    oneinv = 1
+                    await self.bot.i.execute("INSERT INTO invites VALUES(?, ?, ?, ?)", (gid, uid, oneinv, noinvhistory))
+                    await self.bot.i.commit()
+                
+                
+                #member who got invited queries
+                query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
+                params = (gid, member.id)
+                rows2 = await self.bot.i.execute_fetchall(query, params)
+                
+                if rows2 != []:
+
+                    query = 'UPDATE invites SET inv_by = ? WHERE guild_id = ? AND user_id = ?' #update inv_by
+                    params = (inviter.id, gid, member.id)
+                    await self.bot.i.execute(query, params)
+                    await self.bot.i.commit()
+
+                else:
+                    zeroinv = 0
+                    await self.bot.i.execute("INSERT INTO invites VALUES(?, ?, ?, ?)", (gid, member.id, zeroinv, inviter.id))
+                    await self.bot.i.commit()
+
 
 
             else:
@@ -338,10 +337,18 @@ class Invites(commands.Cog):
                 embed1.set_footer(text=f'ID: {member.id}' + '\u200b')
 
             
-
-            toprow = rows[0] 
-            whURL = toprow[2]
-            await send_wh2(whURL, embed1, embed) #sends both embeds in one message
+            server = member.guild.id
+            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
+            if rows != []:
+                toprow = rows[0]
+                chID = toprow[1]
+                ch = await get_or_fetch_channel(self, member.guild, chID)
+                try:
+                    await ch.send(embed=embed1)
+                except discord.errors.Forbidden:
+                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
+                    await self.bot.sc.commit()
+                    print('deleted log channel b/c no perms to speak') 
     
     @commands.command()
     async def dumpd(self, ctx):
