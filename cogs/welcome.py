@@ -153,10 +153,10 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        
+        await asyncio.sleep(0.25)
         server = member.guild.id
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
-        if rows != []:
+        rows1 = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
+        if rows1 != []:
             gid = member.guild.id
             uid = member.id
 
@@ -190,9 +190,9 @@ class Welcome(commands.Cog):
                 invcount = str('?')     
                 #end of inv tracking
        
-            toprow = rows[0] 
-            logCH = toprow[1]
-            wMsg = toprow[2]
+            toprow1 = rows1[0] 
+            logCH = toprow1[1]
+            wMsg = toprow1[2]
             channel = discord.utils.get(member.guild.channels, id=logCH)
             if not channel:
                 return
@@ -213,14 +213,14 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        
+        await asyncio.sleep(0.25)
         if member == self.bot.user:
             return
         
 
         server = member.guild.id
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
-        if rows != []:
+        rows1 = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
+        if rows1 != []:
             gid = member.guild.id
             uid = member.id
 
@@ -256,9 +256,9 @@ class Welcome(commands.Cog):
                 #end inv user fetcher
 
 
-            toprow = rows[0] 
-            logCH = toprow[1]
-            bMsg = toprow[3]
+            toprow1 = rows1[0] 
+            logCH = toprow1[1]
+            bMsg = toprow1[3]
             
             channel = discord.utils.get(member.guild.channels, id=logCH)
             if not channel:

@@ -281,8 +281,6 @@ class Invites(commands.Cog):
                 gid = member.guild.id
                 uid = inviter.id
                 
-                if inviter is None:
-                    return
 
                 query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
                 params = (gid, uid)
@@ -349,10 +347,19 @@ class Invites(commands.Cog):
                     await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
                     await self.bot.sc.commit()
                     print('deleted log channel b/c no perms to speak') 
-    
-    @commands.command()
+    @commands.is_owner()
+    @commands.command(hidden=True)
     async def dumpd(self, ctx):
        await self.tracker.dumpdict(ctx)
+    @commands.is_owner()
+    @commands.command(hidden=True)
+    async def dumpinv(self, ctx):
+        rows = await self.bot.i.execute_fetchall("SELECT * FROM invites")
+        print('-----------dump-----------')
+        print(rows)
+        print('-----------dump-----------')
+        
+        await ctx.channel.send('done.')
     
 
 
