@@ -98,10 +98,10 @@ async def setup_stuff():
         bot.prefixes[f"{guild[0]}"] = f"{guild[1]}"
     
     users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist")
-    totalusers = [1234567890]
+    totalusers = []
 
     for user in users:
-        totalusers.append(user[0])
+        totalusers.append(str(user[0]))
     
     bot.ubl[f"users"] = f"{totalusers}"
     
@@ -255,9 +255,21 @@ async def setprefix(ctx, prefix: str):
 @bot.command()
 async def dumppr(ctx):
     guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes")
+    print('-----------dump-----------')
     print(guilds)
-    print('-----------------')
+    print('--------------------------')
     print(bot.prefixes)
+    print('-----------dump-----------')
+
+@commands.is_owner()
+@bot.command()
+async def dumpbl(ctx):
+    users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist")
+    print('-----------dump-----------')
+    print(users)
+    print('--------------------------')
+    print(bot.ubl)
+    print('-----------dump-----------')
 
 
 
