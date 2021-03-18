@@ -122,12 +122,6 @@ class Utility(commands.Cog):
             desc = await self.client.wait_for('message', check=check, timeout=120)
             await secondmessage.delete()
 
-            await asyncio.sleep(1)
-            await title.delete()
-            await asyncio.sleep(1)
-            await desc.delete()
-            await asyncio.sleep(1)
-            await ctx.message.delete()
 
         except asyncio.exceptions.TimeoutError:
             return await ctx.send(f'Embed creation timed out.')

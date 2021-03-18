@@ -28,7 +28,7 @@ class Giveaway(commands.Cog):
             return message.author == ctx.author and message.channel == ctx.channel
 
         try:
-            msg1 = await ctx.send(f'{ctx.author.mention}, How long should this giveaway last?", `s|m|h|d` are acceptable time units.')
+            await ctx.send(f'{ctx.author.mention}, How long should this giveaway last?", `s|m|h|d` are acceptable time units.')
             timemsg = await self.bot.wait_for('message', check=promptCheck, timeout=30)
             
             timeinput = timemsg.content
@@ -59,7 +59,7 @@ class Giveaway(commands.Cog):
 
             
             
-            msg2 = await ctx.send(f'{ctx.author.mention}, What will be given away?')
+            await ctx.send(f'{ctx.author.mention}, What will be given away?')
             description = await self.bot.wait_for('message', check=promptCheck, timeout=30)
             prize = description.content
 
@@ -70,18 +70,8 @@ class Giveaway(commands.Cog):
         except asyncio.exceptions.TimeoutError:
             return await ctx.send(f'Giveaway creation timed out.')
 
-        await msg1.delete()
-        await asyncio.sleep(0.5)
-        await timemsg.delete()
-        await asyncio.sleep(0.5)
-        await msg2.delete()
-        await asyncio.sleep(0.5)
-        await description.delete()
-        await asyncio.sleep(0.5)
         
-        m1 = await ctx.send(f'`{prize}` will be given away in {counter}')
-        await asyncio.sleep(0.25)
-        m = await ctx.send("Is this correct?")
+        m = await ctx.send(f'❗\n`{prize}` will be given away in {counter}\n**Is this correct?**')
         try:
             await m.add_reaction("✅")
             await asyncio.sleep(0.25)
@@ -105,12 +95,10 @@ class Giveaway(commands.Cog):
             return
         
         await asyncio.sleep(0.5)
-        await m1.delete()
-        await asyncio.sleep(0.5)
         await m.delete()
         await asyncio.sleep(0.5)
 
-        giveawayEmbed = discord.Embed(title="**Giveaway** 🥳", description=prize, color=0x7289da)
+        giveawayEmbed = discord.Embed(title="**Giveaway** 🥳 - react to enter!", description=prize, color=0x7289da)
         giveawayEmbed.set_footer(text=f"This giveaway ends {counter} from this message.")
         embedmsg = await ctx.send(embed=giveawayEmbed)
         await embedmsg.add_reaction("🎉")
