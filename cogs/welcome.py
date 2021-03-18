@@ -153,7 +153,7 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        await asyncio.sleep(0.25)
+        await asyncio.sleep(1)
         server = member.guild.id
         rows1 = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
         if rows1 != []:
@@ -213,7 +213,7 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        await asyncio.sleep(0.25)
+        await asyncio.sleep(1)
         if member == self.bot.user:
             return
         
