@@ -106,6 +106,9 @@ class Music(commands.Cog):
                 await ctx.author.voice.channel.connect()
                 await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
 
+        if "mau5" in url:
+            await ctx.send(f'{ctx.author.mention} deadmau5 is cool - i approve')
+
 
 
 
