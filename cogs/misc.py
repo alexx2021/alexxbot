@@ -49,7 +49,7 @@ class Events(commands.Cog):
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @commands.cooldown(1, 3, commands.BucketType.channel)
-    @commands.command()
+    @commands.command(hidden=True)
     async def minty(self, ctx):
 
         def check(message):
@@ -79,7 +79,7 @@ class Events(commands.Cog):
             return await ctx.send(f'You did not reply in time :(')
     
     @commands.cooldown(1, 1, commands.BucketType.user)
-    @commands.command()
+    @commands.command(hidden=True)
     async def pong(self, ctx):
         await ctx.send(':thinking:')
 
