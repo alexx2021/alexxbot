@@ -278,7 +278,7 @@ class Logging(commands.Cog):
                     if rows != []:
                         toprow = rows[0] 
                         chID = toprow[1]
-                        ch = await get_or_fetch_channel(self, before.guild, chID)
+                        ch = await get_or_fetch_channel(self, guild, chID)
                         try:
                             await ch.send(embed=embed)
                         except discord.errors.Forbidden:

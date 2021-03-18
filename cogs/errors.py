@@ -55,7 +55,7 @@ class Errors(commands.Cog):
                 if not ch:
                     ch = self.bot.fetch_channel(813600852576829470)
                     print('fetched channel for cooldown error')
-                await ch.send(embed)
+                await ch.send(embed=embed)
             else:
                 embed = discord.Embed(
                 title=f"Command used. (triggered cooldown)",
@@ -70,7 +70,7 @@ class Errors(commands.Cog):
                 if not ch:
                     ch = self.bot.fetch_channel(813600852576829470)
                     print('fetched channel for cooldown error')
-                await ch.send(embed)
+                await ch.send(embed=embed)
         
         elif isinstance(error, commands.MissingPermissions):
             await ctx.send(f"{ctx.author.mention}, You are missing the following permissions: `{' '.join(error.missing_perms)}`.")
@@ -88,7 +88,7 @@ class Errors(commands.Cog):
             await ctx.send(f'You cannot use this command in DMs!.')
         
         elif isinstance(error, MaxConcurrencyReached):
-            await ctx.send(f'This command cannot be run while there is a another instance currenly running in this channel.')
+            await ctx.send(f'This command cannot be run while there is a another instance currently running in this channel.')
             
         elif isinstance(error, commands.errors.NSFWChannelRequired):
             await ctx.send(f'{ctx.author.mention} This command cannot be run in a non-nsfw marked channel...')
