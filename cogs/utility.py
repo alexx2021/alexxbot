@@ -69,7 +69,6 @@ class Utility(commands.Cog):
 
 	#server info command
     @commands.cooldown(2, 5, commands.BucketType.user)
-    @bot_has_permissions(ban_members=True, manage_guild=True)
     @commands.command(help='Displays information about the server')
     async def serverinfo(self, ctx):
         embed = discord.Embed(title="Server Information", colour=0x7289da, timestamp=datetime.datetime.utcnow())
