@@ -98,7 +98,7 @@ class Errors(commands.Cog):
         
         
         elif isinstance(error, commands.errors.CheckFailure):
-            return
+            await ctx.send('Your server is not whitelisted to use the music module, as it is currently in active development.')
         
         elif isinstance(error, DiscordUtils.NotConnectedToVoice):
             await ctx.send('The bot is not currently in a voice channel! Join a voice channel and play a song and it will join.')
