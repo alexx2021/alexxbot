@@ -54,7 +54,7 @@ async def get_prefix(bot, msg):
 
     return base
 
-bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, help_command=None, intents=intents)
+bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents)
 bot.prefixes = {}
 bot.ubl = {}
 
@@ -115,7 +115,17 @@ async def setup_stuff():
 
 
 
+class MyHelpCommand(commands.MinimalHelpCommand):
+    async def send_pages(self):
+        destination = self.get_destination()
+        e = discord.Embed(color=0, description='[Click me for a detailed command list](http://alexx.lol)\n[Support Server](https://discord.gg/zPWMRMXQ7H)\n',title='Alexx-bot Help')
+        for page in self.paginator.pages:
+            e.description += page
+        e.add_field(name='Invite me!', value='[Invite link (recommended)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
+    + '\n[Invite link (required)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)')
+        await destination.send(embed=e)
 
+bot.help_command = MyHelpCommand()
 
 
 try: #tries to load cogs in the correct path for the bot host
@@ -197,20 +207,20 @@ async def on_message(message: discord.Message):
     await bot.process_commands(message)
 
 
-@commands.cooldown(2, 6, commands.BucketType.user)
-@bot.command(aliases=["commands", "invite"])
-async def help(ctx):
-    embed = discord.Embed(color=0)
-    embed.title = "Commands help"
-    embed.description = ('[alexx.lol (bot wiki)](https://alexx.lol)')
-    embed.add_field(name="Other links", value='[Invite link (recommended permissions)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
-    + '\n[Invite link (required permissions)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
-    + '\n[Support Server](https://discord.gg/zPWMRMXQ7H)')
-    embed.add_field(name="Prefix", value='You can find my current prefix by mentioning me!')
-    embed.add_field(name="About", value='A multi-purpose discord bot written in python by `Alexx#7687` that is straightforward and easy to use. \nOh, and how could I forget? Cats. Lots of cats. 🐱')
-    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+# @commands.cooldown(2, 6, commands.BucketType.user)
+# @bot.command(aliases=["commands", "invite"])
+# async def help(ctx):
+#     embed = discord.Embed(color=0)
+#     embed.title = "Commands help"
+#     embed.description = ('[alexx.lol (bot wiki)](https://alexx.lol)')
+#     embed.add_field(name="Other links", value='[Invite link (recommended permissions)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
+#     + '\n[Invite link (required permissions)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
+#     + '\n[Support Server](https://discord.gg/zPWMRMXQ7H)')
+#     embed.add_field(name="Prefix", value='You can find my current prefix by mentioning me!')
+#     embed.add_field(name="About", value='A multi-purpose discord bot written in python by `Alexx#7687` that is straightforward and easy to use. \nOh, and how could I forget? Cats. Lots of cats. 🐱')
+#     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
     
-    await ctx.send(embed=embed)
+#     await ctx.send(embed=embed)
 
 
 #about command
@@ -254,7 +264,7 @@ async def setprefix(ctx, prefix: str):
     await ctx.send(f'Set prefix to `{prefix}`')
 
 @commands.is_owner()
-@bot.command()
+@bot.command(hidden=True)
 async def dumppr(ctx):
     guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes")
     print('-----------dump-----------')
@@ -264,7 +274,7 @@ async def dumppr(ctx):
     print('-----------dump-----------')
 
 @commands.is_owner()
-@bot.command()
+@bot.command(hidden=True)
 async def dumpbl(ctx):
     users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist")
     print('-----------dump-----------')
