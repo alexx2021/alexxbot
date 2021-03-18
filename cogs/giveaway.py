@@ -156,8 +156,10 @@ class Giveaway(commands.Cog):
                 await self.bot.rm.execute("DELETE FROM giveaways WHERE OID = ?",(TRID,))
                 await self.bot.rm.commit()
                 return
-            
-            users.pop(users.index(bot))
+            try:
+                users.pop(users.index(bot))
+            except ValueError:
+                pass
             #users.pop(users.index(author))
 
             if len(users) == 0:
