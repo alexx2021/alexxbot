@@ -382,8 +382,11 @@ class Fun(commands.Cog):
                 embed = discord.Embed(description="No results found!", colour=0x7289da)
 
                 #check if list has no length (no results)
-                if len(data["list"]) == 0:
-                    return await ctx.send(embed=embed)
+                try:
+                    if len(data["list"]) == 0:
+                        return await ctx.send(embed=embed)
+                except KeyError:
+                    return await ctx.send('An error occurred. Please try again later.')
 
 
 
