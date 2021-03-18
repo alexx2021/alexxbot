@@ -4,13 +4,13 @@ import aiohttp
 from discord.ext import commands
 
 #Fun Category
-class Nsfw(commands.Cog):
+class NSFW(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command()
+    @commands.command(hidden=False)
     async def nsfw(self, ctx):
         embed = discord.Embed(color=0)
         embed.title = "NSFW Commands:" 
@@ -20,7 +20,7 @@ class Nsfw(commands.Cog):
     
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command(help=('free infinite catgirls'),aliases=['cg'])
+    @commands.command(aliases=['cg'],hidden=True)
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def catgirl(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -37,7 +37,7 @@ class Nsfw(commands.Cog):
 
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command(help=('free infinite boobs'),aliases=['boob'])
+    @commands.command(aliases=['boob'],hidden=True)
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def boobs(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -54,7 +54,7 @@ class Nsfw(commands.Cog):
 
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command(help=('free infinite pussy'),aliases=['puss'])
+    @commands.command(hidden=True,aliases=['puss'])
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def pussy(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -71,7 +71,7 @@ class Nsfw(commands.Cog):
 
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def spank(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -88,7 +88,7 @@ class Nsfw(commands.Cog):
 
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def orgasm(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -105,7 +105,7 @@ class Nsfw(commands.Cog):
 
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def hentai(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -123,7 +123,7 @@ class Nsfw(commands.Cog):
 
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def anal(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -140,7 +140,7 @@ class Nsfw(commands.Cog):
 
     @commands.guild_only()
     @commands.is_nsfw()
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def bj(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -158,4 +158,4 @@ class Nsfw(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Nsfw(bot))
+    bot.add_cog(NSFW(bot))
