@@ -73,10 +73,10 @@ class Errors(commands.Cog):
                 await ch.send(embed)
         
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send(f"{ctx.author.mention}, You are missing the following permissions: **{' '.join(error.missing_perms)}**.")
+            await ctx.send(f"{ctx.author.mention}, You are missing the following permissions: `{' '.join(error.missing_perms)}`.")
 
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.send(f"I am missing the following permissions:** {' '.join(error.missing_perms)}**.")
+            await ctx.send(f"I am missing the following permissions: `{' '.join(error.missing_perms)}`.")
 
         elif isinstance(error, commands.BadArgument):
             await ctx.send(f'Command was given bad arguments.')
