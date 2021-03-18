@@ -8,7 +8,16 @@ class Nsfw(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
+    @commands.guild_only()
+    @commands.is_nsfw()
+    @commands.command()
+    async def nsfw(self, ctx):
+        embed = discord.Embed(color=0)
+        embed.title = "NSFW Commands:" 
+        embed.description=('catgirl\nboobs\npussy\nspank\norgasm\nhentai\nanal\nbj\n')
+        embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=embed)
+    
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(help=('free infinite catgirls'),aliases=['cg'])
