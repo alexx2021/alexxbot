@@ -206,7 +206,7 @@ class Invites(commands.Cog):
             if not ch:
                 ch = self.bot.fetch_channel(813600852576829470)
                 print('fetched channel for guild bl msg')
-            await ch.send(embed)
+            await ch.send(embed=embed)
             
             return
 
@@ -227,7 +227,7 @@ class Invites(commands.Cog):
             if not ch:
                 ch = self.bot.fetch_channel(813600852576829470)
                 print('fetched channel for guild bl msg')
-            await ch.send(embed)
+            await ch.send(embed=embed)
             
             return
         

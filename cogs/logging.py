@@ -273,7 +273,7 @@ class Logging(commands.Cog):
                     embed.timestamp = datetime.datetime.utcnow()
                     embed.set_footer(text=f'ID: {before.id}' + '\u200b')
 
-                    server = before.guild.id
+                    server = guild.id
                     rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
                     if rows != []:
                         toprow = rows[0] 
