@@ -12,7 +12,7 @@ BOT_ID = int(752585938630082641)
 TEST_BOT_ID = int(715446479837462548)
 
 #Utility Category
-class Giveaway(commands.Cog):
+class Giveaways(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.check_giveaways.start()
@@ -181,4 +181,4 @@ class Giveaway(commands.Cog):
         await self.bot.wait_until_ready()
 
 def setup(bot):
-    bot.add_cog(Giveaway(bot))
+    bot.add_cog(Giveaways(bot))
