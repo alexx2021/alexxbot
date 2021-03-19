@@ -75,7 +75,7 @@ class Moderation(commands.Cog):
 
     
     # Checks if there is a muted role on the server and creates one if there isn't
-    @bot_has_permissions(manage_channels=True, manage_roles=True)
+    @bot_has_permissions(manage_roles=True)
     @has_permissions(manage_messages=True)
     @commands.command(help="Mutes a user until you unmute them.")
     async def mute(self, ctx, member: discord.Member,*, reason=None):
