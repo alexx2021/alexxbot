@@ -143,7 +143,7 @@ except: #if it fails, looks in a different path (for my own testing purposes)
 @bot.event
 async def on_ready():
     await bot.wait_until_ready()
-    await bot.change_presence(activity=Activity(name=f"alexx.lol | help", type=ActivityType.playing))
+    await bot.change_presence(activity=Activity(name=f"alexx.lol | _help", type=ActivityType.playing))
     print('--------------------------')
     print(f'Logged in as: {bot.user.name}')
     print(f'With ID: {bot.user.id}')
