@@ -256,6 +256,30 @@ class Music(commands.Cog):
         embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.check(is_wl)
+    @commands.cooldown(2, 10, commands.BucketType.user)    
+    @commands.command(help='If you would like to save a song you hear playing, do this command and you will be DMed the link!',aliases=["favorite"])
+    async def save(self, ctx):
+        player = self.music.get_player(guild_id=ctx.guild.id)
+        if not player:
+            await not_pl(ctx)
+            return
+        
+        song = player.now_playing()
+        if not song:
+            await not_pl(ctx)
+            return
+
+        await ctx.send(f'Saved **{song.name}**!')
+        user = ctx.author
+        
+        embed = discord.Embed(color=0x7289da)
+        embed.title = "Song you asked me to save :)"
+        embed.description = (f'{song.name}')
+        embed.add_field(name='Song link', value=(f'[Click here]({song.url})'), inline = True)
+        user.send(embed=embed)
+        
+
     @commands.check(is_wl)     
     @commands.command()                                                                                                                     #### TODO FIX ####
     async def skip(self, ctx):
