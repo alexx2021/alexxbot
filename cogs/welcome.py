@@ -27,7 +27,7 @@ class Welcome(commands.Cog):
             
             if rows == []:
                 try:
-                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
+                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\n\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
@@ -37,7 +37,7 @@ class Welcome(commands.Cog):
                     if len(wMsg) >= 1024:
                         return await ctx.send(f'Welcome message was **{len(wMsg)}** chars long, but it cannot be longer than 1024.')
                     
-                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
+                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\n\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
@@ -70,7 +70,7 @@ class Welcome(commands.Cog):
             if rows == []:
                 
                 try:
-                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
+                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\n\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
                     
@@ -80,7 +80,7 @@ class Welcome(commands.Cog):
                     if len(wMsg) >= 1024:
                         return await ctx.send(f'Welcome message was **{len(wMsg)}** chars long, but it cannot be longer than 1024.')
                     
-                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
+                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\n\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
                     e = discord.Embed(description=desc, color=0x7289da)
                     await ctx.send(embed=e)
 
