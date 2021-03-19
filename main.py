@@ -54,7 +54,18 @@ async def get_prefix(bot, msg):
 
     return base
 
-bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents)
+class MyHelpCommand(commands.MinimalHelpCommand):
+    async def send_pages(self):
+        destination = self.get_destination()
+        e = discord.Embed(color=0, description='[Click me for a detailed command list](http://alexx.lol)\n[Support Server](https://discord.gg/zPWMRMXQ7H)\n',title='Alexx-bot Help')
+        for page in self.paginator.pages:
+            e.description += page
+        e.add_field(name='Invite me!', value='[Invite link (recommended)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
+    + '\n[Invite link (required)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)')
+        await destination.send(embed=e)
+
+
+bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents, help_command = MyHelpCommand())
 bot.prefixes = {}
 bot.ubl = {}
 
@@ -67,7 +78,6 @@ bot.m = loop.run_until_complete(aiosqlite.connect('muted.db'))
 bot.i = loop.run_until_complete(aiosqlite.connect('invites.db'))
 
 
-#creates databases if they havent been made yet before loading the cogs
 
 async def blacklist_setup():
     await bot.bl.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
@@ -88,7 +98,6 @@ async def setup_db(choice):
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
         
         await bot.i.execute("CREATE TABLE IF NOT EXISTS invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)")
-
 
 
 async def setup_stuff():
@@ -114,19 +123,7 @@ async def setup_stuff():
     print(f'blacklist - {bot.ubl}')
 
 
-
-class MyHelpCommand(commands.MinimalHelpCommand):
-    async def send_pages(self):
-        destination = self.get_destination()
-        e = discord.Embed(color=0, description='[Click me for a detailed command list](http://alexx.lol)\n[Support Server](https://discord.gg/zPWMRMXQ7H)\n',title='Alexx-bot Help')
-        for page in self.paginator.pages:
-            e.description += page
-        e.add_field(name='Invite me!', value='[Invite link (recommended)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
-    + '\n[Invite link (required)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)')
-        await destination.send(embed=e)
-
-bot.help_command = MyHelpCommand()
-
+loop.create_task(setup_stuff()) #sets up stuff before cogs load
 
 try: #tries to load cogs in the correct path for the bot host
     for filename in os.listdir('/home/container/cogs'):
@@ -144,7 +141,6 @@ except: #if it fails, looks in a different path (for my own testing purposes)
 
 @bot.event
 async def on_ready():
-    await setup_stuff()
     await bot.wait_until_ready()
     await bot.change_presence(activity=Activity(name=f"alexx.lol | help", type=ActivityType.playing))
     print('--------------------------')
