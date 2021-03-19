@@ -15,6 +15,7 @@ async def is_wl(ctx):
     783345613860372480,
     812520226603794432,
     597965043333726220,
+    796212175693152256,
     ]
     #0b kits
      #iridescent
@@ -23,6 +24,7 @@ async def is_wl(ctx):
         #burrow's resource pack
          #minty
           #server
+            #math pre cal 1
     guildID = ctx.guild.id
     if guildID in guildlist:
         return True 
@@ -108,6 +110,10 @@ class Music(commands.Cog):
 
         if "mau5" in url:
             await ctx.send(f'{ctx.author.mention} deadmau5 is cool - i approve')
+        if "https:" in url:
+            return await ctx.send('URLs are not supported at this time as the music module is still in development.')
+        if "http:" in url:
+            return await ctx.send('URLs are not supported at this time as the music module is still in development.')
 
 
 
