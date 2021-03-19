@@ -5,28 +5,27 @@ from discord.ext.commands.core import bot_has_permissions
 import asyncio
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
+from time import perf_counter 
+import time
 # from discord import Spotify
 # from discord import CustomActivity
 
 #Utility Category
 class Utility(commands.Cog):
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
 
     #ping command
-    @commands.cooldown(1, 0.5, commands.BucketType.user)
-    @commands.command(help="Shows the ping/latency of the bot in milliseconds.",)
+    @commands.cooldown(1, 1, commands.BucketType.user)
+    @commands.command(help="Shows the latency of the bot in milliseconds.",)
     async def ping(self, ctx):
-        await ctx.send(content=f'🏓 {round(self.client.latency * 1000)}ms')
-        # its probably better to not use an embed
-        # so any server that doesn't grant this embed perms can still see if the bot works
-        # ...
-        # ...
-        # embed = discord.Embed(color=0x7289da)
-        # embed.title = "Pong!"
-        # embed.description = (f'🏓 {round(self.client.latency * 1000)}ms')
-        # embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
-        # await ctx.send(embed=embed)
+        start = time.perf_counter()
+        end = time.perf_counter()
+        embed = discord.Embed(color=0x7289da)
+        embed.title = "Pong! 🏓"
+        embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 8)}ms\n**Websocket Response time:** {round(self.bot.latency*1000)}ms')
+        embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=embed)
 
     #profile picture getter command
     @commands.guild_only()
@@ -112,13 +111,13 @@ class Utility(commands.Cog):
 
         try:
             firstmessage = await ctx.send(f'{ctx.author.mention}, Send the title.')
-            title = await self.client.wait_for('message', check=check, timeout=30)
+            title = await self.bot.wait_for('message', check=check, timeout=30)
             if len(title.content) >= 256:
                 return await ctx.send(f'Title was **{len(title.content)}** chars long, but it cannot be longer than 256.')
             await firstmessage.delete()
         
             secondmessage = await ctx.send(f'{ctx.author.mention}, Send the description.')
-            desc = await self.client.wait_for('message', check=check, timeout=120)
+            desc = await self.bot.wait_for('message', check=check, timeout=120)
             await secondmessage.delete()
 
 
@@ -154,5 +153,5 @@ class Utility(commands.Cog):
 
 
 
-def setup(client):
-    client.add_cog(Utility(client))
+def setup(bot):
+    bot.add_cog(Utility(bot))
