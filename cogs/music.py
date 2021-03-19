@@ -277,7 +277,7 @@ class Music(commands.Cog):
         embed.title = "Song you asked me to save :)"
         embed.description = (f'{song.name}')
         embed.add_field(name='Song link', value=(f'[Click here]({song.url})'), inline = True)
-        user.send(embed=embed)
+        await user.send(embed=embed)
         
 
     @commands.check(is_wl)     
