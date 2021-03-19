@@ -1,5 +1,6 @@
 import asyncio
 import discord
+from discord.embeds import Embed
 from discord.ext import commands
 import os
 import logging
@@ -198,7 +199,8 @@ async def on_message(message: discord.Message):
             #     everyone.append(message.author.id)
             #     bot.ubl.update({f"users" : f"{everyone}"})
             #     return
-            await message.channel.send(f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
+            e = discord.Embed(color=0, description= f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
+            await message.channel.send(embed=e)
 
     await bot.process_commands(message)
 
