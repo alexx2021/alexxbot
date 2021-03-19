@@ -81,12 +81,12 @@ class NSFW(commands.Cog):
     @commands.is_nsfw()
     @commands.command(hidden=False)
     @commands.cooldown(4, 10, commands.BucketType.channel)
-    async def orgasm(self, ctx):
+    async def lewd(self, ctx):
         async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://nekos.life/api/v2/img/gasm') as r: 
+            async with cs.get('https://nekos.life/api/v2/img/lewd') as r: 
                 data = await r.json()
                 embed = discord.Embed(color=0x7289da)
-                embed.title = "gasm" 
+                embed.title = "Lewd Neko" 
                 try:
                     embed.set_image(url=(data['url']))
                 except KeyError:
