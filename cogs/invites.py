@@ -178,9 +178,9 @@ class Invites(commands.Cog):
     async def on_ready(self):
         await asyncio.sleep(2)
         print('Starting to cache invites!')
-        print('--------------------------')
+        #print('--------------------------')
         await self.tracker.cache_invites()
-        print('--------------------------')
+        #print('--------------------------')
         print('Finished caching invites!')
         print('Bot is ready!')
         print(f"Servers - {str(len(self.bot.guilds))}")
