@@ -277,7 +277,10 @@ class Music(commands.Cog):
         embed.title = "Song you asked me to save :)"
         embed.description = (f'{song.name}')
         embed.add_field(name='Song link', value=(f'[Click here]({song.url})'), inline = True)
-        await user.send(embed=embed)
+        try:    
+            await user.send(embed=embed)
+        except discord.errors.Forbidden:
+            pass
         
 
     @commands.check(is_wl)     
