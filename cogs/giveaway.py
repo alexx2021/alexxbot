@@ -11,6 +11,18 @@ from discord.ext.commands.core import bot_has_permissions, has_permissions
 BOT_ID = int(752585938630082641)
 TEST_BOT_ID = int(715446479837462548)
 
+async def get_or_fetch_channel(self, channel_id):
+        ch = self.bot.get_channel(channel_id)
+        if ch is not None:
+            return ch
+
+        try:
+            ch = await self.bot.fetch_channel(channel_id)
+        except discord.HTTPException:
+            return None
+        else:
+            return ch
+
 #Utility Category
 class Giveaways(commands.Cog):
     def __init__(self, bot):
@@ -145,8 +157,7 @@ class Giveaways(commands.Cog):
             
             bot = self.bot.get_user(BOT_ID)
             try:
-                guild = self.bot.get_guild(theguildID)
-                guildchannel = guild.get_channel(thechannelid)
+                guildchannel = await get_or_fetch_channel(self, thechannelid)
                 message = await guildchannel.fetch_message(themessageid)
                 
                 users = await message.reactions[0].users().flatten()
