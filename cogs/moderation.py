@@ -367,10 +367,10 @@ class Moderation(commands.Cog):
 
         except:
             return await ctx.send("Could not kick this user.")
-        try:
-            await member.send(f'You were kicked from **{member.guild}** for "{reason}"')
-        except discord.errors.Forbidden:
-            print(f'dm upon kick failed - Guild: {member.guild} ({member.guild.id})')  
+        # try:
+        #     await member.send(f'You were kicked from **{member.guild}** for "{reason}"')
+        # except discord.errors.Forbidden:
+        #     print(f'dm upon kick failed - Guild: {member.guild} ({member.guild.id})')  
 
     
     #softbans a user
@@ -417,11 +417,11 @@ class Moderation(commands.Cog):
         except:
             return await ctx.send("Could not softban this user.")
         
-        if member:
-            try:
-                await member.send(f'You were kicked from **{member.guild}** for "{reason}"')
-            except discord.errors.Forbidden:
-                print(f'dm upon kick failed - Guild: {member.guild} ({member.guild.id})')  
+        # if member:
+        #     try:
+        #         await member.send(f'You were kicked from **{member.guild}** for "{reason}"')
+        #     except discord.errors.Forbidden:
+        #         print(f'dm upon kick failed - Guild: {member.guild} ({member.guild.id})')  
 
 
 
