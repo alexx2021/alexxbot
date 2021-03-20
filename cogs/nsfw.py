@@ -81,23 +81,6 @@ class NSFW(commands.Cog):
     @commands.is_nsfw()
     @commands.command(hidden=False)
     @commands.cooldown(4, 10, commands.BucketType.channel)
-    async def lewd(self, ctx):
-        async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://nekos.life/api/v2/img/lewd') as r: 
-                data = await r.json()
-                embed = discord.Embed(color=0x7289da)
-                embed.title = "Lewd Neko" 
-                try:
-                    embed.set_image(url=(data['url']))
-                except KeyError:
-                    return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
-                await ctx.send(embed=embed)
-
-    @commands.guild_only()
-    @commands.is_nsfw()
-    @commands.command(hidden=False)
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def hentai(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/hentai') as r: 
