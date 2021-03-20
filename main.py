@@ -69,6 +69,7 @@ class MyHelpCommand(commands.MinimalHelpCommand):
 bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents, help_command = MyHelpCommand())
 bot.prefixes = {}
 bot.ubl = {}
+bot.logcache = {}
 
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -105,22 +106,25 @@ async def setup_stuff():
     await blacklist_setup()
     await setup_db(True) # set to false if you do not need tables to be created
     
-    guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes")
+    guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes") # prefix cache
     for guild in guilds:
         bot.prefixes[f"{guild[0]}"] = f"{guild[1]}"
-    
-    users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist")
-    totalusers = []
 
+    
+    users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist") #blacklist cache
+    totalusers = []
     for user in users:
         totalusers.append(str(user[0]))
-    
     bot.ubl[f"users"] = f"{totalusers}"
     
 
+    logs = await bot.sc.execute_fetchall("SELECT server_id, log_channel FROM logging") #logging ch cache
+    for log in logs:
+        bot.logcache[f"{log[0]}"] = f"{log[1]}"
     
     print('cache is setup!!')
-    print(f'prefixes - {bot.prefixes}')
+    # print(f'prefixes - {bot.prefixes}')
+    #print(f'logs - {bot.logcache}')
     print(f'blacklist - {bot.ubl}')
 
 
@@ -204,21 +208,6 @@ async def on_message(message: discord.Message):
 
     await bot.process_commands(message)
 
-
-# @commands.cooldown(2, 6, commands.BucketType.user)
-# @bot.command(aliases=["commands", "invite"])
-# async def help(ctx):
-#     embed = discord.Embed(color=0)
-#     embed.title = "Commands help"
-#     embed.description = ('[alexx.lol (bot wiki)](https://alexx.lol)')
-#     embed.add_field(name="Other links", value='[Invite link (recommended permissions)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
-#     + '\n[Invite link (required permissions)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
-#     + '\n[Support Server](https://discord.gg/zPWMRMXQ7H)')
-#     embed.add_field(name="Prefix", value='You can find my current prefix by mentioning me!')
-#     embed.add_field(name="About", value='A multi-purpose discord bot written in python by `Alexx#7687` that is straightforward and easy to use. \nOh, and how could I forget? Cats. Lots of cats. 🐱')
-#     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
-    
-#     await ctx.send(embed=embed)
 
 
 #about command

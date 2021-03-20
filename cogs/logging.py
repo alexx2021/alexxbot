@@ -1,35 +1,41 @@
+from logging import Logger
 import discord
 import datetime
 import sqlite3
 import asyncio
 from discord.ext import commands
-from discord.ext.commands.core import bot_has_permissions, has_permissions 
+from discord.ext.commands.core import bot_has_permissions, has_permissions
 
 
 
-async def get_or_fetch_member(self, guild, member_id): #from r danny :)
-        member = guild.get_member(member_id)
-        if member is not None:
-            return member
-
-        try:
-            member = await guild.fetch_member(member_id)
-        except discord.HTTPException:
-            return None
-        else:
-            return member
-
-async def get_or_fetch_channel(self, guild, channel_id):
-        ch = guild.get_channel(channel_id)
+async def get_or_fetch_channel(self, channel_id):
+        ch = self.bot.get_channel(channel_id)
         if ch is not None:
             return ch
 
         try:
-            ch = await guild.fetch_channel(channel_id)
+            ch = await self.bot.fetch_channel(channel_id)
         except discord.HTTPException:
             return None
         else:
             return ch
+
+async def sendlog(self, guild, content):
+    try:   
+        ch = self.bot.logcache[f"{guild.id}"]
+        channel = await get_or_fetch_channel(self, ch)
+        await channel.send(embed=content)
+    except KeyError:
+        return
+    except discord.errors.Forbidden:
+        await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
+        await self.bot.sc.commit()
+        self.bot.logcache.pop(f"{guild.id}")
+        Logger.info(f'Deleted log channel b/c no perms to speak - {guild} ({guild.id})')  
+
+
+
+        
                 
 
 
@@ -51,6 +57,8 @@ class Logging(commands.Cog):
                 rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
                 
                 if rows == []:
+                    self.bot.logcache.update({f"{ctx.guild.id}" : f"{log_channel}"})
+
                     await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, log_channel, null))
                     await self.bot.sc.commit()
                     await ctx.send(f'Done! Logging channel set to {channel.mention}.')
@@ -58,7 +66,10 @@ class Logging(commands.Cog):
                 else:
                     rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
                     if rows != []:
-
+                        try:
+                            self.bot.logcache.pop(f"{ctx.guild.id}")
+                        except IndexError:
+                            pass
                         await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
                         await self.bot.sc.commit()
                         await ctx.send('Logging channel has been reset. Run the command again to set the new channel.')
@@ -69,6 +80,8 @@ class Logging(commands.Cog):
                 rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
                 
                 if rows == []:
+                    self.bot.logcache.update({f"{ctx.guild.id}" : f"{local_log_channel}"})
+
                     await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, local_log_channel, null))
                     await self.bot.sc.commit()
                     await ctx.send(f'Done! Logging channel set to {ctx.channel.mention}.')
@@ -76,7 +89,10 @@ class Logging(commands.Cog):
                 else:
                     rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
                     if rows != []:
-
+                        try:
+                            self.bot.logcache.pop(f"{ctx.guild.id}")
+                        except IndexError:
+                            pass
                         await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
                         await self.bot.sc.commit()
                         await ctx.send('Logging channel has been reset. Run the command again to set the new channel.')
@@ -92,17 +108,11 @@ class Logging(commands.Cog):
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')
+        print(self.bot.logcache)
+        print('-----------dump-----------')
         
         await ctx.channel.send('done.')
 
-    @commands.is_owner()
-    @commands.command(hidden=True)
-    async def dellogging(self, ctx):
-        guild = ctx.guild.id
-        await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(guild,))
-        await self.bot.sc.commit()
-        
-        await ctx.channel.send('done.')
 
 
 
@@ -143,19 +153,7 @@ class Logging(commands.Cog):
             e.timestamp = datetime.datetime.utcnow()
             e.set_footer(text=f'ID: {message.author.id}' + '\u200b')
 
-
-            server = message.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, message.guild, chID)
-                try:
-                    await ch.send(embed=e)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')      
+        await sendlog(self, message.guild, e)
         
 
     #message edit logger
@@ -197,18 +195,7 @@ class Logging(commands.Cog):
         embed.timestamp = datetime.datetime.utcnow()
         embed.set_footer(text=f'ID: {message_before.author.id}' + '\u200b')
 
-        server = message_before.guild.id
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-        if rows != []:
-            toprow = rows[0] 
-            chID = toprow[1]
-            ch = await get_or_fetch_channel(self, message_before.guild, chID)
-            try:
-                await ch.send(embed=embed)
-            except discord.errors.Forbidden:
-                await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                await self.bot.sc.commit()
-                print('deleted log channel b/c no perms to speak')  
+        await sendlog(self, message_before.guild, embed) 
 
 
      #currently moved to invites.py so that I can send this embed and the invite one in the same webhook send   
@@ -246,18 +233,7 @@ class Logging(commands.Cog):
         embed.timestamp = datetime.datetime.utcnow()
         embed.set_footer(text=f'ID: {member.id}' + '\u200b')
 
-        server = member.guild.id
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-        if rows != []:
-            toprow = rows[0] 
-            chID = toprow[1]
-            ch = await get_or_fetch_channel(self, member.guild, chID)
-            try:
-                await ch.send(embed=embed)
-            except discord.errors.Forbidden:
-                await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                await self.bot.sc.commit()
-                print('deleted log channel b/c no perms to speak')  
+        await sendlog(self, member.guild, embed)
 
     # user updates - 0x9b59b6 is the color for all
     @commands.Cog.listener()
@@ -273,18 +249,7 @@ class Logging(commands.Cog):
                     embed.timestamp = datetime.datetime.utcnow()
                     embed.set_footer(text=f'ID: {before.id}' + '\u200b')
 
-                    server = guild.id
-                    rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-                    if rows != []:
-                        toprow = rows[0] 
-                        chID = toprow[1]
-                        ch = await get_or_fetch_channel(self, guild, chID)
-                        try:
-                            await ch.send(embed=embed)
-                        except discord.errors.Forbidden:
-                            await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                            await self.bot.sc.commit()
-                            print('deleted log channel b/c no perms to speak')  
+                    await sendlog(self, guild, embed)
 
         # elif before.avatar_url != after.avatar_url:
         #     guilds = self.bot.guilds
@@ -320,18 +285,7 @@ class Logging(commands.Cog):
             embed.timestamp = datetime.datetime.utcnow()
             embed.set_footer(text=f'ID: {before.id}' + '\u200b')
             
-            server = before.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, before.guild, chID)
-                try:
-                    await ch.send(embed=embed)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')  
+            await sendlog(self, before.guild, embed)
 
 #         elif before.roles != after.roles:
             
