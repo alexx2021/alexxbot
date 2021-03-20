@@ -1,4 +1,5 @@
 import asyncio
+from logging import Logger
 import discord
 import datetime
 import sqlite3
@@ -20,17 +21,30 @@ async def get_or_fetch_member(self, guild, member_id): #from r danny :)
         else:
             return member
 
-async def get_or_fetch_channel(self, guild, channel_id):
-        ch = guild.get_channel(channel_id)
+async def get_or_fetch_channel(self, channel_id):
+        ch = self.bot.get_channel(channel_id)
         if ch is not None:
             return ch
 
         try:
-            ch = await guild.fetch_channel(channel_id)
+            ch = await self.bot.fetch_channel(channel_id)
         except discord.HTTPException:
             return None
         else:
             return ch
+
+async def sendlog(self, guild, content):
+    try:   
+        ch = self.bot.logcache[f"{guild.id}"]
+        channel = await get_or_fetch_channel(self, ch)
+        await channel.send(embed=content)
+    except KeyError:
+        return
+    except discord.errors.Forbidden:
+        await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
+        await self.bot.sc.commit()
+        self.bot.logcache.pop(f"{guild.id}")
+        Logger.info(f'Deleted log channel b/c no perms to speak - {guild} ({guild.id})')  
 
 
 #Moderation Category
@@ -143,18 +157,7 @@ class Moderation(commands.Cog):
             embed.set_thumbnail(url=member.avatar_url) 
             embed.set_footer(text=f'ID: {member.id}' + '\u200b')
 
-            server = member.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, ctx.guild, chID)
-                try:
-                    await ch.send(embed=embed)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')
+            await sendlog(self, ctx.guild, embed)
      
 
         else:
@@ -172,18 +175,7 @@ class Moderation(commands.Cog):
             embed.set_thumbnail(url=member.avatar_url) 
             embed.set_footer(text=f'ID: {member.id}' + '\u200b')
 
-            server = member.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, ctx.guild, chID)
-                try:
-                    await ch.send(embed=embed)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')  
+            await sendlog(self, ctx.guild, embed)
 
     
     # @commands.command(hidden=True)
@@ -233,18 +225,7 @@ class Moderation(commands.Cog):
             embed.set_thumbnail(url=member.avatar_url) 
             embed.set_footer(text=f'ID: {member.id}' + '\u200b')
 
-            server = member.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, ctx.guild, chID)
-                try:
-                    await ch.send(embed=embed)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')     	
+            await sendlog(self, ctx.guild, embed)    	
 
         else:
             return await ctx.send('User is not muted!')
@@ -308,18 +289,7 @@ class Moderation(commands.Cog):
             embed.set_thumbnail(url=user.avatar_url) 
             embed.set_footer(text=f'ID: {user.id}' + '\u200b') 
             
-            server = ctx.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, ctx.guild, chID)
-                try:
-                    await ch.send(embed=embed)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')      
+            await sendlog(self, ctx.guild, embed)      
 
         except:
             return await ctx.send("Could not ban this user.")
@@ -352,18 +322,7 @@ class Moderation(commands.Cog):
             embed.set_thumbnail(url=member.avatar_url) 
             embed.set_footer(text=f'ID: {member.id}' + '\u200b') 
             
-            server = member.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, ctx.guild, chID)
-                try:
-                    await ch.send(embed=embed)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')    
+            await sendlog(self, ctx.guild, embed)   
 
         except:
             return await ctx.send("Could not kick this user.")
@@ -402,18 +361,7 @@ class Moderation(commands.Cog):
             embed.set_thumbnail(url=user.avatar_url) 
             embed.set_footer(text=f'ID: {user.id}' + '\u200b') 
             
-            server = ctx.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, ctx.guild, chID)
-                try:
-                    await ch.send(embed=embed)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak') 
+            await sendlog(self, ctx.guild, embed)
         except:
             return await ctx.send("Could not softban this user.")
         
@@ -441,18 +389,7 @@ class Moderation(commands.Cog):
             embed.set_thumbnail(url=user.avatar_url) 
             embed.set_footer(text=f'ID: {user.id}' + '\u200b') 
             
-            server = ctx.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0] 
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, ctx.guild, chID)
-                try:
-                    await ch.send(embed=embed)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak')      
+            await sendlog(self, ctx.guild, embed)     
 
 
         except:
