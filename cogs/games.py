@@ -5,6 +5,8 @@ from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 import random
 
+from discord.ext.commands.core import bot_has_permissions
+
 
 class ChatGames(commands.Cog):
     def __init__(self, bot):
@@ -13,11 +15,12 @@ class ChatGames(commands.Cog):
     
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
     @commands.cooldown(1, 10, commands.BucketType.user)
+    @bot_has_permissions(embed_links=True, manage_messages=True, add_reactions=True)
     @commands.command()
     async def deathbattle(self, ctx, user: discord.Member):
         turn = 0 #adding a turn variable for turn taking
-        authorhealth = 12
-        userhealth = 12
+        authorhealth = 15
+        userhealth = 15
         choices = ["punch", "insult", "pray", "surrender"]
         punchdmg = [1, 1.5, 1.5, 1.5, 2, 3]
         praydmg = [-1, -1, -1, 2, 6, -10, 15]
