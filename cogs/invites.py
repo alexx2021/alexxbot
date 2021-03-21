@@ -2,18 +2,8 @@ import discord
 from discord.ext import commands
 import asyncio
 import datetime
+from utils import sendlog, check_if_log
 
-async def get_or_fetch_channel(self, guild, channel_id):
-        ch = guild.get_channel(channel_id)
-        if ch is not None:
-            return ch
-
-        try:
-            ch = await guild.fetch_channel(channel_id)
-        except discord.HTTPException:
-            return None
-        else:
-            return ch
 
 
 #I am using this because I want the bot to check if it has proper permissions before attemping to cache invites. 
@@ -131,10 +121,8 @@ class Invites(commands.Cog):
     ##################################################### Invites db updates for leave
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        server = member.guild.id
-        rows2 = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
 
-        if rows2 != []:    
+        if await check_if_log(self, member.guild):    
                 
             gid = member.guild.id
             uid = member.id
@@ -205,7 +193,6 @@ class Invites(commands.Cog):
             ch = self.bot.get_channel(813600852576829470)
             if not ch:
                 ch = self.bot.fetch_channel(813600852576829470)
-                print('fetched channel for guild bl msg')
             await ch.send(embed=embed)
             
             return
@@ -226,7 +213,6 @@ class Invites(commands.Cog):
             ch = self.bot.get_channel(813600852576829470)
             if not ch:
                 ch = self.bot.fetch_channel(813600852576829470)
-                print('fetched channel for guild bl msg')
             await ch.send(embed=embed)
             
             return
@@ -248,10 +234,8 @@ class Invites(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
 
-        server = member.guild.id
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
 
-        if rows != []:
+        if await check_if_log(self, member.guild):
             inviter = await self.tracker.fetch_inviter(member)  # inviter is the member who invited
             if inviter:
                 created_at = member.created_at.strftime("%b %d, %Y")
@@ -335,18 +319,9 @@ class Invites(commands.Cog):
                 embed1.set_footer(text=f'ID: {member.id}' + '\u200b')
 
             
-            server = member.guild.id
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),)
-            if rows != []:
-                toprow = rows[0]
-                chID = toprow[1]
-                ch = await get_or_fetch_channel(self, member.guild, chID)
-                try:
-                    await ch.send(embed=embed1)
-                except discord.errors.Forbidden:
-                    await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch.id,))
-                    await self.bot.sc.commit()
-                    print('deleted log channel b/c no perms to speak') 
+            await sendlog(self, member.guild, embed1)
+
+
     @commands.is_owner()
     @commands.command(hidden=True)
     async def dumpd(self, ctx):
