@@ -17,7 +17,7 @@ class ChatGames(commands.Cog):
         turn = 0 #adding a turn variable for turn taking
         authorhealth = 12
         userhealth = 12
-        choices = ["punch", "insult", "pray"]
+        choices = ["punch", "insult", "pray", "surrender"]
         punchdmg = [1, 1.5, 2, 2.5, 2.5, 3, 3, 5]
         praydmg = [-1, -1, -1, 2, 6, -10, 15]
         insultoutcomes = [True, True, False, False, False, False]
@@ -99,6 +99,9 @@ class ChatGames(commands.Cog):
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
                             await ctx.send(embed=e)
+
+                        if "surrender" in response.content.lower() and turn == 0:
+                            break
                             
 
 
@@ -176,13 +179,20 @@ class ChatGames(commands.Cog):
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
                             await ctx.send(embed=e)
 
+
+                        if "surrender" in response.content.lower() and turn == 1:
+                            break
+
                 await asyncio.sleep(1)
                 if userhealth > authorhealth:
-                    whoWon = user
-                else:
-                    whoWon = ctx.author
+                    whoWon = user.mention
+                if authorhealth > userhealth:
+                    whoWon = ctx.author.mention
+                if authorhealth == userhealth:
+                    whoWon = "No one"
+
                 e = discord.Embed(color=0, title='Results')
-                e.description=(f'{whoWon.mention} won!!')
+                e.description=(f'{whoWon} won!!')
                 e.add_field(name=f'{ctx.author.name}\'s health', value=f'{authorhealth} HP')
                 e.add_field(name=f'{user.name}\'s health', value=f'{userhealth} HP')
                 return await ctx.send(embed=e)
