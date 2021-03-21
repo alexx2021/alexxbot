@@ -88,12 +88,12 @@ class Logging(commands.Cog):
     #message deletion logger
     @commands.Cog.listener()
     async def on_message_delete(self, message):
+        if not message.guild:
+            return
+
         if await check_if_log(self, message.guild):
                 
             if(message.author.bot):
-                return
-
-            if not message.guild:
                 return
 
             #ignore channel for logging if it has "alexxlogsignore" in its topic
@@ -129,11 +129,10 @@ class Logging(commands.Cog):
     #message edit logger
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
+        if not message_before.guild:
+            return
 
         if await check_if_log(self, message_before.guild):
-
-            if not message_before.guild:
-                return
 
             #ignore channel for logging if it has "alexxlogsignore" in its topic
             topic = message_before.channel.topic
