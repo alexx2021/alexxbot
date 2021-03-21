@@ -19,7 +19,7 @@ class ChatGames(commands.Cog):
         authorhealth = 12
         userhealth = 12
         choices = ["punch", "insult", "pray", "surrender"]
-        punchdmg = [1, 1.5, 2, 2.5, 2.5, 3, 3, 5]
+        punchdmg = [1, 1.5, 1.5, 1.5, 2, 3]
         praydmg = [-1, -1, -1, 2, 6, -10, 15]
         insultoutcomes = [True, True, False, False, False, False]
          
@@ -41,7 +41,7 @@ class ChatGames(commands.Cog):
                 await asyncio.sleep(0.25)
                 await gamemsg.add_reaction("⬜")
 
-                await ctx.send(f"**React to make your move**.\n----------\n👊 to punch (reliable dmg, no risk)\n----------\n😡 to insult (if you fail you loose your turn :O)(otherwise -5 dmg for other player + an extra turn) \n----------\n🙏 to pray (high risk, high reward, the gods will decide whether to heal or hurt you)\n----------\n⬜ to surrender")
+                await ctx.send(f"**React to make your move**.\n----------\n👊 to punch (1-3 dmg, no risk)\n----------\n😡 to insult (if you fail you loose your turn :O)(otherwise -5 HP for other player + an extra turn) \n----------\n🙏 to pray (high risk, high reward, the gods will decide whether to heal or hurt you)\n----------\n⬜ to surrender")
                 
                 while authorhealth > 0.4 and userhealth > 0.4:
                     reactionuser = user
@@ -110,12 +110,14 @@ class ChatGames(commands.Cog):
                                 title = ['You called their momma fat', 'You told them that they would never amount to anything', 'You told them they suck', 'You pointed out their lack of a life']
                                 t = (random.choice(title))
                                 d = f'{ctx.author.name} gave {user.name} an existential crisis for the **next turn**\nas well as 5 damage done'
+                                f = f'It is {ctx.author.name}\'s turn now'
                             if insulted is False:
                                 turn = turn + 1
                                 c = 0xff0000
                                 title = ['You tried to make fun of their rainbow socks', 'You tried to be toxic', 'You could not come up with an insult in time']
                                 t = (random.choice(title))
                                 d = f'{ctx.author.name} failed to do any real emotional damage'
+                                f = f'It is {user.name}\'s turn now'
 
                             
                             e = discord.Embed(color=c, title=t)
@@ -123,7 +125,7 @@ class ChatGames(commands.Cog):
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
-                            e.set_footer(text=f'It is {user.name}\'s turn now')
+                            e.set_footer(text=f)
                             await gamemsg.edit(embed=e)
 
                         if str(reaction.emoji) == "⬜" and turn == 0:
@@ -198,12 +200,14 @@ class ChatGames(commands.Cog):
                                 title = ['You called their momma fat', 'You told them that they would never amount to anything', 'You told them they suck', 'You pointed out their lack of a life']
                                 t = (random.choice(title))
                                 d = f'{user.name} gave {ctx.author.name} an existential crisis for the **next turn**\nas well as 5 damage done'
+                                f = f'It is {user.name}\'s turn now'
                             if insulted is False:
                                 turn = turn - 1
                                 c = 0xff0000
                                 title = ['You tried to make fun of their rainbow socks', 'You tried to be toxic', 'You could not come up with an insult in time']
                                 t = (random.choice(title))
                                 d = f'{user.name} failed to do any real emotional damage'
+                                f = f'It is {ctx.author.name}\'s turn now'
 
                             
                             e = discord.Embed(color=c, title=t)
@@ -211,7 +215,7 @@ class ChatGames(commands.Cog):
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
-                            e.set_footer(text=f'It is {ctx.author.name}\'s turn now')
+                            e.set_footer(text=f)
                             await gamemsg.edit(embed=e)
 
 
