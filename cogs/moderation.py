@@ -2,49 +2,13 @@ import asyncio
 from logging import Logger
 import discord
 import datetime
-import sqlite3
 from discord.ext import commands
 from discord.ext.commands import has_permissions
-from discord.ext.commands import bot_has_permissions, BotMissingPermissions
+from discord.ext.commands import bot_has_permissions
+from utils import get_or_fetch_member, sendlog
 
 BOT_ID = int(752585938630082641)
 
-async def get_or_fetch_member(self, guild, member_id): #from r danny :)
-        member = guild.get_member(member_id)
-        if member is not None:
-            return member
-
-        try:
-            member = await guild.fetch_member(member_id)
-        except discord.HTTPException:
-            return None
-        else:
-            return member
-
-async def get_or_fetch_channel(self, channel_id):
-        ch = self.bot.get_channel(channel_id)
-        if ch is not None:
-            return ch
-
-        try:
-            ch = await self.bot.fetch_channel(channel_id)
-        except discord.HTTPException:
-            return None
-        else:
-            return ch
-
-async def sendlog(self, guild, content):
-    try:   
-        ch = self.bot.logcache[f"{guild.id}"]
-        channel = await get_or_fetch_channel(self, ch)
-        await channel.send(embed=content)
-    except KeyError:
-        return
-    except discord.errors.Forbidden:
-        await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
-        await self.bot.sc.commit()
-        self.bot.logcache.pop(f"{guild.id}")
-        Logger.info(f'Deleted log channel b/c no perms to speak - {guild} ({guild.id})')  
 
 
 #Moderation Category
