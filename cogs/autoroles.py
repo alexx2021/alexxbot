@@ -9,7 +9,7 @@ class AutoRoles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    @commands.command()
+    @commands.command(hidden=True)
     async def setautorole(self, ctx, role: discord.Role):
         pass
 
