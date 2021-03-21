@@ -7,21 +7,11 @@ import random
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands.core import bot_has_permissions, has_permissions
+from utils import get_or_fetch_channel
 
 BOT_ID = int(752585938630082641)
 TEST_BOT_ID = int(715446479837462548)
 
-async def get_or_fetch_channel(self, channel_id):
-        ch = self.bot.get_channel(channel_id)
-        if ch is not None:
-            return ch
-
-        try:
-            ch = await self.bot.fetch_channel(channel_id)
-        except discord.HTTPException:
-            return None
-        else:
-            return ch
 
 #Utility Category
 class Giveaways(commands.Cog):
