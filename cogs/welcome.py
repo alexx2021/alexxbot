@@ -128,18 +128,6 @@ class Welcome(commands.Cog):
         await ctx.channel.send('done.')
 
 
-    #removes guild data if not in server anymore
-    @commands.Cog.listener()
-    async def on_guild_remove(self, guild):
-        await asyncio.sleep(1)
-        server = guild.id
-
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server,),)
-        if rows != []:
-            await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-            await self.bot.sc.commit()
-            return
-
 
 
     ### on join
