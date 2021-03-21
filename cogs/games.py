@@ -20,6 +20,7 @@ class ChatGames(commands.Cog):
         choices = ["punch", "insult", "pray"]
         punchdmg = [1, 1.5, 1.5, 2, 2, 2.5, 3, 5]
         praydmg = [-1, -1, 2, 4, -10, 15]
+        insultoutcomes = [True, True, False, False, False, False]
          
         if user == ctx.author:
             await ctx.send(f"You can't fight yourself, {ctx.author.mention}.")
@@ -34,7 +35,7 @@ class ChatGames(commands.Cog):
                             return m.content in choices and m.author == ctx.message.author
                         response = await self.bot.wait_for('message', check = check, timeout=120)
                         
-                        if "punch" in response.content.lower() and turn == 0:#turn == 0 is here since it doesn't work sometimes
+                        if "punch" in response.content.lower() and turn == 0:
                             dmgdone = (random.choice(punchdmg))
                             userhealth = (userhealth - dmgdone)
                        
@@ -53,7 +54,7 @@ class ChatGames(commands.Cog):
                             
                             turn = turn + 1
 
-                        if "pray" in response.content.lower() and turn == 0:#turn == 0 is here since it doesn't work sometimes
+                        if "pray" in response.content.lower() and turn == 0:
                             dmgdone = (random.choice(praydmg))
                             authorhealth = (authorhealth - dmgdone)
                      
@@ -68,7 +69,6 @@ class ChatGames(commands.Cog):
                                 t = (random.choice(title))
                                 d = f'{ctx.author.name} lost health due to a failed prayer :('
 
-                            
                             e = discord.Embed(color=c, title=t)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
@@ -76,6 +76,34 @@ class ChatGames(commands.Cog):
                             await ctx.send(embed=e)
                             
                             turn = turn + 1
+                        
+                        if "insult" in response.content.lower() and turn == 0:
+                            insulted = (random.choice(insultoutcomes))
+
+                            if insulted is True:
+                                turn = turn + 0 #You get 1 more turn
+                                userhealth = (userhealth - 5)
+                                c = 0x00FF00
+                                title = ['You called their momma fat', 'You told them that they would never amount to anything', 'You told them they suck', 'You pointed out their lack of a life']
+                                t = (random.choice(title))
+                                d = f'{ctx.author.name} gave {user.name} an existential crisis for the **next turn**\nas well as 5 damage done'
+                            if insulted is False:
+                                turn = turn + 1
+                                c = 0xff0000
+                                title = ['You tried to make fun of their rainbow socks', 'You tried to be toxic', 'You could not come up with an insult in time']
+                                t = (random.choice(title))
+                                d = f'{ctx.author.name} failed to do any real emotional damage'
+
+                            
+                            e = discord.Embed(color=c, title=t)
+                            e.description=(d)
+                            e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
+                            e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
+                            await ctx.send(embed=e)
+                            
+
+
+                            
 
                     elif turn == 1:
                         await ctx.send(f"{user.mention}: Your move! Choices: `{', '.join([choice for choice in choices])}`")
@@ -83,7 +111,7 @@ class ChatGames(commands.Cog):
                             return o.content in choices and o.author == user
                         response = await self.bot.wait_for('message', check = check, timeout=120)
                         
-                        if "punch" in response.content.lower() and turn == 1:#turn == 0 is here since it doesn't work sometimes
+                        if "punch" in response.content.lower() and turn == 1:
                             dmgdone = (random.choice(punchdmg))
                             authorhealth = (authorhealth - dmgdone)
                             
@@ -102,7 +130,7 @@ class ChatGames(commands.Cog):
                             turn = turn - 1
                         
 
-                        if "pray" in response.content.lower() and turn == 1:#turn == 0 is here since it doesn't work sometimes
+                        if "pray" in response.content.lower() and turn == 1:
                             dmgdone = (random.choice(praydmg))
                             userhealth = (userhealth - dmgdone)
                      
@@ -125,6 +153,30 @@ class ChatGames(commands.Cog):
                             await ctx.send(embed=e)
                             
                             turn = turn - 1
+
+                        if "insult" in response.content.lower() and turn == 1:
+                            insulted = (random.choice(insultoutcomes))
+
+                            if insulted is True:
+                                turn = turn + 0 #You get 1 more turn
+                                authorhealth = (authorhealth - 5)
+                                c = 0x00FF00
+                                title = ['You called their momma fat', 'You told them that they would never amount to anything', 'You told them they suck', 'You pointed out their lack of a life']
+                                t = (random.choice(title))
+                                d = f'{user.name} gave {ctx.author.name} an existential crisis for the **next turn**\nas well as 5 damage done'
+                            if insulted is False:
+                                turn = turn - 1
+                                c = 0xff0000
+                                title = ['You tried to make fun of their rainbow socks', 'You tried to be toxic', 'You could not come up with an insult in time']
+                                t = (random.choice(title))
+                                d = f'{user.name} failed to do any real emotional damage'
+
+                            
+                            e = discord.Embed(color=c, title=t)
+                            e.description=(d)
+                            e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
+                            e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
+                            await ctx.send(embed=e)
 
 
                 if turn == 0:
