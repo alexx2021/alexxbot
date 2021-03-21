@@ -1,5 +1,6 @@
 import asyncio
-import discord    
+import discord
+from discord.embeds import Embed    
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 import random
@@ -26,16 +27,36 @@ class ChatGames(commands.Cog):
             await ctx.send(f"You can't fight yourself, {ctx.author.mention}.")
         else:
             try:    
-                await ctx.send(f"{ctx.author.mention} vs {user.mention}, who will win? `o.O`")
+                e = discord.Embed(color=0, title='Deathbattle')
+                e.description=(f'{ctx.author.mention} vs {user.mention}, who will win? `o.O`')
+                e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
+                e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
+                e.set_footer(text=f'It is {ctx.author.name}\'s turn')
+                gamemsg = await ctx.send(embed=e)
+                await gamemsg.add_reaction("👊")
+                await asyncio.sleep(0.25)
+                await gamemsg.add_reaction("😡")
+                await asyncio.sleep(0.25)
+                await gamemsg.add_reaction("🙏")
+                await asyncio.sleep(0.25)
+                await gamemsg.add_reaction("⬜")
+
+                await ctx.send(f"**React to make your move**.\n----------\n👊 to punch (reliable dmg, no risk)\n----------\n😡 to insult (if you fail you loose your turn :O)(otherwise -5 dmg for other player + an extra turn) \n----------\n🙏 to pray (high risk, high reward, the gods will decide whether to heal or hurt you)\n----------\n⬜ to surrender")
+                
                 while authorhealth > 0.4 and userhealth > 0.4:
+                    reactionuser = user
+                    reactionauthor = ctx.author
 
                     if turn == 0:
-                        await ctx.send(f"{ctx.author.mention}: Your move! Choices: `{', '.join([choice for choice in choices])}`")
-                        def check(m):
-                            return m.content in choices and m.author == ctx.message.author
-                        response = await self.bot.wait_for('message', check = check, timeout=120)
+                        reaction, member = await self.bot.wait_for(
+                            "reaction_add",
+                            timeout=60,
+                            check=lambda reaction, user: user == ctx.author
+                            and reaction.message.channel == ctx.channel
+                        )
                         
-                        if "punch" in response.content.lower() and turn == 0:
+                        if str(reaction.emoji) == "👊" and turn == 0:
+                            await gamemsg.remove_reaction("👊", member)
                             dmgdone = (random.choice(punchdmg))
                             userhealth = (userhealth - dmgdone)
                             c = 0xffa500
@@ -46,11 +67,13 @@ class ChatGames(commands.Cog):
                             e.description=(f'{ctx.author.name} did {dmgdone} damage!')
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
-                            await ctx.send(embed=e)
+                            e.set_footer(text=f'It is {user.name}\'s turn now')
+                            await gamemsg.edit(embed=e)
                             
                             turn = turn + 1
 
-                        if "pray" in response.content.lower() and turn == 0:
+                        if str(reaction.emoji) == "🙏" and turn == 0:
+                            await gamemsg.remove_reaction("🙏", member)
                             dmgdone = (random.choice(praydmg))
                             authorhealth = (authorhealth - dmgdone)
                      
@@ -70,12 +93,14 @@ class ChatGames(commands.Cog):
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
-                            await ctx.send(embed=e)
+                            e.set_footer(text=f'It is {user.name}\'s turn now')
+                            await gamemsg.edit(embed=e)
 
                             turn = turn + 1
                             
                         
-                        if "insult" in response.content.lower() and turn == 0:
+                        if str(reaction.emoji) == "😡" and turn == 0:
+                            await gamemsg.remove_reaction("😡", member)
                             insulted = (random.choice(insultoutcomes))
 
                             if insulted is True:
@@ -98,9 +123,11 @@ class ChatGames(commands.Cog):
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
-                            await ctx.send(embed=e)
+                            e.set_footer(text=f'It is {user.name}\'s turn now')
+                            await gamemsg.edit(embed=e)
 
-                        if "surrender" in response.content.lower() and turn == 0:
+                        if str(reaction.emoji) == "⬜" and turn == 0:
+                            await gamemsg.remove_reaction("⬜", member)
                             break
                             
 
@@ -108,12 +135,15 @@ class ChatGames(commands.Cog):
                             
 
                     elif turn == 1:
-                        await ctx.send(f"{user.mention}: Your move! Choices: `{', '.join([choice for choice in choices])}`")
-                        def check(o):
-                            return o.content in choices and o.author == user
-                        response = await self.bot.wait_for('message', check = check, timeout=120)
+                        reaction, member = await self.bot.wait_for(
+                            "reaction_add",
+                            timeout=60,
+                            check=lambda reaction, user: user == reactionuser
+                            and reaction.message.channel == ctx.channel
+                        )
                         
-                        if "punch" in response.content.lower() and turn == 1:
+                        if str(reaction.emoji) == "👊" and turn == 1:
+                            await gamemsg.remove_reaction("👊", member)
                             dmgdone = (random.choice(punchdmg))
                             authorhealth = (authorhealth - dmgdone)
                             c = 0xffa500
@@ -123,12 +153,14 @@ class ChatGames(commands.Cog):
                             e.description=(f'{user.name} did {dmgdone} damage!')
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
-                            await ctx.send(embed=e)
+                            e.set_footer(text=f'It is {ctx.author.name}\'s turn now')
+                            await gamemsg.edit(embed=e)
                             
                             turn = turn - 1
                         
 
-                        if "pray" in response.content.lower() and turn == 1:
+                        if str(reaction.emoji) == "🙏" and turn == 1:
+                            await gamemsg.remove_reaction("🙏", member)
                             dmgdone = (random.choice(praydmg))
                             userhealth = (userhealth - dmgdone)
                      
@@ -149,12 +181,14 @@ class ChatGames(commands.Cog):
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
-                            await ctx.send(embed=e)
+                            e.set_footer(text=f'It is {ctx.author.name}\'s turn now')
+                            await gamemsg.edit(embed=e)
 
                             turn = turn - 1
                             
 
-                        if "insult" in response.content.lower() and turn == 1:
+                        if str(reaction.emoji) == "😡" and turn == 1:
+                            await gamemsg.remove_reaction("😡", member)
                             insulted = (random.choice(insultoutcomes))
 
                             if insulted is True:
@@ -177,10 +211,12 @@ class ChatGames(commands.Cog):
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
-                            await ctx.send(embed=e)
+                            e.set_footer(text=f'It is {ctx.author.name}\'s turn now')
+                            await gamemsg.edit(embed=e)
 
 
-                        if "surrender" in response.content.lower() and turn == 1:
+                        if str(reaction.emoji) == "⬜" and turn == 1:
+                            await gamemsg.remove_reaction("⬜", member)
                             break
 
                 await asyncio.sleep(1)
@@ -195,12 +231,12 @@ class ChatGames(commands.Cog):
                 e.description=(f'{whoWon} won!!')
                 e.add_field(name=f'{ctx.author.name}\'s health', value=f'{authorhealth} HP')
                 e.add_field(name=f'{user.name}\'s health', value=f'{userhealth} HP')
-                return await ctx.send(embed=e)
+                return await gamemsg.edit(embed=e)
             except asyncio.exceptions.TimeoutError:
                 if turn == 1:
-                    return await ctx.send(f'**{user} did not respond in time... CHICKEN**')
+                    return await ctx.send(f'**{user} did not react in time... CHICKEN**')
                 else:
-                    return await ctx.send(f'**{ctx.author} did not respond in time... CHICKEN**')
+                    return await ctx.send(f'**{ctx.author} did not react in time... CHICKEN**')
 
     #minesweeper owo
     @commands.guild_only()
