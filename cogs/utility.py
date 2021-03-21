@@ -23,7 +23,7 @@ class Utility(commands.Cog):
         end = time.perf_counter()
         embed = discord.Embed(color=0x7289da)
         embed.title = "Pong! 🏓"
-        embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 8)}ms\n**Websocket Response time:** {round(self.bot.latency*1000)}ms')
+        embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 10)}ms\n**Websocket Latency:** {round(self.bot.latency*1000)}ms')
         embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
