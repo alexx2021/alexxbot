@@ -54,7 +54,6 @@ class Errors(commands.Cog):
                 ch = self.bot.get_channel(813600852576829470)
                 if not ch:
                     ch = self.bot.fetch_channel(813600852576829470)
-                    print('fetched channel for cooldown error')
                 await ch.send(embed=embed)
             else:
                 embed = discord.Embed(
@@ -69,7 +68,6 @@ class Errors(commands.Cog):
                 ch = self.bot.get_channel(813600852576829470)
                 if not ch:
                     ch = self.bot.fetch_channel(813600852576829470)
-                    print('fetched channel for cooldown error')
                 await ch.send(embed=embed)
         
         elif isinstance(error, commands.MissingPermissions):
@@ -120,7 +118,6 @@ class Errors(commands.Cog):
             owner = self.bot.get_user(247932598599417866)
             if not owner:
                 owner = await self.bot.fetch_user(247932598599417866)
-                print('fetched u to send an error')
             await owner.send(embed=embed)
             
             #All unhandled Errors will print their original traceback
@@ -137,7 +134,6 @@ class Errors(commands.Cog):
         owner = self.bot.get_user(247932598599417866)
         if not owner:
             owner = await self.bot.fetch_user(247932598599417866)
-            print('fetched u to send an error')
         await owner.send(embed=embed)
         print(f'{event}')
         print(f'{traceback.format_exc()}')
