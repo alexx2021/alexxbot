@@ -22,8 +22,8 @@ class ChatGames(commands.Cog):
         authorhealth = 15
         userhealth = 15
         choices = ["punch", "insult", "pray", "surrender"]
-        punchdmg = [1, 1.5, 1.5, 1.5, 2, 3]
-        praydmg = [-1, -1, -1, 2, 6, -10, 15]
+        punchdmg = [1, 1, 1, 1.5, 2, 3]
+        praydmg = [-1, -2, -2, 2, 6, -10, 15]
         insultoutcomes = [True, True, False, False, False, False]
          
         if user == ctx.author:
