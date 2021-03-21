@@ -14,7 +14,7 @@ class ChatGames(commands.Cog):
     
     
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @bot_has_permissions(embed_links=True, manage_messages=True, add_reactions=True)
     @commands.command()
     async def deathbattle(self, ctx, user: discord.Member):
