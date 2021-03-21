@@ -17,8 +17,8 @@ class ChatGames(commands.Cog):
         turn = 0 #adding a turn variable for turn taking
         authorhealth = 12
         userhealth = 12
-        choices = ["punch", "blackmail", "pray"]
-        punchdmg = [1, 1.5, 1.5, 2, 2, 2.5, 3, 4, 5]
+        choices = ["punch", "insult", "pray"]
+        punchdmg = [1, 1.5, 1.5, 2, 2, 2.5, 3, 5]
         praydmg = [-1, -1, 2, 4, -10, 15]
          
         if user == ctx.author:
@@ -59,12 +59,12 @@ class ChatGames(commands.Cog):
                      
                             if int(dmgdone) < 0:
                                 c = 0x00FF00
-                                title = ['The gods gave you mercy', 'Its your lucky day!', 'GG']
+                                title = ['The gods gave you mercy', 'Its your lucky day!', 'GG', 'You lucky duck']
                                 t = (random.choice(title))
-                                d = f'{ctx.author.name} gained health!'
+                                d = f'{ctx.author.name} gained health due to a successful prayer!'
                             else:
                                 c = 0xff0000
-                                title = ['\"You pathetic mortal\" - God', '\"You suck\" - God', '\"Today is not your day\" - God']
+                                title = ['\"You pathetic mortal\" - God', '\"You suck\" - God', '\"Today is not your day\" - God', '\"lol\" - God']
                                 t = (random.choice(title))
                                 d = f'{ctx.author.name} lost health due to a failed prayer :('
 
