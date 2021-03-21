@@ -19,7 +19,7 @@ class ChatGames(commands.Cog):
         userhealth = 12
         choices = ["punch", "insult", "pray"]
         punchdmg = [1, 1.5, 2, 2.5, 2.5, 3, 3, 5]
-        praydmg = [-1, -1, 2, 4, -10, 15]
+        praydmg = [-1, -1, -1, 2, 6, -10, 15]
         insultoutcomes = [True, True, False, False, False, False]
          
         if user == ctx.author:
@@ -42,6 +42,7 @@ class ChatGames(commands.Cog):
 
                             
                             e = discord.Embed(color=c, title='Nice punch!')
+                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                             e.description=(f'{ctx.author.name} did {dmgdone} damage!')
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -65,6 +66,7 @@ class ChatGames(commands.Cog):
                                 d = f'{ctx.author.name} lost health due to a failed prayer :('
 
                             e = discord.Embed(color=c, title=t)
+                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -92,6 +94,7 @@ class ChatGames(commands.Cog):
 
                             
                             e = discord.Embed(color=c, title=t)
+                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -113,6 +116,7 @@ class ChatGames(commands.Cog):
                             c = 0xffa500
                             
                             e = discord.Embed(color=c, title='Nice punch!')
+                            e.set_author(name=f"{user}", icon_url=user.avatar_url)
                             e.description=(f'{user.name} did {dmgdone} damage!')
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -138,6 +142,7 @@ class ChatGames(commands.Cog):
 
                             
                             e = discord.Embed(color=c, title=t)
+                            e.set_author(name=f"{user}", icon_url=user.avatar_url)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -165,6 +170,7 @@ class ChatGames(commands.Cog):
 
                             
                             e = discord.Embed(color=c, title=t)
+                            e.set_author(name=f"{user}", icon_url=user.avatar_url)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
