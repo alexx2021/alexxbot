@@ -1,8 +1,6 @@
-from utils import check_if_log, sendlog
 import discord
-import asyncio
 from discord.ext import commands
-from discord.ext.commands.core import bot_has_permissions
+from discord.ext.commands.core import bot_has_permissions, has_permissions
 
 
 
@@ -11,7 +9,8 @@ class AutoRoles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    @bot_has_permissions(manage_roles=True)    
+    @bot_has_permissions(manage_roles=True)
+    @has_permissions(manage_roles=True)    
     @commands.cooldown(2, 10, commands.BucketType.guild)
     @commands.command(aliases=["autorole"])
     async def setautorole(self, ctx, role: discord.Role):
@@ -57,10 +56,6 @@ class AutoRoles(commands.Cog):
                     if member.guild.me.top_role.position > role.position:
                         await member.add_roles(role, reason=f"Autorole.")
 
-            else:
-                if await check_if_log(self, member.guild):
-                    e = discord.Embed(description ='**Autorole assignment failed because I am missing permissions to manage roles.**', color = 0)
-                    await sendlog(self, member.guild, e)
 
 
 
@@ -77,10 +72,6 @@ class AutoRoles(commands.Cog):
                     if after.guild.me.top_role.position > role.position:
                         await after.add_roles(role, reason=f"Delayed autorole.")
 
-            else:
-                if await check_if_log(self, before.guild):
-                    e = discord.Embed(description ='**Autorole assignment failed because I am missing permissions to manage roles.**', color = 0)
-                    await sendlog(self, before.guild, e)
 
             
 def setup(bot):
