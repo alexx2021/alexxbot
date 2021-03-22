@@ -248,7 +248,9 @@ async def setprefix(ctx, prefix: str):
         await bot.pr.execute("INSERT INTO prefixes VALUES (?, ?)",(ctx.guild.id, prefix),)
         await bot.pr.commit()
         bot.prefixes.update({f"{ctx.guild.id}" : f"{prefix}"})
-    await ctx.send(f'Set prefix to `{prefix}`')
+        
+    e = discord.Embed(description = f'Set prefix to `{prefix}`', color = 0)
+    await ctx.send(embed = e)
 
 @commands.is_owner()
 @bot.command(hidden=True)

@@ -64,8 +64,8 @@ class Reminders(commands.Cog):
         await self.bot.rm.commit()
         
 
-
-        await ctx.channel.send(f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.")        
+        e = discord.Embed(description=f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.", color = 0x7289da)
+        await ctx.send(embed=e)
    
 
     @commands.is_owner()
