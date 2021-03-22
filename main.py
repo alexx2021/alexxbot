@@ -58,9 +58,10 @@ async def get_prefix(bot, msg):
 class MyHelpCommand(commands.MinimalHelpCommand):
     async def send_pages(self):
         destination = self.get_destination()
-        e = discord.Embed(color=0, description='[Click me for a detailed command list](http://alexx.lol)\n[Support Server](https://discord.gg/zPWMRMXQ7H)\n',title='Alexx-bot Help')
+        e = discord.Embed(title='Alexx-bot Help', description ='', color = 0)
         for page in self.paginator.pages:
             e.description += page
+        e.add_field(name='Useful Links', value='[Click me for a detailed command list](http://alexx.lol)\n[Support Server](https://discord.gg/zPWMRMXQ7H)')
         e.add_field(name='Invite me!', value='[Invite link (recommended)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
     + '\n[Invite link (required)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)')
         await destination.send(embed=e)
@@ -240,7 +241,7 @@ async def botinfo(ctx):
 
 @has_permissions(manage_guild=True)
 @commands.cooldown(2, 10, commands.BucketType.guild)
-@bot.command(aliases=["changeprefix", "prefix"])
+@bot.command(aliases=["changeprefix", "prefix"],help='Sets the server prefix.')
 async def setprefix(ctx, prefix: str):
     await bot.wait_until_ready()
     if len(prefix) > 20:
