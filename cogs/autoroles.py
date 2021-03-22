@@ -32,6 +32,20 @@ class AutoRoles(commands.Cog):
         e = discord.Embed(description = f'Set the autorole to {role.mention}', color = 0)
         await ctx.send(embed = e)
 
+    @bot_has_permissions(manage_roles=True)
+    @has_permissions(manage_roles=True)    
+    @commands.cooldown(2, 10, commands.BucketType.guild)
+    @commands.command()
+    async def delautorole(self, ctx, role: discord.Role):
+        try:
+            self.bot.logcache.pop(f"{ctx.guild.id}")
+        except IndexError:
+            pass
+        await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(ctx.guild.id,))
+        await self.bot.sc.commit()
+        e = discord.Embed(description = f'Autorole disabled.', color = 0)
+        await ctx.send(embed = e)
+
     @commands.is_owner()
     @commands.command(hidden=True)
     async def dumpar(self, ctx):
