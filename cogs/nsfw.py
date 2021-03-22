@@ -94,6 +94,23 @@ class NSFW(commands.Cog):
                 embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
+    @commands.guild_only()
+    @commands.is_nsfw()
+    @commands.command(hidden=False)
+    @commands.cooldown(4, 10, commands.BucketType.channel)
+    async def trap(self, ctx):
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://nekos.life/api/v2/img/trap') as r: 
+                data = await r.json()
+                embed = discord.Embed(color=0x7289da)
+                embed.title = "Trap" 
+                try:
+                    embed.set_image(url=(data['url']))
+                except KeyError:
+                    return await ctx.send('An error occurred, please try again later')
+                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                await ctx.send(embed=embed)
+
 
     @commands.guild_only()
     @commands.is_nsfw()
