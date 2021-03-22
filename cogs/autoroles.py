@@ -54,7 +54,7 @@ class AutoRoles(commands.Cog):
                 role = discord.utils.get(member.guild.roles, id= int(r))
                 if role:
                     if member.guild.me.top_role.position > role.position:
-                        member.add_roles(role, reason=f"Autorole.")
+                        await member.add_roles(role, reason=f"Autorole.")
 
             else:
                 if await check_if_log(self, member.guild):
@@ -74,7 +74,7 @@ class AutoRoles(commands.Cog):
                 role = discord.utils.get(before.guild.roles, id= int(r))
                 if role:
                     if after.guild.me.top_role.position > role.position:
-                        after.add_roles(role, reason=f"Delayed autorole.")
+                        await after.add_roles(role, reason=f"Delayed autorole.")
 
             else:
                 if await check_if_log(self, before.guild):
