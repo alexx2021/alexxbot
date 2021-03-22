@@ -46,6 +46,10 @@ class Events(commands.Cog):
         await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
         await self.bot.sc.commit()
 
+        await asyncio.sleep(1)
+        await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(server,))
+        await self.bot.sc.commit()
+
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @commands.cooldown(1, 3, commands.BucketType.channel)
