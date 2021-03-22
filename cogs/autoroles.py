@@ -64,7 +64,7 @@ class AutoRoles(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         if after.pending is False:
-            if before.guild.me.guild_permissions.manage_guild:
+            if before.guild.me.guild_permissions.manage_roles:
                 try:    
                     r = self.bot.autorolecache[f"{before.guild.id}"]
                 except KeyError:
