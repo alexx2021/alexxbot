@@ -70,6 +70,7 @@ bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=in
 bot.prefixes = {}
 bot.ubl = {}
 bot.logcache = {}
+bot.autorolecache = {}
 
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -98,6 +99,7 @@ async def setup_db(choice):
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
         #bot.sc.execute("CREATE TABLE IF NOT EXISTS welcomeinvite(server_id INTERGER, log_channel INTERGER, whURL TEXT)") #not sure if I want to keep this, might merge with welcome
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
+        await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
         
         await bot.i.execute("CREATE TABLE IF NOT EXISTS invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)")
 
@@ -121,10 +123,15 @@ async def setup_stuff():
     logs = await bot.sc.execute_fetchall("SELECT server_id, log_channel FROM logging") #logging ch cache
     for log in logs:
         bot.logcache[f"{log[0]}"] = f"{log[1]}"
+
+    roles = await bot.sc.execute_fetchall("SELECT * FROM autorole") #autorole id cache
+    for role in roles:
+        bot.autorolecache[f"{role[0]}"] = f"{role[1]}"
     
     print('cache is setup!!')
     # print(f'prefixes - {bot.prefixes}')
     #print(f'logs - {bot.logcache}')
+    print(f'aRole - {bot.autorolecache}')
     print(f'blacklist - {bot.ubl}')
 
 
