@@ -192,7 +192,7 @@ async def on_message(message: discord.Message):
         #     return
 #################
     if not message.author.bot:
-        if bot.user in message.mentions:
+        if message.content in [f'<@!{bot.user.id}>', f'<@{bot.user.id}>']:
             if str(message.author.id) in bot.ubl["users"]:
                 return
             
