@@ -27,7 +27,8 @@ class Errors(commands.Cog):
         error = getattr(error, "original", error)
 
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send('Invalid command used.')
+            #await ctx.send('Invalid command used.')
+            return
         
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f'Command is missing required arguments.')
