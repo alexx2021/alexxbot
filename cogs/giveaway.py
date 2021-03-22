@@ -24,7 +24,7 @@ class Giveaways(commands.Cog):
     @bot_has_permissions(manage_messages=True)
     @commands.cooldown(2, 10, commands.BucketType.guild) 
     @commands.guild_only()
-    @commands.command()
+    @commands.command(help='Use this to create a giveaway in your server that randomly chooses the winner!')
     async def giveaway(self,ctx): #check if giveaway already exists in the server
         def promptCheck(message):
             return message.author == ctx.author and message.channel == ctx.channel

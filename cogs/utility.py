@@ -17,7 +17,7 @@ class Utility(commands.Cog):
 
     #ping command
     @commands.cooldown(1, 1, commands.BucketType.user)
-    @commands.command(help="Shows the latency of the bot in milliseconds.",)
+    @commands.command(help="Shows the latency of the bot & websocket in milliseconds.",)
     async def ping(self, ctx):
         start = time.perf_counter()
         end = time.perf_counter()

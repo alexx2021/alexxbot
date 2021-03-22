@@ -12,7 +12,7 @@ class AutoRoles(commands.Cog):
     @bot_has_permissions(manage_roles=True)
     @has_permissions(manage_roles=True)    
     @commands.cooldown(2, 10, commands.BucketType.guild)
-    @commands.command(aliases=["autorole"])
+    @commands.command(aliases=["autorole"],help='Sets the role that new users get on join. Respects the discord rule verification menu.')
     async def setautorole(self, ctx, role: discord.Role):
         await self.bot.wait_until_ready()
         if ctx.author.top_role.position <= role.position:
@@ -35,7 +35,7 @@ class AutoRoles(commands.Cog):
     @bot_has_permissions(manage_roles=True)
     @has_permissions(manage_roles=True)    
     @commands.cooldown(2, 10, commands.BucketType.guild)
-    @commands.command()
+    @commands.command(help='Deletes the currently set autorole.')
     async def delautorole(self, ctx, role: discord.Role):
         try:
             self.bot.logcache.pop(f"{ctx.guild.id}")

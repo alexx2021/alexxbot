@@ -177,7 +177,7 @@ class Fun(commands.Cog):
 
     #goose command 
     @commands.guild_only()
-    @commands.command()
+    @commands.command(help='free infinite gooses :)')
     @commands.cooldown(5, 10, commands.BucketType.channel)
     async def goose(self, ctx):
         async with aiohttp.ClientSession() as cs:
