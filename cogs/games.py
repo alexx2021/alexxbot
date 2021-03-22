@@ -16,7 +16,7 @@ class ChatGames(commands.Cog):
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     @bot_has_permissions(embed_links=True, manage_messages=True, add_reactions=True)
-    @commands.command(help='Battle a user of your choice in this interactive game@')
+    @commands.command(help='Battle a user of your choice in this interactive game!')
     async def deathbattle(self, ctx, user: discord.Member):
         turn = 0 #adding a turn variable for turn taking
         authorhealth = 15
