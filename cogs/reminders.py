@@ -65,6 +65,7 @@ class Reminders(commands.Cog):
         
 
         e = discord.Embed(description=f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.", color = 0x7289da)
+        e.timestamp = datetime.datetime.utcnow()
         await ctx.send(embed=e)
    
 
