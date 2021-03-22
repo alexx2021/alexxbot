@@ -16,7 +16,8 @@ class AutoRoles(commands.Cog):
     @commands.command(aliases=["autorole"])
     async def setautorole(self, ctx, role: discord.Role):
         await self.bot.wait_until_ready()
-        
+        if ctx.guild.me.top_role.position <= role.position:
+            return await ctx.send('Error. Role you chose is above my highest role.')
         auto = await self.bot.sc.execute_fetchall("SELECT * FROM autorole WHERE guild_id = ?",(ctx.guild.id,),)
         if auto:
             await self.bot.sc.execute("UPDATE autorole SET role_id = ? WHERE guild_id = ?",(role.id, ctx.guild.id,),)
