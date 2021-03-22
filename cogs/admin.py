@@ -45,7 +45,14 @@ class Admin(commands.Cog):
             "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
             "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
             "\n" + "Created at " + str(guild.created_at), inline=False)
-            embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
+            embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})'))
+            
+            if guild.me.guild_permissions.administrator:
+                admin = True
+            else:
+                admin = False
+
+            embed.add_field(name='Permissions', value=f'Admin: {admin}') 
             embed.set_thumbnail(url=guild.icon_url)
             
             await ctx.send(embed=embed)
