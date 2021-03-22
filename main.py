@@ -131,7 +131,7 @@ async def setup_stuff():
     print('cache is setup!!')
     # print(f'prefixes - {bot.prefixes}')
     #print(f'logs - {bot.logcache}')
-    print(f'aRole - {bot.autorolecache}')
+    #print(f'aRole - {bot.autorolecache}')
     print(f'blacklist - {bot.ubl}')
 
 
