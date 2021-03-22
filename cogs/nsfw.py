@@ -95,7 +95,7 @@ class NSFW(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
-    @commands.is_owner
+    @commands.is_owner()
     @commands.is_nsfw()
     @commands.command(hidden=True)
     async def trap(self, ctx):
