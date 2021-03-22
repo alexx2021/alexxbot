@@ -225,7 +225,8 @@ class Moderation(commands.Cog):
                 role = discord.utils.get(member.guild.roles, name="alexxmuted") # checks if there is a muted role 
                 if role: # checks if there is muted role
                     if member.guild.me.guild_permissions.manage_roles: # checks if the bot has enough permissions to add the role
-                        await member.add_roles(role, reason=f"Left while muted.") # adds already existing muted role
+                        if member.guild.me.top_role.position > role.position:
+                            await member.add_roles(role, reason=f"Left while muted.") # adds already existing muted role
 
 
 
