@@ -73,9 +73,13 @@ class Moderation(commands.Cog):
         if member.id == BOT_ID:
             return await ctx.send(f'{ctx.author.mention} you cannot mute me with my own commands! `>.<`')
         
-        role3 = discord.utils.get(member.roles, name="alexxmuted")
-        if role3 in member.roles:
-            return await ctx.send('User is already muted!')
+        role3 = discord.utils.get(member.guild.roles, name="alexxmuted")
+        if role3:
+            if role3 in member.roles:
+                return await ctx.send('User is already muted!')
+            if member.guild.me.top_role.position <= role3.position:
+                return await ctx.send('Error. The alexxmuted role is above my highest role.')
+
 
         role2 = discord.utils.get(member.guild.roles, name="alexxmuted") # retrieves muted role returns none if there isn't 
         if not role2: # checks if there is muted role
@@ -167,32 +171,37 @@ class Moderation(commands.Cog):
     @commands.command(help='Unmutes a user.')
     async def unmute(self, ctx, member: discord.Member,*, reason=None):
         
-        role = discord.utils.get(member.roles, name="alexxmuted")
+        role = discord.utils.get(member.guild.roles, name="alexxmuted")
+        if role:
+            if member.guild.me.top_role.position <= role.position:
+                return await ctx.send('Error. The alexxmuted role is above my highest role.')
 
-        if role in member.roles:
-            await member.remove_roles(discord.utils.get(member.guild.roles, name="alexxmuted")) # removes muted role
+            if role in member.roles:
+                await member.remove_roles(discord.utils.get(member.guild.roles, name="alexxmuted")) # removes muted role
 
-            gid = str(ctx.guild.id)
-            uid = str(member.id)
+                gid = str(ctx.guild.id)
+                uid = str(member.id)
 
-            query = 'DELETE FROM pmuted_users WHERE guild_id = ? AND user_id = ?' # delete data from db only pertaining to the specific user and guild
-            params = (gid, uid)
-            await self.bot.m.execute(query, params)
-            await self.bot.m.commit()
+                query = 'DELETE FROM pmuted_users WHERE guild_id = ? AND user_id = ?' # delete data from db only pertaining to the specific user and guild
+                params = (gid, uid)
+                await self.bot.m.execute(query, params)
+                await self.bot.m.commit()
 
-            await ctx.send(f"{member.mention} has been unmuted.")
+                await ctx.send(f"{member.mention} has been unmuted.")
 
-            embed = discord.Embed(color=0x979c9f)
-            embed.title = f"{member} unmuted" 
-            embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=member.avatar_url) 
-            embed.set_footer(text=f'ID: {member.id}' + '\u200b')
+                embed = discord.Embed(color=0x979c9f)
+                embed.title = f"{member} unmuted" 
+                embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
+                embed.timestamp = datetime.datetime.utcnow()
+                embed.set_thumbnail(url=member.avatar_url) 
+                embed.set_footer(text=f'ID: {member.id}' + '\u200b')
 
-            await sendlog(self, ctx.guild, embed)    	
+                await sendlog(self, ctx.guild, embed)    	
 
+            else:
+                return await ctx.send('User is not muted!')
         else:
-            return await ctx.send('User is not muted!')
+            return await ctx.send('No muted role has been created for this server! Mute someone to create one.')
 
 
     #event to check if the user is still muted upon joining a server
@@ -237,6 +246,8 @@ class Moderation(commands.Cog):
             if member.top_role >= ctx.author.top_role:
                 await ctx.send(f'{ctx.author.mention} you cannot ban someone who has an equal or higher role than you! `:C`')
                 return
+            if member.guild.me.top_role <= member.top_role:
+                return await ctx.send('Error. The user you are trying to ban is above my highest role.')
         
         if user.id == BOT_ID:
             return await ctx.send(f'{ctx.author.mention} you cannot ban me with my own commands! SMH.')
@@ -273,6 +284,9 @@ class Moderation(commands.Cog):
         
         if member.id == BOT_ID:
             return await ctx.send(f'{ctx.author.mention} you cannot kick me with my own commands! SMH.')
+        
+        if member.guild.me.top_role <= member.top_role:
+            return await ctx.send('Error. The user you are trying to kick is above my highest role.')
 
         try:
             await ctx.guild.kick(member, reason=f"By {ctx.author} for {reason}")
@@ -309,6 +323,8 @@ class Moderation(commands.Cog):
             if member.top_role >= ctx.author.top_role:
                 await ctx.send(f'{ctx.author.mention} you cannot softban someone who has an equal or higher role than you! `:C`')
                 return
+            if member.guild.me.top_role <= member.top_role:
+                return await ctx.send('Error. The user you are trying to softban is above my highest role.')
         
         if user.id == BOT_ID:
             return await ctx.send(f'{ctx.author.mention} you cannot softban me with my own commands! SMH.')
