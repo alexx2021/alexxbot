@@ -95,9 +95,9 @@ class NSFW(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
+    @commands.is_owner
     @commands.is_nsfw()
-    @commands.command(hidden=False)
-    @commands.cooldown(4, 10, commands.BucketType.channel)
+    @commands.command(hidden=True)
     async def trap(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/trap') as r: 
