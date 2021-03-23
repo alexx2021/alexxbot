@@ -21,7 +21,7 @@ class Utility(commands.Cog):
     async def ping(self, ctx):
         start = time.perf_counter()
         end = time.perf_counter()
-        embed = discord.Embed(color=0x7289da)
+        embed = discord.Embed(color = discord.Colour.random())
         embed.title = "Pong! 🏓"
         embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 10)}ms\n**Websocket Latency:** {round(self.bot.latency*1000)}ms')
         embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)

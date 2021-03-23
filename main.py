@@ -58,7 +58,7 @@ async def get_prefix(bot, msg):
 class MyHelpCommand(commands.MinimalHelpCommand):
     async def send_pages(self):
         destination = self.get_destination()
-        e = discord.Embed(title='Alexx-bot Help', description ='', color = 0)
+        e = discord.Embed(title='Alexx-bot Help', description ='', color = discord.Colour.random())
         for page in self.paginator.pages:
             e.description += page
         e.add_field(name='Useful Links', value='[Click me for a detailed command list](http://alexx.lol)\n[Support Server](https://discord.gg/zPWMRMXQ7H)')
