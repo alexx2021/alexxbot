@@ -72,8 +72,8 @@ class Giveaways(commands.Cog):
         except asyncio.exceptions.TimeoutError:
             return await ctx.send(f'Giveaway creation timed out.')
 
-        
-        m = await ctx.send(f'❗\n`{prize}` will be given away in {counter}\n**Is this correct?**')
+        e = discord.Embed(color=0x7289da, title=f'`{prize}` will be given away in {counter}', description= '**Is this correct?**')
+        m = await ctx.send(embed=e)
         try:
             await m.add_reaction("✅")
             await asyncio.sleep(0.25)
@@ -147,7 +147,7 @@ class Giveaways(commands.Cog):
             
             bot = self.bot.get_user(BOT_ID)
             try:
-                guildchannel = await get_or_fetch_channel(self, thechannelid)
+                guildchannel = await get_or_fetch_channel(self, theguildID, thechannelid)
                 message = await guildchannel.fetch_message(themessageid)
                 
                 users = await message.reactions[0].users().flatten()
