@@ -8,7 +8,7 @@ import random
 from discord.ext.commands.core import bot_has_permissions
 
 
-class ChatGames(commands.Cog):
+class Chatgames(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
@@ -362,4 +362,4 @@ class ChatGames(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(ChatGames(bot))
+    bot.add_cog(Chatgames(bot))

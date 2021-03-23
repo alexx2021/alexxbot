@@ -5,7 +5,7 @@ from discord.ext.commands.core import bot_has_permissions, has_permissions
 
 
 
-class AutoRoles(commands.Cog):
+class Autorole(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
@@ -36,9 +36,9 @@ class AutoRoles(commands.Cog):
     @has_permissions(manage_roles=True)    
     @commands.cooldown(2, 10, commands.BucketType.guild)
     @commands.command(help='Deletes the currently set autorole.')
-    async def delautorole(self, ctx, role: discord.Role):
+    async def delautorole(self, ctx):
         try:
-            self.bot.logcache.pop(f"{ctx.guild.id}")
+            self.bot.autorolecache.pop(f"{ctx.guild.id}")
         except IndexError:
             pass
         await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(ctx.guild.id,))
@@ -91,4 +91,4 @@ class AutoRoles(commands.Cog):
 
             
 def setup(bot):
-    bot.add_cog(AutoRoles(bot))
+    bot.add_cog(Autorole(bot))
