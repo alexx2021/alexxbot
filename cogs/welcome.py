@@ -10,7 +10,7 @@ class Welcome(commands.Cog):
     def __init__(self, bot):
         self.bot = bot    
 
-    @commands.max_concurrency(1, per=BucketType.channel, wait=False)
+    @commands.max_concurrency(1, per=BucketType.guild, wait=False)
     @has_permissions(manage_guild=True)
     @commands.cooldown(3, 10, commands.BucketType.guild)
     @commands.command(help='Use this to set your welcome/goodbye channel!', hidden=False)
@@ -27,9 +27,10 @@ class Welcome(commands.Cog):
             
             if rows == []:
                 try:
-                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\n\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
-                    e = discord.Embed(description=desc, color=0x7289da)
-                    await ctx.send(embed=e)
+                    embed=discord.Embed(title="Please enter your desired WELCOME message.", color=0x7289da)
+                    embed.add_field(name="Placeholders:", value="`{mention}` `{membername}` `{servername}` `{membercount}` `{invitedby}` `{invitecount}`", inline=True)
+                    embed.add_field(name="*", value="Please note that if you wish to use {invitedby} or {invitecount} you **MUST** have a logging channel set", inline=True)
+                    await ctx.send(embed=embed)
 
                     welcomeM = await self.bot.wait_for('message', check=check, timeout=120)
                     
@@ -37,9 +38,10 @@ class Welcome(commands.Cog):
                     if len(wMsg) >= 1024:
                         return await ctx.send(f'Welcome message was **{len(wMsg)}** chars long, but it cannot be longer than 1024.')
                     
-                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\n\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
-                    e = discord.Embed(description=desc, color=0x7289da)
-                    await ctx.send(embed=e)
+                    embed=discord.Embed(title="Please enter your desired GOODBYE message.", color=0x7289da)
+                    embed.add_field(name="Placeholders:", value="`{mention}` `{membername}` `{servername}` `{membercount}` `{invitedby}` `{invitecount}`", inline=True)
+                    embed.add_field(name="*", value="Please note that if you wish to use {invitedby} or {invitecount} you **MUST** have a logging channel set", inline=True)
+                    await ctx.send(embed=embed)
 
                     goodbyeM = await self.bot.wait_for('message', check=check, timeout=120)
                     
@@ -70,9 +72,10 @@ class Welcome(commands.Cog):
             if rows == []:
                 
                 try:
-                    desc = 'Please enter your desired **welcome** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\n\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
-                    e = discord.Embed(description=desc, color=0x7289da)
-                    await ctx.send(embed=e)
+                    embed=discord.Embed(title="Please enter your desired WELCOME message.", color=0x7289da)
+                    embed.add_field(name="Placeholders:", value="`{mention}` `{membername}` `{servername}` `{membercount}` `{invitedby}` `{invitecount}`", inline=True)
+                    embed.add_field(name="*", value="Please note that if you wish to use {invitedby} or {invitecount} you **MUST** have a logging channel set", inline=True)
+                    await ctx.send(embed=embed)
                     
                     welcomeM = await self.bot.wait_for('message', check=check, timeout=120)
                     
@@ -80,9 +83,10 @@ class Welcome(commands.Cog):
                     if len(wMsg) >= 1024:
                         return await ctx.send(f'Welcome message was **{len(wMsg)}** chars long, but it cannot be longer than 1024.')
                     
-                    desc = 'Please enter your desired **goodbye** message. \nThe placeholders `{mention}`, `{membername}`, `{servername}`, `{membercount}`, `{invitedby}`, and `{invitecount}` are available.\n\nPlease note that if you wish to use {invitedby} or {invitecount} you __MUST__ have a logging channel set'
-                    e = discord.Embed(description=desc, color=0x7289da)
-                    await ctx.send(embed=e)
+                    embed=discord.Embed(title="Please enter your desired GOODBYE message.", color=0x7289da)
+                    embed.add_field(name="Placeholders:", value="`{mention}` `{membername}` `{servername}` `{membercount}` `{invitedby}` `{invitecount}`", inline=True)
+                    embed.add_field(name="*", value="Please note that if you wish to use {invitedby} or {invitecount} you **MUST** have a logging channel set", inline=True)
+                    await ctx.send(embed=embed)
 
                     goodbyeM = await self.bot.wait_for('message', check=check, timeout=120)
                     
