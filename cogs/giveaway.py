@@ -7,7 +7,7 @@ import random
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands.core import bot_has_permissions, has_permissions
-from utils import get_or_fetch_channel
+from utils import get_or_fetch_channel, get_or_fetch_guild
 
 BOT_ID = int(752585938630082641)
 TEST_BOT_ID = int(715446479837462548)
@@ -147,7 +147,8 @@ class Giveaways(commands.Cog):
             
             bot = self.bot.get_user(BOT_ID)
             try:
-                guildchannel = await get_or_fetch_channel(self, theguildID, thechannelid)
+                theguild = await get_or_fetch_guild(self, theguildID)
+                guildchannel = await get_or_fetch_channel(self, theguild, thechannelid)
                 message = await guildchannel.fetch_message(themessageid)
                 
                 users = await message.reactions[0].users().flatten()

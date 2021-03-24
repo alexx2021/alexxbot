@@ -32,6 +32,19 @@ async def get_or_fetch_member(self, guild, member_id): #from r danny :)
         #print('fetch_member')
         return member
 
+async def get_or_fetch_guild(self, guild_id): #from r danny :)
+    guild = self.bot.get_guild(int(guild_id))
+    if guild is not None:
+        # print('get_guild')
+        return guild
+
+    try:
+        guild = await self.bot.fetch_guild(guild_id)
+    except discord.HTTPException:
+        return None
+    else:
+        # print('fetch_guild')
+        return guild
 ########################LOGGING###########################
 async def sendlog(self, guild, content):
     try:   
