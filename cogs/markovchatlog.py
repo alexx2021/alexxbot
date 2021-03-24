@@ -21,12 +21,15 @@ class ChatLog(commands.Cog):
         if ctx.valid:
             return
         if message.author.bot:
+            if message.author.id == 64186055052702517:
+                pass
+            else:
+                return
+        if message.channel.id == 741054231661903907:
             return
         if not message.guild:
             return
         if message.guild.id not in guildlist:
-            return
-        if (message.content.lower() in self.bot.user.name.lower()):
             return
 
         record = self.clean_message(message.clean_content)
@@ -60,7 +63,7 @@ class ChatLog(commands.Cog):
     @commands.is_owner()
     @commands.command(hidden=True)
     async def dumpMark(self, ctx):
-        rows = await self.bot.mark.execute_fetchall("SELECT * FROM chatlogs")
+        rows = await self.bot.mark.execute_fetchall("SELECT message FROM chatlogs WHERE guild_id = ?", (ctx.guild.id,))
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')
