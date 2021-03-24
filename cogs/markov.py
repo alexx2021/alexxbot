@@ -1,28 +1,40 @@
 import random
 import re
 import string
-
+import logging
 import discord
 from discord.ext import commands
+logger = logging.getLogger('discord')
+
+async def is_wl(ctx):
+    guildlist = [812951618945286185, 741054230370189343, 812520226603794432, 804063441778114620]
+    # iridescent
+    # alexx bot
+    # minty club
+    # bot test
+    guildID = ctx.guild.id
+    if guildID in guildlist:
+        return True 
+    else:
+        return False
+
+
 
 
 class MarkovChain(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author.bot:
-            return
-        
-        if str(message.author.id) in self.bot.ubl["users"]:
-            return
+    @commands.check(is_wl)
+    @commands.command(help='The bot will speak its mind based on what has been said in the server before')
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    async def speak(self, ctx): 
+        response = await self.create_chain(ctx.guild)
 
-        if (self.bot.user.name.lower() in message.content.lower()):
-            response = await self.create_chain(message.guild)
+        embed = discord.Embed(colour=discord.Colour.random(), description= response)
+        await ctx.send(embed=embed)
+        logger.info(msg=f'{ctx.author} ({ctx.author.id}) used markov generator')
 
-            embed = discord.Embed(colour=discord.Colour.random(), description= response)
-            await message.channel.send(embed=embed)
 
     def format_sentence(self, unformatted_sentence):
         """Adds formatting to generated sentence.
