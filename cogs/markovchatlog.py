@@ -21,7 +21,7 @@ class ChatLog(commands.Cog):
         if ctx.valid:
             return
         if message.author.bot:
-            if message.author.id == 64186055052702517:
+            if message.author.id == 641860550527025175:
                 pass
             else:
                 return
