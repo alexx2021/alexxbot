@@ -192,6 +192,8 @@ class Welcome(commands.Cog):
                 await channel.send(wMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}", invitedby = f"{user}", invitecount = f"{invcount}"))
             except KeyError:
                 await channel.send('One or more of the placeholders you used in the welcome message was incorrect, or not a placeholder. To remove this message, please change it.')
+            except ValueError:
+                await channel.send('One or more of the placeholders you used in the welcome message was incorrect, or not a placeholder. To remove this message, please change it.')
             except discord.errors.Forbidden:
                 server = member.guild.id
 
@@ -259,6 +261,8 @@ class Welcome(commands.Cog):
                 await channel.send(bMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}", invitedby = f"{user}", invitecount = f"{invcount}"))
             except KeyError:
                 await channel.send('One or more of the placeholders you used in the goodbye message was incorrect, or not a placeholder. To remove this message, please change it.')
+            except ValueError:
+                await channel.send('One or more of the placeholders you used in the welcome message was incorrect, or not a placeholder. To remove this message, please change it.')
             except discord.errors.Forbidden:
                 server = member.guild.id
 
