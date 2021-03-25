@@ -34,7 +34,7 @@ class Admin(commands.Cog):
 
 
     #gets current servers the bot is in
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def listguilds(self, ctx):
         servers = self.bot.guilds
@@ -59,7 +59,7 @@ class Admin(commands.Cog):
             await asyncio.sleep(1)
 
     #makes the bot leave the given server ID
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def leaveguild(self, ctx, serverid:int):
         try:
@@ -74,7 +74,7 @@ class Admin(commands.Cog):
             await ctx.send('An error occured.', delete_after=5.0)
 
     #owner only command to change the status of the bot
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def status(self, ctx,* ,status):
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(f'{status}'))
@@ -82,7 +82,7 @@ class Admin(commands.Cog):
 
     
     #simple say command to make the bot say something. Owner only atm
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def say(self, ctx,* ,args):
         mesg = ''.join(args)
@@ -120,7 +120,7 @@ class Admin(commands.Cog):
         except:
             await ctx.send('An error occured.', delete_after=5.0)
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def listperms(self, ctx, member: discord.Member = None):
         if not member:
@@ -152,7 +152,7 @@ class Admin(commands.Cog):
 
 
     
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def adduser(self, ctx, user1: discord.User):
         userid = str(user1.id)
@@ -175,7 +175,7 @@ class Admin(commands.Cog):
         self.bot.ubl.update({"users" : f"{totalusers}"})
         await ctx.send(f'User with id of `{user1.id}` was blacklisted ✅')
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def removeuser(self, ctx, user1: discord.User):
         userid = str(user1.id)
@@ -194,7 +194,7 @@ class Admin(commands.Cog):
         self.bot.ubl.update({"users" : f"{totalusers}"})
         await ctx.send(f'User with id of `{user1.id}` was removed from the blacklist ✅')
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def checkuser(self, ctx, user: discord.User):
         async with aiosqlite.connect('blacklists.db') as c:
@@ -204,7 +204,7 @@ class Admin(commands.Cog):
             if rows != []:
                 return await ctx.send(f'User with id of `{user.id}` `was found` in the blacklist.')
         
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def addguild(self, ctx, guild:int):
         guildID = str(guild)
@@ -213,7 +213,7 @@ class Admin(commands.Cog):
             await c.commit()
         await ctx.send(f'Guild with id of `{guild}` was blacklisted ✅')
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def removeguild(self, ctx, guild:int):
         guildID = str(guild)
@@ -222,7 +222,7 @@ class Admin(commands.Cog):
             await c.commit()
         await ctx.send(f'Guild with id of `{guild}` was removed from the blacklist ✅')
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def checkguild(self, ctx, guild:int):
         guildID = str(guild)
@@ -236,7 +236,7 @@ class Admin(commands.Cog):
 
 
 
-    @commands.command(name="eval")
+    @commands.command(name="eval", hidden=True)
     @commands.is_owner()
     async def _eval(self, ctx, *, code):
         code = clean_code(code)

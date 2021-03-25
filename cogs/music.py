@@ -80,7 +80,7 @@ class Music(commands.Cog):
 
     
     @commands.check(is_wl)    
-    @commands.command(aliases=["l"])
+    @commands.command(aliases=["l"],hidden=True)
     async def leave(self, ctx):
         if ctx.author.voice:
             player = self.music.get_player(guild_id=ctx.guild.id)
@@ -94,7 +94,7 @@ class Music(commands.Cog):
     
 
     @commands.check(is_wl)    
-    @commands.command(aliases=["p"])
+    @commands.command(aliases=["p"],hidden=True)
     async def play(self, ctx, *, url):
         
         if ctx.voice_client:
@@ -150,7 +150,7 @@ class Music(commands.Cog):
 
 
     @commands.check(is_wl)      
-    @commands.command()
+    @commands.command(hidden=True)
     async def pause(self, ctx):
         await check_in_vc(ctx)
 
@@ -164,7 +164,7 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.check(is_wl)      
-    @commands.command()
+    @commands.command(hidden=True)
     async def resume(self, ctx):
         await check_in_vc(ctx)
 
@@ -178,7 +178,7 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.check(is_wl)       
-    @commands.command()
+    @commands.command(hidden=True)
     async def stop(self, ctx):
         await check_in_vc(ctx)
 
@@ -192,7 +192,7 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.check(is_wl)        
-    @commands.command()
+    @commands.command(hidden=True)
     async def loop(self, ctx):
         await check_in_vc(ctx)
 
@@ -211,7 +211,7 @@ class Music(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.check(is_wl)     
-    @commands.command(aliases=["q"])
+    @commands.command(aliases=["q"],hidden=True)
     async def queue(self, ctx):
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -240,7 +240,7 @@ class Music(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.check(is_wl)      
-    @commands.command(aliases=["nowplaying"])
+    @commands.command(aliases=["nowplaying"],hidden=True)
     async def np(self, ctx):
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -264,7 +264,7 @@ class Music(commands.Cog):
 
     @commands.check(is_wl)
     @commands.cooldown(2, 10, commands.BucketType.user)    
-    @commands.command(help='If you would like to save a song you hear playing, do this command and you will be DMed the link!',aliases=["favorite"])
+    @commands.command(help='If you would like to save a song you hear playing, do this command and you will be DMed the link!',aliases=["favorite"],hidden=True)
     async def save(self, ctx):
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -290,7 +290,7 @@ class Music(commands.Cog):
         
 
     @commands.check(is_wl)     
-    @commands.command()                                                                                                                     #### TODO FIX ####
+    @commands.command(hidden=True)                                                                                                                     #### TODO FIX ####
     async def skip(self, ctx):
         await check_in_vc(ctx)
 
@@ -305,7 +305,7 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.check(is_wl) 
-    @commands.command(aliases=["vol"])
+    @commands.command(aliases=["vol"],hidden=True)
     async def volume(self, ctx, vol:int ):
         await check_in_vc(ctx)
 
@@ -323,7 +323,7 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.check(is_wl)     
-    @commands.command()
+    @commands.command(hidden=True)
     async def remove(self, ctx, index: int):
         await check_in_vc(ctx)
 

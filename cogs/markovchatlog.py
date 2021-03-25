@@ -5,11 +5,11 @@ import discord
 
 from discord.ext import commands
 
-guildlist = [812951618945286185, 741054230370189343, 812520226603794432, 804063441778114620]
+guildlist = [812951618945286185, 741054230370189343, 804063441778114620, 563515439255257095]
 # iridescent
 # alexx bot
-# minty club
 # bot test
+# delos
 class ChatLog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

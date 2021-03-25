@@ -7,11 +7,12 @@ from discord.ext import commands
 logger = logging.getLogger('discord')
 
 async def is_wl(ctx):
-    guildlist = [812951618945286185, 741054230370189343, 812520226603794432, 804063441778114620]
+
+    guildlist = [812951618945286185, 741054230370189343, 804063441778114620, 563515439255257095]
     # iridescent
     # alexx bot
-    # minty club
     # bot test
+    # delos
     guildID = ctx.guild.id
     if guildID in guildlist:
         return True 
@@ -26,7 +27,7 @@ class MarkovChain(commands.Cog):
         self.bot = bot
 
     @commands.check(is_wl)
-    @commands.command(help='The bot will speak its mind based on what has been said in the server before')
+    @commands.command(help='The bot will speak its mind based on what has been said in the server before', aliases=["wisdom"], hidden=True)
     @commands.cooldown(3, 10, commands.BucketType.user)
     async def speak(self, ctx): 
         response = await self.create_chain(ctx.guild)
