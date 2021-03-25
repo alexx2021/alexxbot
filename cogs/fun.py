@@ -43,7 +43,7 @@ class Fun(commands.Cog):
     #     embed = discord.Embed(color=0x0000ff)
     #     embed.title = "cats 4 u... sent with love :3" 
     #     embed.set_image(url=(data['file']))
-    #     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+    #     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
     #     await user.send(embed=embed)
     
     
@@ -66,7 +66,7 @@ class Fun(commands.Cog):
                 embed = discord.Embed(color=0x7289da)
                 embed.title = "Random Fact" 
                 embed.description = (data['fact'])
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
     
     @commands.guild_only()
@@ -80,7 +80,7 @@ class Fun(commands.Cog):
                     embed = discord.Embed(color=0x7289da)
                     embed.title = f"{ctx.author} hugged themselves!" 
                     embed.set_image(url=(data['url']))
-                    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
                     return
             
@@ -90,7 +90,7 @@ class Fun(commands.Cog):
                 embed = discord.Embed(color=0x7289da)
                 embed.title = f"{ctx.author} hugged {member} <3!" 
                 embed.set_image(url=(data['url']))
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
@@ -104,7 +104,7 @@ class Fun(commands.Cog):
                     embed = discord.Embed(color=0x7289da)
                     embed.title = f"{ctx.author} slapped themselves!" 
                     embed.set_image(url=(data['url']))
-                    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
                     return
             
@@ -114,7 +114,7 @@ class Fun(commands.Cog):
                 embed = discord.Embed(color=0x7289da)
                 embed.title = f"{ctx.author} slapped {member}!" 
                 embed.set_image(url=(data['url']))
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     #chooses random result and tells you if you are gay :)
@@ -156,7 +156,7 @@ class Fun(commands.Cog):
                 embed = discord.Embed(color=0x7289da)
                 embed.title = "Catz" 
                 embed.set_image(url=(data['url']))
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     #cat command
@@ -170,7 +170,7 @@ class Fun(commands.Cog):
                 embed = discord.Embed(color=0x7289da)
                 embed.title = "Dogz" 
                 embed.set_image(url=(data['url']))
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     #goose command 
@@ -185,7 +185,7 @@ class Fun(commands.Cog):
                     embed = discord.Embed(color=0x7289da)
                     embed.title = "Gooses ;)" 
                     embed.set_image(url=(data['url']))
-                    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
 
     #duck command
@@ -200,7 +200,7 @@ class Fun(commands.Cog):
                     embed = discord.Embed(color=0x7289da)
                     embed.title = "Duckz" 
                     embed.set_image(url=(data['url']))
-                    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
 
     #bunny command
@@ -222,7 +222,7 @@ class Fun(commands.Cog):
                     embed = discord.Embed(color=0x7289da)
                     embed.title = "Bunnyz" 
                     embed.set_image(url=(picURL))
-                    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
 
 

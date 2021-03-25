@@ -22,8 +22,8 @@ class Utility(commands.Cog):
         end = time.perf_counter()
         embed = discord.Embed(color = discord.Colour.random())
         embed.title = "Pong! 🏓"
-        embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 10)}ms\n**Websocket Latency:** {round(self.bot.latency*1000)}ms')
-        embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 5)}ms\n**Websocket Latency:** {round(self.bot.latency*1000)}ms')
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
     #profile picture getter command
@@ -47,7 +47,7 @@ class Utility(commands.Cog):
         embed = discord.Embed(color=0x7289da, title=f"User Information")
         embed.set_author(name=f"{member}", icon_url=member.avatar_url)
         embed.timestamp = datetime.datetime.utcnow()
-        embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
         embed.add_field(name="ID:", value=member.id)
         embed.add_field(name="Joined Server On:", value=member.joined_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
@@ -71,7 +71,7 @@ class Utility(commands.Cog):
     async def serverinfo(self, ctx):
         embed = discord.Embed(title="Server Information", colour=0x7289da, timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=ctx.guild.icon_url)
-        embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         # statuses = [len(list(filter(lambda m: str(m.status) == "online", ctx.guild.members))),
         # # len(list(filter(lambda m: str(m.status) == "idle", ctx.guild.members))),
         # # len(list(filter(lambda m: str(m.status) == "dnd", ctx.guild.members))),
@@ -146,7 +146,7 @@ class Utility(commands.Cog):
     #                 embed.add_field(name="Track Link", value=f"[{activity.title}](https://open.spotify.com/track/{activity.track_id})")
     #                 embed.timestamp = datetime.datetime.utcnow()
     #                 embed.set_thumbnail(url=activity.album_cover_url)
-    #                 embed.set_footer(text=f'Requested by: {ctx.author}' + '\u200b')
+    #                 embed.set_footer(text=f'Requested by {ctx.author}' + '\u200b')
     #                 await ctx.send(embed=embed)
     #                 await asyncio.sleep(1.5)
 

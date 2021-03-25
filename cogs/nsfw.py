@@ -28,7 +28,7 @@ class NSFW(commands.Cog):
                     embed.set_image(url=(data['url']))
                 except KeyError:
                     return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
@@ -45,7 +45,7 @@ class NSFW(commands.Cog):
                     embed.set_image(url=(data['url']))
                 except KeyError:
                     return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
@@ -62,7 +62,7 @@ class NSFW(commands.Cog):
                     embed.set_image(url=(data['url']))
                 except KeyError:
                     return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
@@ -79,7 +79,7 @@ class NSFW(commands.Cog):
                     embed.set_image(url=(data['url']))
                 except KeyError:
                     return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
@@ -96,7 +96,7 @@ class NSFW(commands.Cog):
                     embed.set_image(url=(data['url']))
                 except KeyError:
                     return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
@@ -112,7 +112,7 @@ class NSFW(commands.Cog):
                     embed.set_image(url=(data['url']))
                 except KeyError:
                     return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
 
@@ -130,7 +130,7 @@ class NSFW(commands.Cog):
                     embed.set_image(url=(data['url']))
                 except KeyError:
                     return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
@@ -147,7 +147,7 @@ class NSFW(commands.Cog):
                     embed.set_image(url=(data['url']))
                 except KeyError:
                     return await ctx.send('An error occurred, please try again later')
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
 

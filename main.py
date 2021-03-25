@@ -210,7 +210,7 @@ async def stats(ctx):
     embed.add_field(name='RAM Usage', value=f'{psutil.virtual_memory()[2]}%', inline = True)
     embed.add_field(name='CPU Usage', value=f'{psutil.cpu_percent()}%', inline = True)
     embed.timestamp = datetime.datetime.utcnow()
-    embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
 
 

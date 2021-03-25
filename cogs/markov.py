@@ -2,6 +2,7 @@ import random
 import re
 import string
 import logging
+import time
 import discord
 from discord.ext import commands
 logger = logging.getLogger('discord')
@@ -30,14 +31,18 @@ class MarkovChain(commands.Cog):
     @commands.command(help='The bot will speak its mind based on what has been said in the server before', aliases=["wisdom"], hidden=True)
     @commands.cooldown(3, 10, commands.BucketType.user)
     async def speak(self, ctx): 
+        
+        start = time.perf_counter()
         response = await self.create_chain(ctx.guild)
+        end = time.perf_counter()
 
         embed = discord.Embed(colour=discord.Colour.random(), description= response)
+        embed.set_footer(text=f'Generated in {round(((end - start)*1000),4)}ms')
         await ctx.send(embed=embed)
         logger.info(msg=f'{ctx.author} ({ctx.author.id}) used markov generator')
 
 
-    def format_sentence(self, unformatted_sentence):
+    async def format_sentence(self, unformatted_sentence):
         """Adds formatting to generated sentence.
         Args:
             unformatted_sentence (str): Unformatted generated sentence.
@@ -110,7 +115,7 @@ class MarkovChain(commands.Cog):
                 flag = 0
 
         # format final sentence
-        markov_sentence = self.format_sentence(sentence)
+        markov_sentence = await self.format_sentence(sentence)
         return markov_sentence
 
 

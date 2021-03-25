@@ -343,7 +343,7 @@ class Chatgames(commands.Cog):
         embed.add_field(name='Total Spaces:', value=columns * rows, inline=True)
         embed.add_field(name='Taco Count:', value=tacos, inline=True)
         embed.add_field(name='Taco Percentage:', value=f'{percentage}%', inline=True)
-        embed.add_field(name='Requested by:', value=ctx.author.display_name, inline=True)
+        embed.add_field(name='Requested by', value=ctx.author.display_name, inline=True)
         await ctx.send(content=f'\U0000FEFF\n{final}', embed=embed)
 
     @tacosweeper.error
