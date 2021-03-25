@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.ext.commands.core import bot_has_permissions, has_permissions
 
 
 
@@ -46,16 +45,17 @@ class Autorole(commands.Cog):
         if after.bot:
             return
         
-        if after.pending is False:
-            if before.guild.me.guild_permissions.manage_roles:
-                try:    
-                    r = self.bot.autorolecache[f"{before.guild.id}"]
-                except KeyError:
-                    return
-                role = discord.utils.get(before.guild.roles, id= int(r))
-                if role:
-                    if after.guild.me.top_role.position > role.position:
-                        await after.add_roles(role, reason=f"Delayed autorole.")
+        if before.pending is True:
+            if after.pending is False:
+                if before.guild.me.guild_permissions.manage_roles:
+                    try:    
+                        r = self.bot.autorolecache[f"{before.guild.id}"]
+                    except KeyError:
+                        return
+                    role = discord.utils.get(before.guild.roles, id= int(r))
+                    if role:
+                        if after.guild.me.top_role.position > role.position:
+                            await after.add_roles(role, reason=f"Delayed autorole.")
 
 
             
