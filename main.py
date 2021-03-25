@@ -1,6 +1,5 @@
 import asyncio
 import discord
-from discord.embeds import Embed
 from discord.ext import commands
 import os
 import logging
@@ -8,7 +7,6 @@ from discord.ext.commands.core import has_permissions
 import psutil
 import datetime
 import aiosqlite
-import sqlite3
 from dotenv import load_dotenv
 from discord import Activity, ActivityType
 
@@ -55,23 +53,14 @@ async def get_prefix(bot, msg):
 
     return base
 
-class MyHelpCommand(commands.MinimalHelpCommand):
-    async def send_pages(self):
-        destination = self.get_destination()
-        e = discord.Embed(title='Alexx-bot Help', description ='', color = discord.Colour.random())
-        for page in self.paginator.pages:
-            e.description += page
-        e.add_field(name='Useful Links', value='[Click me for a detailed command list](http://alexx.lol)\n[Support Server](https://discord.gg/zPWMRMXQ7H)')
-        e.add_field(name='Invite me!', value='[Invite link (recommended)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
-    + '\n[Invite link (required)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)')
-        await destination.send(embed=e)
 
 
-bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents, help_command = MyHelpCommand())
+bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents)
 bot.prefixes = {}
 bot.ubl = {}
 bot.logcache = {}
 bot.autorolecache = {}
+bot.remove_command('help')
 
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -155,6 +144,7 @@ except: #if it fails, looks in a different path (for my own testing purposes)
 
 
 
+
 @bot.event
 async def on_ready():
     await bot.wait_until_ready()
@@ -194,26 +184,12 @@ async def on_message(message: discord.Message):
         if str(message.author.id) in bot.ubl["users"]:
             return
         
-        # rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
-        # print('used db for bl')
-        # if rows != []:
-        #     everyone = list(bot.ubl["users"])
-        #     everyone.append(message.author.id)
-        #     bot.ubl.update({f"users" : f"{everyone}"})
-        #     return
 #################
     if not message.author.bot:
         if message.content in [f'<@!{bot.user.id}>', f'<@{bot.user.id}>']:
             if str(message.author.id) in bot.ubl["users"]:
                 return
             
-            # rows = await bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(message.author.id,),)
-            # print('used db for bl')
-            # if rows != []:
-            #     everyone = list(bot.ubl["users"])
-            #     everyone.append(message.author.id)
-            #     bot.ubl.update({f"users" : f"{everyone}"})
-            #     return
             e = discord.Embed(color=0, description= f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
             await message.channel.send(embed=e)
 
@@ -224,15 +200,10 @@ async def on_message(message: discord.Message):
 #about command
 @commands.cooldown(2, 6, commands.BucketType.user)
 @bot.command(aliases=["info", "about"],help="Gives you information about the bot and its owner, as well as an invite like for the bot.")
-async def botinfo(ctx):
+async def stats(ctx):
     embed = discord.Embed(color=0x7289da)
     embed.title = "About the Bot"
     embed.description = ('A multi-purpose discord bot written in python by `Alexx#7687` that is straightforward and easy to use. \nOh, and how could I forget? Cats. Lots of cats. 🐱')
-    embed.add_field(name='Useful links', 
-    value=('[Invite link (recommended)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' 
-    + '\n[Invite link (required)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
-    + '\n[Support Server](https://discord.gg/zPWMRMXQ7H)'
-    + '\n[Commands help](http://alexx.lol)'), inline = True)
     embed.add_field(name='Total servers', value=f' {len(bot.guilds)}', inline = True)
     embed.add_field(name='Total users', value = f'{len(set(bot.get_all_members()))}', inline = True)
     embed.add_field(name='Ping', value=f'{round(bot.latency * 1000)}ms', inline = True)
@@ -242,26 +213,7 @@ async def botinfo(ctx):
     embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=embed)
 
-@has_permissions(manage_guild=True)
-@commands.cooldown(2, 10, commands.BucketType.guild)
-@bot.command(aliases=["changeprefix", "prefix"],help='Sets the server prefix.')
-async def setprefix(ctx, prefix: str):
-    await bot.wait_until_ready()
-    if len(prefix) > 20:
-        return await ctx.send('Prefix is too long.')
-    
-    custom = await bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(ctx.guild.id,),)
-    if custom:
-        await bot.pr.execute("UPDATE prefixes SET prefix = ? WHERE guild_id = ?",(prefix, ctx.guild.id,),)
-        await bot.pr.commit()
-        bot.prefixes.update({f"{ctx.guild.id}" : f"{prefix}"})
-    else:    
-        await bot.pr.execute("INSERT INTO prefixes VALUES (?, ?)",(ctx.guild.id, prefix),)
-        await bot.pr.commit()
-        bot.prefixes.update({f"{ctx.guild.id}" : f"{prefix}"})
-        
-    e = discord.Embed(description = f'Set prefix to `{prefix}`', color = 0)
-    await ctx.send(embed = e)
+
 
 @commands.is_owner()
 @bot.command(hidden=True)
