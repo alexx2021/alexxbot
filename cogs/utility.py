@@ -196,8 +196,8 @@ class Utility(commands.Cog):
             description = await self.bot.wait_for('message', check=promptCheck, timeout=30)
             prize = description.content
 
-            if len(prize) > 1024:
-                return await ctx.send(f'Prize text cannot be longer than 1024 chars.')
+            if len(prize) > 201:
+                return await ctx.send(f'Prize text cannot be longer than 200 chars.')
 
         
         except asyncio.exceptions.TimeoutError:
