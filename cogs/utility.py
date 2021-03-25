@@ -1,7 +1,7 @@
 from io import BytesIO
 import discord
 import datetime
-from discord.ext.commands.core import bot_has_permissions
+from discord.ext.commands.core import bot_has_permissions, has_permissions
 import asyncio
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
@@ -150,6 +150,152 @@ class Utility(commands.Cog):
     #                 embed.set_footer(text=f'Requested by: {ctx.author}' + '\u200b')
     #                 await ctx.send(embed=embed)
     #                 await asyncio.sleep(1.5)
+
+    @commands.max_concurrency(1, per=BucketType.channel, wait=False)
+    @has_permissions(manage_messages=True)
+    @bot_has_permissions(manage_messages=True)
+    @commands.cooldown(2, 10, commands.BucketType.guild) 
+    @commands.guild_only()
+    @commands.command(help='Use this to create a giveaway in your server that randomly chooses the winner!')
+    async def giveaway(self,ctx): #check if giveaway already exists in the server
+        def promptCheck(message):
+            return message.author == ctx.author and message.channel == ctx.channel
+
+        try:
+            await ctx.send(f'{ctx.author.mention}, How long should this giveaway last?", `s|m|h|d` are acceptable time units.')
+            timemsg = await self.bot.wait_for('message', check=promptCheck, timeout=30)
+            
+            timeinput = timemsg.content
+            
+            seconds = 0
+            try: 
+                if timeinput.lower().endswith("d"):
+                    seconds += int(timeinput[:-1]) * 60 * 60 * 24
+                    counter = f"{seconds // 60 // 60 // 24} day(s)"
+                if timeinput.lower().endswith("h"):
+                    seconds += int(timeinput[:-1]) * 60 * 60
+                    counter = f"{seconds // 60 // 60} hour(s)"
+                elif timeinput.lower().endswith("m"):
+                    seconds += int(timeinput[:-1]) * 60
+                    counter = f"{seconds // 60} minute(s)"
+                elif timeinput.lower().endswith("s"):
+                    seconds += int(timeinput[:-1])
+                    counter = f"{seconds} second(s)"
+                
+                if seconds < 10:
+                    await ctx.send(f"Time must not be less than 10 seconds.")
+                    return
+                if seconds > 7776000:
+                    await ctx.send(f"Time must not be more than 90 days")
+                    return
+            except ValueError:
+                return await ctx.send('Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
+
+            
+            
+            await ctx.send(f'{ctx.author.mention}, What will be given away?')
+            description = await self.bot.wait_for('message', check=promptCheck, timeout=30)
+            prize = description.content
+
+            if len(prize) > 1024:
+                return await ctx.send(f'Prize text cannot be longer than 1024 chars.')
+
+        
+        except asyncio.exceptions.TimeoutError:
+            return await ctx.send(f'Giveaway creation timed out.')
+
+        e = discord.Embed(color=0x7289da, title=f'`{prize}` will be given away in {counter}', description= '**Is this correct?**')
+        m = await ctx.send(embed=e)
+        try:
+            await m.add_reaction("✅")
+            await asyncio.sleep(0.25)
+            await m.add_reaction("🇽")
+        except discord.Forbidden:
+            await ctx.send('I do not have permission to add reactions!')
+
+        try:
+            reaction, member = await self.bot.wait_for(
+                "reaction_add",
+                timeout=60,
+                check=lambda reaction, user: user == ctx.author
+                and reaction.message.channel == ctx.channel
+            )
+        except asyncio.exceptions.TimeoutError:
+            await ctx.send("Confirmation Failure. Please try again.")
+            return
+
+        if str(reaction.emoji) not in ["✅", "🇽"] or str(reaction.emoji) == "🇽":
+            await ctx.send("Cancelling giveaway!")
+            return
+        
+        await asyncio.sleep(0.5)
+        await m.delete()
+        await asyncio.sleep(0.5)
+
+        giveawayEmbed = discord.Embed(title="**Giveaway** 🥳 - react to enter!", description=prize, color=0x7289da)
+        giveawayEmbed.set_footer(text=f"This giveaway ends {counter} from this message.")
+        embedmsg = await ctx.send(embed=giveawayEmbed)
+        await embedmsg.add_reaction("🎉")
+
+        future = int(time.time()+seconds)
+        guild_id = int(ctx.guild.id)
+        message_id = int(embedmsg.id)
+        user_id = int(ctx.author.id)
+        channel_id = int(ctx.channel.id)
+
+        await self.bot.rm.execute("INSERT INTO giveaways VALUES(?, ?, ?, ?, ?)", (guild_id, channel_id, message_id, user_id, future))
+        await self.bot.rm.commit()
+
+    @commands.cooldown(2, 5, commands.BucketType.user)
+    @commands.command(help='Reminds you about something after the time you choose! \n __timeinput__: 1 second --> 1s, 1 minute --> 1m, 1 hour --> 1h, 1 day --> 1d \nChoose ONE time unit in the command.', aliases=["rm","remind"])
+    async def remindme(self, ctx,  timeinput, *, text):
+        seconds = 0
+        try: 
+            if timeinput.lower().endswith("d"):
+                seconds += int(timeinput[:-1]) * 60 * 60 * 24
+                counter = f"**{seconds // 60 // 60 // 24} day(s)**"
+            if timeinput.lower().endswith("h"):
+                seconds += int(timeinput[:-1]) * 60 * 60
+                counter = f"**{seconds // 60 // 60} hour(s)**"
+            elif timeinput.lower().endswith("m"):
+                seconds += int(timeinput[:-1]) * 60
+                counter = f"**{seconds // 60} minute(s)**"
+            elif timeinput.lower().endswith("s"):
+                seconds += int(timeinput[:-1])
+                counter = f"**{seconds} second(s)**"
+            
+            if seconds < 10:
+                await ctx.send(f"Time must not be less than 10 seconds.")
+                return
+            if seconds > 7776000:
+                await ctx.send(f"Time must not be more than 90 days")
+                return
+            if len(text) > 1900:
+                await ctx.send(f"The text you provided is too long.")
+                return
+        except ValueError:
+            return await ctx.send('Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
+        
+        future = int(time.time()+seconds)
+        id = int(ctx.author.id)
+        remindtext = text
+        #await ctx.send(f'{future-seconds} = now, {int(time.time()+seconds)} = future time, {remindtext} = content  ')
+
+        rows3 = await self.bot.rm.execute_fetchall("SELECT OID, id, future, remindtext FROM reminders WHERE id = ?",(id,),)
+        if rows3 != []:
+            try:
+                if rows3[2]:
+                    return await ctx.send(f'{ctx.author.mention}, you cannot have more than 3 reminders at once!')
+            except IndexError:
+                pass
+
+        await self.bot.rm.execute("INSERT INTO reminders VALUES(?, ?, ?)", (id, future, remindtext))
+        await self.bot.rm.commit()
+        
+
+        e = discord.Embed(description=f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.", color = 0x7289da)
+        e.timestamp = datetime.datetime.utcnow()
+        await ctx.send(embed=e)
 
 
 

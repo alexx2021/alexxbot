@@ -1,10 +1,6 @@
-from logging import Logger
 import discord
 import datetime
-import sqlite3
-import asyncio
 from discord.ext import commands
-from discord.ext.commands.core import has_permissions
 from utils import check_if_log, sendlog
 
 
@@ -12,62 +8,6 @@ from utils import check_if_log, sendlog
 class Logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot    
-
-    @has_permissions(manage_guild=True)
-    @commands.cooldown(3, 15, commands.BucketType.guild)
-    @commands.command(help='Use this to set your logging channel!', hidden=False)
-    async def setlogchannel(self, ctx, channel: discord.TextChannel=None):
-        server_id = ctx.guild.id
-        
-        if channel is not None:
-                
-                log_channel = channel.id
-                null = str('null')
-                rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
-                
-                if rows == []:
-                    self.bot.logcache.update({f"{ctx.guild.id}" : f"{log_channel}"})
-
-                    await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, log_channel, null))
-                    await self.bot.sc.commit()
-                    await ctx.send(f'Done! Logging channel set to {channel.mention}.')
-
-                else:
-                    rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
-                    if rows != []:
-                        try:
-                            self.bot.logcache.pop(f"{ctx.guild.id}")
-                        except IndexError:
-                            pass
-                        await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
-                        await self.bot.sc.commit()
-                        await ctx.send('Logging channel has been reset. Run the command again to set the new channel.')
-
-        if channel is None:
-                local_log_channel = ctx.channel.id
-                null = str('null')
-                rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
-                
-                if rows == []:
-                    self.bot.logcache.update({f"{ctx.guild.id}" : f"{local_log_channel}"})
-
-                    await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, local_log_channel, null))
-                    await self.bot.sc.commit()
-                    await ctx.send(f'Done! Logging channel set to {ctx.channel.mention}.')
-
-                else:
-                    rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
-                    if rows != []:
-                        try:
-                            self.bot.logcache.pop(f"{ctx.guild.id}")
-                        except IndexError:
-                            pass
-                        await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
-                        await self.bot.sc.commit()
-                        await ctx.send('Logging channel has been reset. Run the command again to set the new channel.')
-
-
-
 
 
     @commands.is_owner()

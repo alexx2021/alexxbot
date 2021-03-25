@@ -16,57 +16,6 @@ class Reminders(commands.Cog):
         self.bot = bot
         self.check_reminders.start()
     
-    
-    @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.command(help='Reminds you about something after the time you choose! \n\n __timeinput__: 1 second --> 1s, 1 minute --> 1m, 1 hour --> 1h, 1 day --> 1d \nChoose ONE time unit in the command.', aliases=["rm","remind"])
-    async def remindme(self, ctx,  timeinput, *, text):
-        seconds = 0
-        try: 
-            if timeinput.lower().endswith("d"):
-                seconds += int(timeinput[:-1]) * 60 * 60 * 24
-                counter = f"**{seconds // 60 // 60 // 24} day(s)**"
-            if timeinput.lower().endswith("h"):
-                seconds += int(timeinput[:-1]) * 60 * 60
-                counter = f"**{seconds // 60 // 60} hour(s)**"
-            elif timeinput.lower().endswith("m"):
-                seconds += int(timeinput[:-1]) * 60
-                counter = f"**{seconds // 60} minute(s)**"
-            elif timeinput.lower().endswith("s"):
-                seconds += int(timeinput[:-1])
-                counter = f"**{seconds} second(s)**"
-            
-            if seconds < 10:
-                await ctx.send(f"Time must not be less than 10 seconds.")
-                return
-            if seconds > 7776000:
-                await ctx.send(f"Time must not be more than 90 days")
-                return
-            if len(text) > 1900:
-                await ctx.send(f"The text you provided is too long.")
-                return
-        except ValueError:
-            return await ctx.send('Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
-        
-        future = int(time.time()+seconds)
-        id = int(ctx.author.id)
-        remindtext = text
-        #await ctx.send(f'{future-seconds} = now, {int(time.time()+seconds)} = future time, {remindtext} = content  ')
-
-        rows3 = await self.bot.rm.execute_fetchall("SELECT OID, id, future, remindtext FROM reminders WHERE id = ?",(id,),)
-        if rows3 != []:
-            try:
-                if rows3[2]:
-                    return await ctx.send(f'{ctx.author.mention}, you cannot have more than 3 reminders at once!')
-            except IndexError:
-                pass
-
-        await self.bot.rm.execute("INSERT INTO reminders VALUES(?, ?, ?)", (id, future, remindtext))
-        await self.bot.rm.commit()
-        
-
-        e = discord.Embed(description=f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.", color = 0x7289da)
-        e.timestamp = datetime.datetime.utcnow()
-        await ctx.send(embed=e)
    
 
     @commands.is_owner()
