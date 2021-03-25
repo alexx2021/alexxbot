@@ -116,7 +116,10 @@ class MarkovChain(commands.Cog):
 
         # format final sentence
         markov_sentence = await self.format_sentence(sentence)
-        return markov_sentence
+        if len(markov_sentence) > 1999:
+            return "Markov chain was too long to display in one message."
+        else:
+            return markov_sentence
 
 
 def setup(bot):
