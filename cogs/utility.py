@@ -5,7 +5,6 @@ from discord.ext.commands.core import bot_has_permissions, has_permissions
 import asyncio
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
-from time import perf_counter 
 import time
 # from discord import Spotify
 # from discord import CustomActivity

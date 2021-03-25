@@ -1,10 +1,6 @@
 import discord
-import sqlite3
 import asyncio
 from discord.ext import commands
-from discord.ext.commands.cooldowns import BucketType
-from discord.ext.commands.core import has_permissions
-
 
 class Welcome(commands.Cog):
     def __init__(self, bot):

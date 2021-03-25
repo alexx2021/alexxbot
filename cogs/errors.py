@@ -9,9 +9,6 @@ import datetime
 import DiscordUtils
 import traceback
 import sys
-from discord import Webhook, AsyncWebhookAdapter
-import aiohttp
-import os
 from discord.ext.commands.errors import MaxConcurrencyReached
 from discord.ext.commands.errors import NSFWChannelRequired
 

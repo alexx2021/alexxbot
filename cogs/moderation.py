@@ -1,5 +1,4 @@
 import asyncio
-from logging import Logger
 import discord
 import datetime
 from discord.ext import commands

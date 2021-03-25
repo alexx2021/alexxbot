@@ -1,12 +1,9 @@
 
 import discord
 import asyncio
-import datetime
 import time
 import random
 from discord.ext import commands, tasks
-from discord.ext.commands.cooldowns import BucketType
-from discord.ext.commands.core import bot_has_permissions, has_permissions
 from utils import get_or_fetch_channel, get_or_fetch_guild
 
 BOT_ID = int(752585938630082641)

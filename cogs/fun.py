@@ -5,7 +5,6 @@ import aiohttp
 from discord.ext import commands
 import random
 
-from discord.ext.commands.cooldowns import BucketType
 
 #Fun Category
 class Fun(commands.Cog):

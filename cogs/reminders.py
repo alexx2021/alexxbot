@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from discord.ext import tasks
-import sqlite3
 import asyncio
 import time
 import datetime

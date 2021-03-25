@@ -1,7 +1,5 @@
 import discord
-import asyncio
 import aiohttp
-from discord.colour import Color
 from discord.ext import commands
 
 #Fun Category
