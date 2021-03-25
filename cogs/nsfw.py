@@ -11,6 +11,7 @@ class NSFW(commands.Cog):
 
     @commands.guild_only()
     @commands.is_nsfw()
+    @commands.command(hidden=True)
     async def nsfwcommands(self, ctx):
         e = discord.Embed(Color=0, title = 'NSFW Commands',description='catgirl\nboobs\npussy\nspank\nhentai\nanal\nbj')
         await ctx.send(embed=e)
@@ -101,7 +102,6 @@ class NSFW(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
-    @commands.is_owner()
     @commands.is_nsfw()
     @commands.command(hidden=True)
     async def trap(self, ctx):
