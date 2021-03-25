@@ -35,7 +35,7 @@ class Moderation(commands.Cog):
     #clear command
     @bot_has_permissions(manage_messages=True, read_message_history=True)    
     @has_permissions(manage_messages=True)
-    @commands.command(aliases=["purge"], help="Clears messages. Messages older than 2 weeks cannot be deleted")
+    @commands.command(aliases=["purge"], help="Clears messages. Messages older than 2 weeks cannot be deleted.")
     async def clear(self, ctx,*, limit:int):
         with ctx.channel.typing():
             if limit <= 0:
@@ -380,7 +380,7 @@ class Moderation(commands.Cog):
     #sets slowmode in a channel
     @bot_has_permissions(manage_channels=True)
     @has_permissions(manage_messages=True)
-    @commands.command(aliases=["sm"], help="Sets the slowmode, in seconds")
+    @commands.command(aliases=["sm"], help="Sets the slowmode, in seconds.")
     async def slowmode(self, ctx, seconds: int):
         await ctx.channel.edit(slowmode_delay=seconds)
         if seconds > 21000:

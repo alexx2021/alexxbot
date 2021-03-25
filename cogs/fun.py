@@ -56,9 +56,22 @@ class Fun(commands.Cog):
     #     await ctx.send(f'**{ctx.author} hugged {user} :3**') 
     #     await ctx.send(f'{random.choice(hugstring)}') 
     
+    #fact command
+    @commands.guild_only()
+    @commands.command(help=('Spits out a random fact!'))
+    @commands.cooldown(4, 10, commands.BucketType.channel)
+    async def fact(self, ctx):
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://nekos.life/api/v2/fact') as r: 
+                data = await r.json()
+                embed = discord.Embed(color=0x7289da)
+                embed.title = "Random Fact" 
+                embed.description = (data['fact'])
+                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
+                await ctx.send(embed=embed)
     
     @commands.guild_only()
-    @commands.command(help=('free infinite hugs'))
+    @commands.command(help=('Hug someone.'))
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def hug(self, ctx, member: discord.Member=None):
         if member is None:
@@ -82,7 +95,7 @@ class Fun(commands.Cog):
                 await ctx.send(embed=embed)
 
     @commands.guild_only()
-    @commands.command(help=('free infinite slaps'))
+    @commands.command(help=('Slap someone.'))
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def slap(self, ctx, member: discord.Member=None):
         if member is None:
@@ -135,7 +148,7 @@ class Fun(commands.Cog):
     
     #cat command
     @commands.guild_only()
-    @commands.command(help=('free infinite catz'))
+    @commands.command(help=('cat.'))
     @commands.cooldown(5, 10, commands.BucketType.channel)
     async def cat(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -147,23 +160,9 @@ class Fun(commands.Cog):
                 embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
-    #fact command
-    @commands.guild_only()
-    @commands.command(help=('free infinite facts'))
-    @commands.cooldown(4, 10, commands.BucketType.channel)
-    async def fact(self, ctx):
-        async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://nekos.life/api/v2/fact') as r: 
-                data = await r.json()
-                embed = discord.Embed(color=0x7289da)
-                embed.title = "Random Fact" 
-                embed.description = (data['fact'])
-                embed.set_footer(text=f'Requested by: {ctx.author}', icon_url=ctx.author.avatar_url)
-                await ctx.send(embed=embed)
-
     #cat command
     @commands.guild_only()
-    @commands.command(help=('free infinite dogz'))
+    @commands.command(help=('dog.'))
     @commands.cooldown(5, 10, commands.BucketType.channel)
     async def dog(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -177,7 +176,7 @@ class Fun(commands.Cog):
 
     #goose command 
     @commands.guild_only()
-    @commands.command(help='free infinite gooses :)')
+    @commands.command(help='goose.')
     @commands.cooldown(5, 10, commands.BucketType.channel)
     async def goose(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -192,7 +191,7 @@ class Fun(commands.Cog):
 
     #duck command
     @commands.guild_only()
-    @commands.command(help=('free infinite duckz'))
+    @commands.command(help=('duck.'))
     @commands.cooldown(5, 10, commands.BucketType.channel)
     async def duck(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -207,7 +206,7 @@ class Fun(commands.Cog):
 
     #bunny command
     @commands.guild_only()
-    @commands.command(help=('free infinite bunnyz'))
+    @commands.command(help=('bunny.'))
     @commands.cooldown(5, 10, commands.BucketType.channel)
     async def bunny(self, ctx):
         async with aiohttp.ClientSession() as cs:
@@ -256,7 +255,7 @@ class Fun(commands.Cog):
     #                 else:
     #                     await message.channel.send('incorrect password!!')
 
-    @commands.command(help='Search urban dictionary for the given term', aliases=['ud','urban'])
+    @commands.command(help='Search urban dictionary for the given term.', aliases=['ud','urban'])
     @commands.guild_only()
     @commands.cooldown(3, 10, commands.BucketType.user)
     async def urbandictionary(self, ctx, *msg):

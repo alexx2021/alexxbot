@@ -39,7 +39,7 @@ class Utility(commands.Cog):
 
     #userinfo command
     @commands.guild_only()
-    @commands.command(aliases=["whois"], help='Displays information about a mentioned user')
+    @commands.command(aliases=["whois"], help='Displays information about a mentioned user.')
     async def userinfo(self, ctx, member: discord.Member=None):
         if member is None:
             member = ctx.author
@@ -68,7 +68,7 @@ class Utility(commands.Cog):
 
 	#server info command
     @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.command(help='Displays information about the server')
+    @commands.command(help='Displays information about the server.')
     async def serverinfo(self, ctx):
         embed = discord.Embed(title="Server Information", colour=0x7289da, timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=ctx.guild.icon_url)
