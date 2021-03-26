@@ -3,8 +3,7 @@ import discord
 from discord.ext import commands
 
 bot_title = 'Alexx-bot help'
-bottom_info = '[Click me for a detailed command list](http://alexx.lol)\n[Support Server](https://discord.gg/zPWMRMXQ7H)'
-bottom_info_2 = ('[Invite link (recommended)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=8&scope=bot)' + '\n[Invite link (required)](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)')
+bottom_info = '[Documentation](http://alexx.lol) | [Support Server](https://discord.gg/zPWMRMXQ7H) | [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
 prefix = ''
 
 async def generate_command_list(self, cog):
@@ -69,7 +68,6 @@ class Help(commands.Cog):
                     embed.add_field(name=f'**{cog}**', value=temp, inline=False)
             if bottom_info != "":
                 embed.add_field(name="Links", value=bottom_info, inline=False)
-                embed.add_field(name="Invite me!", value=bottom_info_2, inline=False)
         elif len(commands) == 1:
             # Try to see if it is a cog name
             name = commands[0].capitalize()
