@@ -2,7 +2,7 @@ import discord
 import aiohttp
 from discord.ext import commands
 
-#Fun Category
+#NSFW Category
 class NSFW(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
