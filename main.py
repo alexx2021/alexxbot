@@ -169,7 +169,7 @@ async def can_do_stuff(ctx):
         if not perms.send_messages:
             return False
         elif not perms.embed_links:
-            await ctx.send('I am missing permisions to send embeds :(')
+            await ctx.send('I am missing permissions to send embeds :(')
             return False
         else:
             return True
@@ -185,19 +185,28 @@ async def on_message(message: discord.Message):
         
     p = tuple(await get_prefix(bot, message))
 
-    if message.content.startswith(p): # only query database if a command is run
-#################
+    if message.content.startswith(p): # only query cache if a command is run
         if str(message.author.id) in bot.ubl["users"]:
             return
-        
-#################
-    if not message.author.bot:
-        if message.content in [f'<@!{bot.user.id}>', f'<@{bot.user.id}>']:
-            if str(message.author.id) in bot.ubl["users"]:
-                return
+
+######################################################################################################
+
+    if not message.author.bot: #bots dont trigger this
+        if message.content in [f'<@!{bot.user.id}>', f'<@{bot.user.id}>']: #check if msg is a mention
             
-            e = discord.Embed(color=0, description= f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
-            await message.channel.send(embed=e)
+            if str(message.author.id) in bot.ubl["users"]: #blacklist check
+                return
+            else:
+                if message.guild:
+                    perms = message.channel.permissions_for(message.guild.me) #get perms for channel the bot will respond in
+                    if not perms.send_messages:
+                        return #dont do anything if the bot cannot speak in that channel
+                    elif not perms.embed_links:
+                        await message.channel.send('I am missing permissions to send embeds :(')
+                        return #let the server know if the bot cannot send embeds
+                    else:
+                        e = discord.Embed(color=0, description= f'The prefix for this guild is `{p[0]}`\n You can change it with `{p[0]}setprefix <newprefix>`')
+                        await message.channel.send(embed=e) #send embed if all is good
 
     await bot.process_commands(message)
 
