@@ -208,14 +208,23 @@ class Configuration(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.guild)
     @commands.command(help='Deletes the currently set autorole.')
     async def delautorole(self, ctx):
-        try:
-            self.bot.autorolecache.pop(f"{ctx.guild.id}")
-        except IndexError:
-            pass
-        await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(ctx.guild.id,))
-        await self.bot.sc.commit()
-        e = discord.Embed(description = f'Autorole disabled.', color = 0)
-        await ctx.send(embed = e)
+        auto = await self.bot.sc.execute_fetchall("SELECT * FROM autorole WHERE guild_id = ?",(ctx.guild.id,),)
+        if auto:
+            try:
+                self.bot.autorolecache.pop(f"{ctx.guild.id}")
+            except IndexError:
+                pass
+            await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(ctx.guild.id,))
+            await self.bot.sc.commit()
+            e = discord.Embed(description = f'Autorole disabled.', color = 0)
+            await ctx.send(embed = e)
+        else:
+            try:
+                self.bot.autorolecache.pop(f"{ctx.guild.id}")
+            except IndexError:
+                pass
+            e = discord.Embed(description = f'There is no autorole currently set up in this server.', color = 0)
+            await ctx.send(embed = e)
 
 def setup(bot):
 	bot.add_cog(Configuration(bot))
