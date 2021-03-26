@@ -81,7 +81,16 @@ class Events(commands.Cog):
     @commands.command(hidden=True)
     async def pong(self, ctx):
         await ctx.send(':thinking:')
-
+    
+    @commands.is_owner()
+    @commands.command(hidden=True)
+    async def test(self, ctx):
+        perms = ctx.channel.permissions_for(ctx.guild.me)
+        if not perms.send_messages:
+            return print('good')
+        if not perms.embed_links:
+            await ctx.send('I am missing permisions to send embeds :(')
+        
 
     
     # @commands.Cog.listener()

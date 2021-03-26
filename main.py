@@ -161,6 +161,20 @@ async def on_ready():
 #         else:
 #             return True
 
+#reduces forbiddden errors due to not being able to respond to commands lol
+@bot.check_once
+async def can_do_stuff(ctx):
+    if ctx.message.guild:
+        perms = ctx.channel.permissions_for(ctx.guild.me)
+        if not perms.send_messages:
+            return False
+        elif not perms.embed_links:
+            await ctx.send('I am missing permisions to send embeds :(')
+            return False
+        else:
+            return True
+
+
 
 @bot.event
 async def on_message(message: discord.Message):
