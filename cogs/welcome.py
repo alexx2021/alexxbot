@@ -1,7 +1,7 @@
 import discord
 import logging
 from discord.ext import commands
-logger = logging.getlogger('discord')
+logger = logging.getLogger('discord')
 
 class Welcome(commands.Cog):
     def __init__(self, bot):
