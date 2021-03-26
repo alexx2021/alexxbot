@@ -28,7 +28,7 @@ class Errors(commands.Cog):
             return
         
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f'Command is missing required arguments.')
+            return await ctx.send(f'Command is missing required arguments.')
         
         elif isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f'{ctx.author.mention}, That command is on cooldown for another **{round(error.retry_after, 2)}** seconds')
@@ -52,7 +52,7 @@ class Errors(commands.Cog):
                 ch = self.bot.get_channel(813600852576829470)
                 if not ch:
                     ch = self.bot.fetch_channel(813600852576829470)
-                await ch.send(embed=embed)
+                return await ch.send(embed=embed)
             else:
                 embed = discord.Embed(
                 title=f"Command used. (triggered cooldown)",
@@ -66,28 +66,28 @@ class Errors(commands.Cog):
                 ch = self.bot.get_channel(813600852576829470)
                 if not ch:
                     ch = self.bot.fetch_channel(813600852576829470)
-                await ch.send(embed=embed)
+                return await ch.send(embed=embed)
         
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send(f"{ctx.author.mention}, You are missing the following permissions: `{' '.join(error.missing_perms)}`.")
+            return await ctx.send(f"{ctx.author.mention}, You are missing the following permissions: `{' '.join(error.missing_perms)}`.")
 
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.send(f"I am missing the following permissions: `{' '.join(error.missing_perms)}`.")
+            return await ctx.send(f"I am missing the following permissions: `{' '.join(error.missing_perms)}`.")
 
         elif isinstance(error, commands.BadArgument):
-            await ctx.send(f'Command was given bad arguments.')
+            return await ctx.send(f'Command was given bad arguments.')
         
         elif isinstance(error, commands.NotOwner): 
             return
 
         elif isinstance(error, commands.NoPrivateMessage):
-            await ctx.send(f'You cannot use this command in DMs!.')
+            return await ctx.send(f'You cannot use this command in DMs!.')
         
         elif isinstance(error, MaxConcurrencyReached):
-            await ctx.send(f'This command cannot be run while there is a another instance currently running in this channel.')
+            return await ctx.send(f'This command cannot be run while there is a another instance currently running in this channel.')
             
         elif isinstance(error, commands.errors.NSFWChannelRequired):
-            await ctx.send(f'{ctx.author.mention} This command cannot be run in a non-nsfw marked channel...')
+            return await ctx.send(f'{ctx.author.mention} This command cannot be run in a non-nsfw marked channel...')
         
         ###################################################
         # the following are for the music portion of the bot
@@ -97,14 +97,14 @@ class Errors(commands.Cog):
             return
         
         elif isinstance(error, DiscordUtils.NotConnectedToVoice):
-            await ctx.send('The bot is not currently in a voice channel! Join a voice channel and play a song and it will join.')
+            return await ctx.send('The bot is not currently in a voice channel! Join a voice channel and play a song and it will join.')
 
 
         elif isinstance(error, DiscordUtils.NotPlaying):
-            await ctx.send('There is no song currently playing!')
+            return await ctx.send('There is no song currently playing!')
 
         elif isinstance(error, DiscordUtils.EmptyQueue):
-            await ctx.send('The queue is currently empty!')
+            return await ctx.send('The queue is currently empty!')
 
         else:
             embed = discord.Embed(title=':x: Command Error', colour=0xe74c3c) #Red
