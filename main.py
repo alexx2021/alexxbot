@@ -56,11 +56,11 @@ async def get_prefix(bot, msg):
 
 
 bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents)
+bot.remove_command('help')
 bot.prefixes = {}
 bot.ubl = {}
 bot.logcache = {}
 bot.autorolecache = {}
-bot.remove_command('help')
 
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -195,23 +195,6 @@ async def on_message(message: discord.Message):
 
     await bot.process_commands(message)
 
-
-
-# #about command
-# @commands.cooldown(2, 6, commands.BucketType.user)
-# @bot.command(aliases=["info", "about"],help="Gives you information about the bot and its owner, as well as an invite like for the bot.")
-# async def stats(ctx):
-#     embed = discord.Embed(color=0x7289da)
-#     embed.title = "About the Bot"
-#     embed.description = ('A multi-purpose discord bot written in python by `Alexx#7687` that is straightforward and easy to use. \nOh, and how could I forget? Cats. Lots of cats. 🐱')
-#     embed.add_field(name='Total servers', value=f' {len(bot.guilds)}', inline = True)
-#     embed.add_field(name='Total users', value = f'{len(set(bot.get_all_members()))}', inline = True)
-#     embed.add_field(name='Ping', value=f'{round(bot.latency * 1000)}ms', inline = True)
-#     embed.add_field(name='RAM Usage', value=f'{psutil.virtual_memory()[2]}%', inline = True)
-#     embed.add_field(name='CPU Usage', value=f'{psutil.cpu_percent()}%', inline = True)
-#     embed.timestamp = datetime.datetime.utcnow()
-#     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-#     await ctx.send(embed=embed)
 
 
 
