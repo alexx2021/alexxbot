@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 import datetime
-from utils import sendlog, check_if_log
+from utils import get_or_fetch_channel, sendlog, check_if_log
 
 
 
@@ -92,76 +92,6 @@ class Invites(commands.Cog):
         self.bot = bot
         self.tracker = InviteTracker(bot)
 
-    # invites per server
-    # invites are subtracted if people leave
-    #
-    #
-    #### on join:
-    # inviter is fetched
-    # if it is NOT none
-    # check db if user who made inv link exists by searching for the member.guild.id AND the inviter.id
-    # 
-    # if user does exist, add 1 to their count
-    # else add them, and make their inv_count 1, and make their inv_by a special number, lets just say "4" cause thats a cool number 
-    # (will symbolize an unknown for who was their original inviter)
-    # 
-    # if new member has an entry, update their inv_by
-    # else add an entry and enter their inv by and set their inv_count to 0
-    # 
-    #### on leave
-    # check if member is in the db, and who invited them
-    # if someone invited them, find the db entry for that person (guild id AND user id) and subtract the count
-    #
-    # possibly add a resetinvites command?
-    #
-    #
-    # #DISABLE THIS IF THEY DONT HAVE AN INVITE LOGGING CHANNEL? 
-
-
-    ##################################################### Invites db updates for leave
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-
-        if await check_if_log(self, member.guild):    
-                
-            gid = member.guild.id
-            uid = member.id
-
-            query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-            params = (gid, uid)
-            rows = await self.bot.i.execute_fetchall(query, params)
-            
-            if rows != []:
-                toprow = rows[0]
-                invby = toprow[3]
-                if invby != 4:
-                    query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-                    params = (gid, invby)
-                    rows = await self.bot.i.execute_fetchall(query, params)
-                    if rows != []:
-                        toprow = rows[0]
-                        invcount = toprow[2]
-                        newinvcount = invcount - 1
-                        query = 'UPDATE invites SET inv_count = ? WHERE guild_id = ? AND user_id = ?' 
-                        params = (newinvcount, gid, invby)
-                        await self.bot.i.execute(query, params)
-                        await self.bot.i.commit()
-
-
-
-
-
-            #on join functions are in the other on member join in this file LOL, I dont wanna ping the api twice to fetch the data
-
-    
-
-
-    ##################################################### Invite Caching and updating + log channel sending 
-    # + check if guild is blacklisted on join (I bundled this function in here so the guild cache would not be updated if the server was blacklisted.)
-    # (no point in making a guild blacklist check in a separate cog because it would have to query the db twice at once)
-    #
-    # the invites db update on join is also here
-
     @commands.Cog.listener()
     async def on_ready(self):
         await asyncio.sleep(2)
@@ -175,7 +105,7 @@ class Invites(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.25)
 
         god = guild.owner.id
         rows = await self.bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(god,),) #checks if a user in BL owns the server
@@ -190,9 +120,9 @@ class Invites(commands.Cog):
             "\n" + "Created at " + str(guild.created_at), inline=False)
             embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
             embed.set_thumbnail(url=guild.icon_url)
-            ch = self.bot.get_channel(813600852576829470)
-            if not ch:
-                ch = self.bot.fetch_channel(813600852576829470)
+            
+            chID = 813600852576829470
+            ch = await get_or_fetch_channel(self, guild, chID)
             await ch.send(embed=embed)
             
             return
@@ -210,9 +140,9 @@ class Invites(commands.Cog):
             "\n" + "Created at " + str(guild.created_at), inline=False)
             embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
             embed.set_thumbnail(url=guild.icon_url)
-            ch = self.bot.get_channel(813600852576829470)
-            if not ch:
-                ch = self.bot.fetch_channel(813600852576829470)
+            
+            chID = 813600852576829470
+            ch = await get_or_fetch_channel(self, guild, chID)
             await ch.send(embed=embed)
             
             return
@@ -246,66 +176,6 @@ class Invites(commands.Cog):
                 embed1.add_field(name='Inviter', value=f'{inviter}', inline = True)
                 embed1.timestamp = datetime.datetime.utcnow()
                 embed1.set_footer(text=f'ID: {member.id}' + '\u200b')               
-                
-                #### on join:
-                # inviter is fetched
-                # if it is NOT none
-                # check db if user who made inv link exists by searching for the member.guild.id AND the inviter.id
-                # 
-                # if user does exist, add 1 to their count
-                # else add them, and make their inv_count 1, and make their inv_by a special number, lets just say "4" cause thats a cool number 
-                # (will symbolize an unknown for who was their original inviter)
-                # 
-                # if new member has an entry, update their inv_by
-                # else add an entry and enter their inv by and set their inv_count to 0
-
-                #invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)
-                
-                #does not need a logging entry check because under on_join it is already checked
-                gid = member.guild.id
-                uid = inviter.id
-                
-
-                query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-                params = (gid, uid)
-                rows = await self.bot.i.execute_fetchall(query, params)
-                
-                #inviter queries
-                if rows != []:
-                    toprow = rows[0]
-                    invcount = toprow[2]
-                    newinvcount = invcount + 1
-
-                    query = 'UPDATE invites SET inv_count = ? WHERE guild_id = ? AND user_id = ?'
-                    params = (newinvcount, gid, uid)
-                    await self.bot.i.execute(query, params)
-                    await self.bot.i.commit()
-
-                else:
-                    noinvhistory = 4
-                    oneinv = 1
-                    await self.bot.i.execute("INSERT INTO invites VALUES(?, ?, ?, ?)", (gid, uid, oneinv, noinvhistory))
-                    await self.bot.i.commit()
-                
-                
-                #member who got invited queries
-                query = 'SELECT guild_id, user_id, inv_count, inv_by FROM invites WHERE guild_id = ? AND user_id = ?' 
-                params = (gid, member.id)
-                rows2 = await self.bot.i.execute_fetchall(query, params)
-                
-                if rows2 != []:
-
-                    query = 'UPDATE invites SET inv_by = ? WHERE guild_id = ? AND user_id = ?' #update inv_by
-                    params = (inviter.id, gid, member.id)
-                    await self.bot.i.execute(query, params)
-                    await self.bot.i.commit()
-
-                else:
-                    zeroinv = 0
-                    await self.bot.i.execute("INSERT INTO invites VALUES(?, ?, ?, ?)", (gid, member.id, zeroinv, inviter.id))
-                    await self.bot.i.commit()
-
-
 
             else:
                 created_at = member.created_at.strftime("%b %d, %Y")
@@ -326,23 +196,7 @@ class Invites(commands.Cog):
     @commands.command(hidden=True)
     async def dumpd(self, ctx):
        await self.tracker.dumpdict(ctx)
-    @commands.is_owner()
-    @commands.command(hidden=True)
-    async def dumpinv(self, ctx):
-        rows = await self.bot.i.execute_fetchall("SELECT * FROM invites")
-        print('-----------dump-----------')
-        print(rows)
-        print('-----------dump-----------')
-        
-        await ctx.channel.send('done.')
     
-
-
-
-
-
-
-
 
 
 def setup(bot):
