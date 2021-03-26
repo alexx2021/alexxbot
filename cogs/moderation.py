@@ -381,8 +381,8 @@ class Moderation(commands.Cog):
     @has_permissions(manage_messages=True)
     @commands.command(aliases=["sm"], help="Sets the slowmode, in seconds.")
     async def slowmode(self, ctx, seconds: int):
-        if seconds > 21000:
-            return await ctx.send(f"You tried to set the slowmode to **{seconds}** seconds, but the maximum is **21000** seconds")
+        if seconds > 21600:
+            return await ctx.send(f"You tried to set the slowmode to **{seconds}** seconds, but the maximum is **21600** seconds")
 
         if seconds > 0:
             await ctx.send(f"Set the slowmode in this channel to **{seconds}** seconds!")
