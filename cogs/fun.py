@@ -4,6 +4,9 @@ import asyncio
 import aiohttp
 from discord.ext import commands
 import random
+import logging
+
+logger = logging.getLogger('discord')
 
 
 #Fun Category
@@ -26,7 +29,7 @@ class Fun(commands.Cog):
             except:
                 return
             finally:
-        	    print(f'user rickrolled successfully by {ctx.author}')
+        	    logger.info(msg=f'user rickrolled successfully by {ctx.author}')
 
     #sends a cat to the person mentioned in dms  
     # 
