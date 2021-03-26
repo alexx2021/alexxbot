@@ -3,9 +3,6 @@ import discord
 from discord.ext import commands
 import os
 import logging
-from discord.ext.commands.core import has_permissions
-import psutil
-import datetime
 import aiosqlite
 from dotenv import load_dotenv
 from discord import Activity, ActivityType
