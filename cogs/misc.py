@@ -30,10 +30,6 @@ class Events(commands.Cog):
         await self.bot.sc.commit()
 
         await asyncio.sleep(1)
-        await self.bot.i.execute("DELETE FROM invites WHERE guild_id = ?",(server,))
-        await self.bot.i.commit()
-
-        await asyncio.sleep(1)
         await self.bot.pr.execute("DELETE FROM prefixes WHERE guild_id = ?",(server,))
         await self.bot.pr.commit()
 
