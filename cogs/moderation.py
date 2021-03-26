@@ -383,12 +383,14 @@ class Moderation(commands.Cog):
     async def slowmode(self, ctx, seconds: int):
         await ctx.channel.edit(slowmode_delay=seconds)
         if seconds > 21000:
-            await ctx.send(f"You tried to set the slowmode to **{seconds}** seconds, but the maximum is **21000** seconds")
+            return await ctx.send(f"You tried to set the slowmode to **{seconds}** seconds, but the maximum is **21000** seconds")
 
         if seconds > 0:
             await ctx.send(f"Set the slowmode in this channel to **{seconds}** seconds!")
         else:
+            seconds = 0
             await ctx.send(f'Disabled slowmode!')
+        await ctx.channel.edit(slowmode_delay=seconds)
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
