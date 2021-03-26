@@ -13,7 +13,7 @@ class Configuration(commands.Cog):
     @commands.command(aliases=["changeprefix", "prefix"],help='Sets the server prefix.')
     async def setprefix(self, ctx, prefix: str):
         await self.bot.wait_until_ready()
-        if len(prefix) > 20:
+        if len(prefix) > 8:
             return await ctx.send('Prefix is too long.')
         
         custom = await self.bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(ctx.guild.id,),)
