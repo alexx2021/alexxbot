@@ -68,8 +68,6 @@ bot.pr = loop.run_until_complete(aiosqlite.connect('prefix.db'))
 bot.sc = loop.run_until_complete(aiosqlite.connect('serverconfigs.db'))
 bot.rm = loop.run_until_complete(aiosqlite.connect('reminders.db'))
 bot.m = loop.run_until_complete(aiosqlite.connect('muted.db'))
-bot.i = loop.run_until_complete(aiosqlite.connect('invites.db'))
-bot.mark = loop.run_until_complete(aiosqlite.connect('markov.db'))
 
 
 
@@ -91,10 +89,7 @@ async def setup_db(choice):
         #bot.sc.execute("CREATE TABLE IF NOT EXISTS welcomeinvite(server_id INTERGER, log_channel INTERGER, whURL TEXT)") #not sure if I want to keep this, might merge with welcome
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
-        
-        await bot.i.execute("CREATE TABLE IF NOT EXISTS invites(guild_id INTERGER, user_id INTERGER, inv_count INTERGER, inv_by INTERGER)")
 
-        await bot.mark.execute("CREATE TABLE IF NOT EXISTS chatlogs(guild_id INTERGER, message TEXT)")
 
 
 async def setup_stuff():
