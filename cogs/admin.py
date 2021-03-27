@@ -32,6 +32,15 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def logout(self, ctx):
+        await ctx.send('👌')
+        try:
+            await self.bot.logout()
+        except:
+            await ctx.send('something went wrong.')
+
 
     #gets current servers the bot is in
     @commands.command(hidden=True)
