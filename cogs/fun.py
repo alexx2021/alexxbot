@@ -13,6 +13,34 @@ logger = logging.getLogger('discord')
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+    
+    @commands.guild_only() 
+    @commands.cooldown(4, 10, commands.BucketType.channel)
+    @commands.command(help='Finds a random meme for you.')
+    async def meme(self, ctx):
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://some-random-api.ml/meme") as response:
+                data = await response.json()
+        embed = discord.Embed(title=data["caption"], colour=0x7289da)
+        embed.set_image(url=data["image"])
+        embed.set_footer(
+            text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
+        )
+        await ctx.send(embed=embed)
+
+    #fact command
+    @commands.guild_only()
+    @commands.command(help=('Finds a random fact for you.'))
+    @commands.cooldown(4, 10, commands.BucketType.channel)
+    async def fact(self, ctx):
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://nekos.life/api/v2/fact') as r: 
+                data = await r.json()
+                embed = discord.Embed(color=0x7289da)
+                embed.title = "Random Fact" 
+                embed.description = (data['fact'])
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                await ctx.send(embed=embed)
 
     #rickrolls the person mentioned in dms
     @commands.guild_only()    
@@ -31,46 +59,6 @@ class Fun(commands.Cog):
             finally:
         	    logger.info(msg=f'user rickrolled successfully by {ctx.author}')
 
-    #sends a cat to the person mentioned in dms  
-    # 
-    # currently disabled
-    #   
-    # @commands.command(help="sends cats to someone in their dms!",) 
-    # @commands.cooldown(1, 5, commands.BucketType.user)
-    # async def sendcat(self, ctx, user: discord.User):
-    #     user = await self.bot.fetch_user(user.id)
-    #     await ctx.message.delete()
-
-    #     response = requests.get('https://aws.random.cat/meow') 
-    #     data = response.json()
-    #     embed = discord.Embed(color=0x0000ff)
-    #     embed.title = "cats 4 u... sent with love :3" 
-    #     embed.set_image(url=(data['file']))
-    #     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-    #     await user.send(embed=embed)
-    
-    
-    # #hugs
-    # @commands.guild_only()
-    # @commands.command(help=('Hug another user!'))
-    # async def hug(self, ctx, user: discord.User):
-    #     hugstring = ["https://i.imgur.com/OgcCCPE.gifv","https://tenor.com/view/hug-love-hi-bye-cat-gif-15999080","https://tenor.com/view/milk-and-mocha-hug-love-heart-couple-gif-17258498","https://tenor.com/view/virtual-hug-penguin-love-heart-gif-14712845","https://tenor.com/view/cat-cuddling-kitty-kittens-hug-gif-17782164","https://tenor.com/view/kitten-cuddle-cat-cats-hug-gif-12568441","https://tenor.com/view/hugs-cats-hug-me-come-here-gif-13347201"]
-    #     await ctx.send(f'**{ctx.author} hugged {user} :3**') 
-    #     await ctx.send(f'{random.choice(hugstring)}') 
-    
-    #fact command
-    @commands.guild_only()
-    @commands.command(help=('Spits out a random fact!'))
-    @commands.cooldown(4, 10, commands.BucketType.channel)
-    async def fact(self, ctx):
-        async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://nekos.life/api/v2/fact') as r: 
-                data = await r.json()
-                embed = discord.Embed(color=0x7289da)
-                embed.title = "Random Fact" 
-                embed.description = (data['fact'])
-                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-                await ctx.send(embed=embed)
     
     @commands.guild_only()
     @commands.command(help=('Hug someone.'))
@@ -122,7 +110,7 @@ class Fun(commands.Cog):
 
     #chooses random result and tells you if you are gay :)
     @commands.guild_only()
-    @commands.command(help=('beep beep'))
+    @commands.command(help=('beep beep.'))
     async def gaydar(self, ctx, *, user):
         await ctx.send('Beep Beep Beep....')
         await asyncio.sleep(0.5)
@@ -142,11 +130,13 @@ class Fun(commands.Cog):
 
     #ask command from david's bot
     @commands.guild_only()
-    @commands.command(aliases=["8ball"], help=('8ball but better'))
+    @commands.command(aliases=["8ball"], help=('8ball.'))
     async def ask(self, ctx):
-        list = ['no', 'yes', 'idk', 'not sure', 'possibly']
+        list = ['As I see it, yes.', 'Ask again later.', 'Better not tell you now.', 'Cannot predict now.', 'Concentrate and ask again.',
+       'Don’t count on it.', 'It is certain.','It is decidedly so.','Most likely.','My reply is no.',' My sources say no.','Outlook not so good.',
+       'Outlook good.','Reply hazy, try again.','Signs point to yes.','Very doubtful.','Without a doubt.','Yes.',' Yes – definitely.',' You may rely on it.']
         word = random.choice(list)
-        await ctx.send(word)
+        await ctx.send("🎱 " + word)
     
     #cat command
     @commands.guild_only()
@@ -157,7 +147,7 @@ class Fun(commands.Cog):
             async with cs.get('https://nekos.life/api/v2/img/meow') as r:  #https://aws.random.cat/meow
                 data = await r.json()
                 embed = discord.Embed(color=0x7289da)
-                embed.title = "Catz" 
+                embed.title = "Kitty! 🐱" 
                 embed.set_image(url=(data['url']))
                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
@@ -171,7 +161,7 @@ class Fun(commands.Cog):
             async with cs.get('https://nekos.life/api/v2/img/woof') as r: #https://dog.ceo/api/breeds/image/random
                 data = await r.json()
                 embed = discord.Embed(color=0x7289da)
-                embed.title = "Dogz" 
+                embed.title = "Doggo! 🐶" 
                 embed.set_image(url=(data['url']))
                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
@@ -201,7 +191,7 @@ class Fun(commands.Cog):
                 if r.status == 200:
                     data = await r.json()
                     embed = discord.Embed(color=0x7289da)
-                    embed.title = "Duckz" 
+                    embed.title = "Duckies :3" 
                     embed.set_image(url=(data['url']))
                     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
@@ -223,7 +213,7 @@ class Fun(commands.Cog):
                     #await ctx.send(f'picID is {picID} and picURL is {picURL}')
                     
                     embed = discord.Embed(color=0x7289da)
-                    embed.title = "Bunnyz" 
+                    embed.title = "Bunnies!" 
                     embed.set_image(url=(picURL))
                     embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                     await ctx.send(embed=embed)
@@ -262,7 +252,7 @@ class Fun(commands.Cog):
     @commands.cooldown(3, 10, commands.BucketType.user)
     async def urbandictionary(self, ctx, *msg):
         if len(msg) == 0:
-            return await ctx.send('You need to have a word in there to look it up!')
+            return await ctx.send('You need input a word in order for me to look it up!')
         word = ' '.join(msg)
         # Send request to the Urban Dictionary API and grab info
         async with aiohttp.ClientSession() as cs:
