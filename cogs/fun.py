@@ -18,26 +18,26 @@ class Fun(commands.Cog):
     @commands.cooldown(4, 10, commands.BucketType.channel)
     @commands.command(help='Finds a random meme for you.')
     async def meme(self, ctx):
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://meme-api.herokuapp.com/gimme") as response:
-                data = await response.json()
-        embed = discord.Embed(title=data["title"], colour=0x7289da)
-        embed.set_image(url=data["url"])
-        embed.set_footer(
-            text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
-        )
-        await ctx.send(embed=embed)        
-        
-        
         # async with aiohttp.ClientSession() as session:
-        #     async with session.get("https://some-random-api.ml/meme") as response:
+        #     async with session.get("https://meme-api.herokuapp.com/gimme") as response:
         #         data = await response.json()
-        # embed = discord.Embed(title=data["caption"], colour=0x7289da)
-        # embed.set_image(url=data["image"])
+        # embed = discord.Embed(title=data["title"], colour=0x7289da)
+        # embed.set_image(url=data["url"])
         # embed.set_footer(
         #     text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
         # )
-        # await ctx.send(embed=embed)
+        # await ctx.send(embed=embed)        
+        
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://some-random-api.ml/meme") as response:
+                data = await response.json()
+        embed = discord.Embed(title=data["caption"], colour=0x7289da)
+        embed.set_image(url=data["image"])
+        embed.set_footer(
+            text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
+        )
+        await ctx.send(embed=embed)
 
     #fact command
     @commands.guild_only()
