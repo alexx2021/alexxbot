@@ -23,7 +23,7 @@ intents.presences = False
 
 
 
-async def get_prefix(bot, msg):
+async def get_prefix(bot, msg: discord.Message):
 
     user_id = bot.user.id
     base = [f'<@!{user_id}> ', f'<@{user_id}> ']
@@ -65,6 +65,7 @@ bot.pr = loop.run_until_complete(aiosqlite.connect('prefix.db'))
 bot.sc = loop.run_until_complete(aiosqlite.connect('serverconfigs.db'))
 bot.rm = loop.run_until_complete(aiosqlite.connect('reminders.db'))
 bot.m = loop.run_until_complete(aiosqlite.connect('muted.db'))
+bot.xp = loop.run_until_complete(aiosqlite.connect('chatxp.db'))
 
 
 
@@ -86,6 +87,9 @@ async def setup_db(choice):
         #bot.sc.execute("CREATE TABLE IF NOT EXISTS welcomeinvite(server_id INTERGER, log_channel INTERGER, whURL TEXT)") #not sure if I want to keep this, might merge with welcome
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
+        
+        await bot.xp.execute("CREATE TABLE IF NOT EXISTS lvlsenabled(guild_id INTERGER, enabled INTERGER)")
+        await bot.xp.execute("CREATE TABLE IF NOT EXISTS xp(guild_id INTERGER, user_id INTERGER, user_xp INTERGER)")
 
 
 
@@ -163,7 +167,7 @@ async def on_ready():
 
 #reduces forbiddden errors due to not being able to respond to commands lol
 @bot.check_once
-async def can_do_stuff(ctx):
+async def can_do_stuff(ctx: commands.Context):
     if ctx.message.guild:
         perms = ctx.channel.permissions_for(ctx.guild.me)
         if not perms.send_messages:

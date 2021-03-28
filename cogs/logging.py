@@ -27,7 +27,7 @@ class Logging(commands.Cog):
 
     #message deletion logger
     @commands.Cog.listener()
-    async def on_message_delete(self, message):
+    async def on_message_delete(self, message: discord.Message):
         if not message.guild:
             return
 
@@ -68,7 +68,7 @@ class Logging(commands.Cog):
 
     #message edit logger
     @commands.Cog.listener()
-    async def on_message_edit(self, message_before, message_after):
+    async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message):
         if not message_before.guild:
             return
 
