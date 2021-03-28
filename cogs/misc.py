@@ -10,13 +10,13 @@ class Events(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    @commands.Cog.listener()
-    async def on_guild_join(self, guild):
-        try:
-            await guild.text_channels[0].send(f"Hello {guild.name}! I am {self.bot.user.display_name}. Thank you for inviting me! \nThe available commands and the support server can be found with `_help`")
-            await guild.text_channels[0].send('https://cdn.discordapp.com/attachments/386995303066107907/533479547589623810/unknown.png')
-        except:
-            return
+    # @commands.Cog.listener()
+    # async def on_guild_join(self, guild):
+    #     try:
+    #         await guild.text_channels[0].send(f"Hello {guild.name}! I am {self.bot.user.display_name}. Thank you for inviting me! \nThe available commands and the support server can be found with `_help`")
+    #         await guild.text_channels[0].send('https://cdn.discordapp.com/attachments/386995303066107907/533479547589623810/unknown.png')
+    #     except:
+    #         return
 
 
 #################################################
