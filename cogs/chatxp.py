@@ -3,10 +3,18 @@ import discord
 from discord.ext import commands
 from random import randint
 from discord.ext.commands.cooldowns import BucketType
-
 from discord.ext.commands.core import has_permissions
+from discord.ext.buttons import Paginator
 
+class Pag(Paginator):
+    async def teardown(self):
+        try:
+            await asyncio.sleep(0.25)
+            await self.page.clear_reactions()
+        except discord.HTTPException:
+            pass
 
+        
 class ChatXP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot    
@@ -75,50 +83,53 @@ class ChatXP(commands.Cog):
     @commands.command(help="Reset a member's XP and level.")
     @has_permissions(manage_guild=True)
     async def resetxp(self, ctx, member: discord.Member = None):
-        if not member:
-            msg = await ctx.send(f'You are about to reset your own XP and rank. Are you sure?')
-            await asyncio.sleep(0.25)
-            await msg.add_reaction("✅")
-            await asyncio.sleep(0.25)
-            await msg.add_reaction("❌")
-            reaction, person = await self.bot.wait_for(
-                            "reaction_add",
-                            timeout=60,
-                            check=lambda reaction, user: user == ctx.author
-                            and reaction.message.channel == ctx.channel)
-            
-            if str(reaction.emoji) == "✅":
-                query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
-                gid = ctx.guild.id
-                uid = ctx.author.id
-                params = (gid, uid)
-                await self.bot.xp.execute_fetchall(query, params)
-                await self.bot.xp.commit()
-                await ctx.send('Done.')
-            else:
-                await ctx.send('XP reset cancelled.')
-        if member:
-            msg = await ctx.send(f'You are about to reset {member.mention}\'s XP and rank. Are you sure?')
-            await asyncio.sleep(0.25)
-            await msg.add_reaction("✅")
-            await asyncio.sleep(0.25)
-            await msg.add_reaction("❌")
-            reaction, person = await self.bot.wait_for(
-                            "reaction_add",
-                            timeout=60,
-                            check=lambda reaction, user: user == ctx.author
-                            and reaction.message.channel == ctx.channel)
-            
-            if str(reaction.emoji) == "✅":
-                query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
-                gid = ctx.guild.id
-                uid = member.id
-                params = (gid, uid)
-                await self.bot.xp.execute_fetchall(query, params)
-                await self.bot.xp.commit()
-                await ctx.send('Done.')
-            else:
-                await ctx.send('XP reset cancelled.')
+        try:    
+            if not member:
+                msg = await ctx.send(f'You are about to reset your own XP and rank. Are you sure?')
+                await asyncio.sleep(0.25)
+                await msg.add_reaction("✅")
+                await asyncio.sleep(0.25)
+                await msg.add_reaction("❌")
+                reaction, person = await self.bot.wait_for(
+                                "reaction_add",
+                                timeout=60,
+                                check=lambda reaction, user: user == ctx.author
+                                and reaction.message.channel == ctx.channel)
+                
+                if str(reaction.emoji) == "✅":
+                    query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
+                    gid = ctx.guild.id
+                    uid = ctx.author.id
+                    params = (gid, uid)
+                    await self.bot.xp.execute_fetchall(query, params)
+                    await self.bot.xp.commit()
+                    await ctx.send('Done.')
+                else:
+                    await ctx.send('XP reset cancelled.')
+            if member:
+                msg = await ctx.send(f'You are about to reset {member.mention}\'s XP and rank. Are you sure?')
+                await asyncio.sleep(0.25)
+                await msg.add_reaction("✅")
+                await asyncio.sleep(0.25)
+                await msg.add_reaction("❌")
+                reaction, person = await self.bot.wait_for(
+                                "reaction_add",
+                                timeout=60,
+                                check=lambda reaction, user: user == ctx.author
+                                and reaction.message.channel == ctx.channel)
+                
+                if str(reaction.emoji) == "✅":
+                    query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
+                    gid = ctx.guild.id
+                    uid = member.id
+                    params = (gid, uid)
+                    await self.bot.xp.execute_fetchall(query, params)
+                    await self.bot.xp.commit()
+                    await ctx.send('Done.')
+                else:
+                    await ctx.send('XP reset cancelled.')
+        except asyncio.exceptions.TimeoutError:
+            return await ctx.send(f'You did not react in time.')
 
     
     
@@ -162,6 +173,32 @@ class ChatXP(commands.Cog):
             embed.set_author(name=f"{member}", icon_url=member.avatar_url)
             await ctx.send(embed=embed)
 
+    @commands.cooldown(2, 10, commands.BucketType.user)
+    @commands.guild_only()
+    @commands.command(aliases=("levels","top","lb"))
+    async def leaderboard(self, ctx: commands.Context):
+            query = 'SELECT * FROM xp WHERE guild_id = ? ORDER BY user_xp DESC' 
+            params = (ctx.guild.id,)
+            rankings = await self.bot.xp.execute_fetchall(query, params)
+            
+            desc =''
+            for rank, record in enumerate(rankings, start=1):
+                user_id = record[1]
+                user_xp = record[2]
+                level = (int (record[2] ** (1/3.25)))
+
+                e=f"**{rank}**. <@{user_id}> | {user_xp} XP, LVL {level}\n"
+                desc += e
+
+            pager = Pag(
+                title=f"Leaderboard for {ctx.guild}", 
+                colour=discord.Colour.green(),
+                timeout=10,
+                entries=[desc[i: i + 2000] for i in range(0, len(desc), 2000)],
+                length=1,
+            )
+
+            await pager.start(ctx)
 
 
     @commands.is_owner()
