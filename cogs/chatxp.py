@@ -14,6 +14,7 @@ class Pag(Paginator):
         except discord.HTTPException:
             pass
 
+#test
         
 class ChatXP(commands.Cog):
     def __init__(self, bot):
