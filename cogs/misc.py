@@ -49,6 +49,14 @@ class Events(commands.Cog):
         await self.bot.xp.execute("DELETE FROM xp WHERE guild_id = ?",(server,))
         await self.bot.xp.commit()
 
+        await asyncio.sleep(0.25)
+        await self.bot.xp.execute("DELETE FROM lvlsenabled WHERE guild_id = ?",(server,))
+        await self.bot.xp.commit()
+
+        await asyncio.sleep(0.25)
+        await self.bot.xp.execute("DELETE FROM chatlvlsenabled WHERE guild_id = ?",(server,))
+        await self.bot.xp.commit()
+
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @commands.cooldown(1, 5, commands.BucketType.channel)
