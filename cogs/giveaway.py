@@ -4,7 +4,7 @@ import asyncio
 import time
 import random
 from discord.ext import commands, tasks
-from utils import get_or_fetch_channel, get_or_fetch_guild
+from utils.utils import get_or_fetch_channel, get_or_fetch_guild
 
 BOT_ID = int(752585938630082641)
 TEST_BOT_ID = int(715446479837462548)

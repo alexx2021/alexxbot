@@ -1,7 +1,7 @@
 import discord
 import datetime
 from discord.ext import commands
-from utils import check_if_log, sendlog
+from utils.utils import check_if_log, sendlog
 
 
     

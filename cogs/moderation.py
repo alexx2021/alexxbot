@@ -4,7 +4,7 @@ import datetime
 from discord.ext import commands
 from discord.ext.commands import has_permissions
 from discord.ext.commands import bot_has_permissions
-from utils import get_or_fetch_member, sendlog
+from utils.utils import get_or_fetch_member, sendlog
 
 BOT_ID = int(752585938630082641)
 

@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 import datetime
-from utils import get_or_fetch_channel, sendlog, check_if_log
+from utils.utils import get_or_fetch_channel, sendlog, check_if_log
 
 
 
