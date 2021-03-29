@@ -49,7 +49,7 @@ async def get_or_fetch_guild(self, guild_id): #from r danny :)
 async def sendlog(self, guild, content):
     try:   
         ch = self.bot.logcache[f"{guild.id}"]
-        channel = discord.utils.get(guild.channels, id=ch)
+        channel = discord.utils.get(guild.channels, id=int(ch))
         if channel:
             await channel.send(embed=content)
     except KeyError:
