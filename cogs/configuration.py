@@ -32,7 +32,7 @@ class Configuration(commands.Cog):
     @has_permissions(manage_guild=True)
     @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
-    @commands.command(help='Enable/Disable chat level messages.')
+    @commands.command(help='Enable/disable chat level messages.')
     async def togglelevelmessages(self, ctx: commands.Context):
         guild = await self.bot.xp.execute_fetchall("SELECT * FROM lvlsenabled WHERE guild_id = ?",(ctx.guild.id,))
         if guild:
