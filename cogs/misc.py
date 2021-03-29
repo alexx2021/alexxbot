@@ -51,7 +51,7 @@ class Events(commands.Cog):
 
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
-    @commands.cooldown(1, 3, commands.BucketType.channel)
+    @commands.cooldown(1, 5, commands.BucketType.channel)
     @commands.command(hidden=True)
     async def minty(self, ctx):
 
