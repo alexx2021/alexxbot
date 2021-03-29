@@ -40,10 +40,10 @@ async def generate_usage(self, command_name):
         t = '|'.join(command.aliases)
         temp += f'[{command.name}|{t}]'
     # Parameters
-    params = f' '
-    for param in command.clean_params:
-        params += f'<{command.clean_params[param]}> '
-    temp += f'{params}'
+    params = command.signature
+    # for param in command.clean_params:
+    #     params += f'<{command.clean_params[param]}> '
+    temp += f' {params}'
     return temp
 
 
