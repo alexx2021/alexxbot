@@ -93,6 +93,7 @@ class ChatXP(commands.Cog):
                 uid = ctx.author.id
                 params = (gid, uid)
                 await self.bot.xp.execute_fetchall(query, params)
+                await self.bot.xp.commit()
                 await ctx.send('Done.')
             else:
                 await ctx.send('XP reset cancelled.')
@@ -114,6 +115,7 @@ class ChatXP(commands.Cog):
                 uid = member.id
                 params = (gid, uid)
                 await self.bot.xp.execute_fetchall(query, params)
+                await self.bot.xp.commit()
                 await ctx.send('Done.')
             else:
                 await ctx.send('XP reset cancelled.')
