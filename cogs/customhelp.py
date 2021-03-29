@@ -53,6 +53,7 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.cooldown(3, 10, commands.BucketType.member)
     @commands.command(
                       description='Help command',
                       aliases=['commands', 'invite'])
