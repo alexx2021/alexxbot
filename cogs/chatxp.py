@@ -1,6 +1,10 @@
+import asyncio
 import discord
 from discord.ext import commands
 from random import randint
+from discord.ext.commands.cooldowns import BucketType
+
+from discord.ext.commands.core import has_permissions
 
 
 class ChatXP(commands.Cog):
@@ -66,6 +70,55 @@ class ChatXP(commands.Cog):
                 if perms.send_messages: #only send if we can
                     await ctx.channel.send(
                         f"Nice job {ctx.author.mention}, you leveled up to level **?**!")
+
+    @commands.max_concurrency(1, per=BucketType.user, wait=False)
+    @commands.command(help="Reset a member's XP and level.")
+    @has_permissions(manage_guild=True)
+    async def resetxp(self, ctx, member: discord.Member = None):
+        if not member:
+            msg = await ctx.send(f'You are about to reset your own XP and rank. Are you sure?')
+            await asyncio.sleep(0.25)
+            await msg.add_reaction("✅")
+            await asyncio.sleep(0.25)
+            await msg.add_reaction("❌")
+            reaction, person = await self.bot.wait_for(
+                            "reaction_add",
+                            timeout=60,
+                            check=lambda reaction, user: user == ctx.author
+                            and reaction.message.channel == ctx.channel)
+            
+            if str(reaction.emoji) == "✅":
+                query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
+                gid = ctx.guild.id
+                uid = ctx.author.id
+                params = (gid, uid)
+                await self.bot.xp.execute_fetchall(query, params)
+                await ctx.send('Done.')
+            else:
+                await ctx.send('XP reset cancelled.')
+        if member:
+            msg = await ctx.send(f'You are about to reset {member.mention}\'s XP and rank. Are you sure?')
+            await asyncio.sleep(0.25)
+            await msg.add_reaction("✅")
+            await asyncio.sleep(0.25)
+            await msg.add_reaction("❌")
+            reaction, person = await self.bot.wait_for(
+                            "reaction_add",
+                            timeout=60,
+                            check=lambda reaction, user: user == ctx.author
+                            and reaction.message.channel == ctx.channel)
+            
+            if str(reaction.emoji) == "✅":
+                query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
+                gid = ctx.guild.id
+                uid = member.id
+                params = (gid, uid)
+                await self.bot.xp.execute_fetchall(query, params)
+                await ctx.send('Done.')
+            else:
+                await ctx.send('XP reset cancelled.')
+
+    
     
     @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
@@ -98,13 +151,13 @@ class ChatXP(commands.Cog):
             rank = rows.index(db_member[0]) + 1
             level = (int (db_member[0][2] ** (1/3.25)))
             embed = discord.Embed(
-                title=f"{member}",
-                description=f"""**Rank:** #{rank}\n**Level: **{level}
+                title=f"**Rank:** #{rank}",
+                description=f"""**Level: **{level}
                 **Total XP:** {db_member[0][2]}
                 **XP to next level:** {db_member[0][2] - round((level ** 3.25))} / {round(((level+ 1) ** 3.25) - (level ** 3.25))}""",
                 colour=discord.Colour.green(),
             )
-            embed.set_thumbnail(url=member.avatar_url)
+            embed.set_author(name=f"{member}", icon_url=member.avatar_url)
             await ctx.send(embed=embed)
 
 
