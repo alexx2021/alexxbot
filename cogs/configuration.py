@@ -147,7 +147,7 @@ class Configuration(commands.Cog):
             if rows == []:
                 on = discord.Embed(description=f'Logging channel set to {channel.mention}.', color = 0)
                 on.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-                
+
                 self.bot.logcache.update({f"{ctx.guild.id}" : f"{log_channel}"})
 
                 await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, log_channel, null))
@@ -196,14 +196,13 @@ class Configuration(commands.Cog):
         def check(message):
             return message.author == ctx.author and message.channel == ctx.channel
         
-         #need to initialize this so python doesnt complain lol
-        channel = ctx.channel
         error = discord.Embed(description='I do not have permission to speak in that channel!', color = discord.Color.red(), title= ":x: Error")
         lengthErrorHi = discord.Embed(description=f'Welcome message cannot be longer than 1024 chars.', color = discord.Color.red(), title= ":x: Error")
         lengthErrorBye = discord.Embed(description=f'Goodbye message cannot be longer than 1024 chars.', color = discord.Color.red(), title= ":x: Error")
-
-        on = discord.Embed(description=f'Welcome/goodbye channel set to {channel.mention}.', color = 0)
-        on.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        
+        if channel:
+            on = discord.Embed(description=f'Welcome/goodbye channel set to {channel.mention}.', color = 0)
+            on.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         
         localON = discord.Embed(description=f'Welcome/goodbye channel set to {ctx.channel.mention}.', color = 0)
         localON.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
