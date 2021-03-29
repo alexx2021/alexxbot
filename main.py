@@ -59,6 +59,7 @@ bot.ubl = {}
 bot.logcache = {}
 bot.autorolecache = {}
 bot.welcomecache = {}
+bot.arelvlsenabled = {}
 
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -85,11 +86,12 @@ async def setup_db(choice):
         await bot.m.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id INTERGER, user_id INTERGER)")
 
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
-        #bot.sc.execute("CREATE TABLE IF NOT EXISTS welcomeinvite(server_id INTERGER, log_channel INTERGER, whURL TEXT)") #not sure if I want to keep this, might merge with welcome
+
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
-        
-        await bot.xp.execute("CREATE TABLE IF NOT EXISTS lvlsenabled(guild_id INTERGER, enabled TEXT)")
+
+        await bot.xp.execute("CREATE TABLE IF NOT EXISTS chatlvlsenabled(guild_id INTERGER, enabled TEXT)")  #lvls in general       
+        await bot.xp.execute("CREATE TABLE IF NOT EXISTS lvlsenabled(guild_id INTERGER, enabled TEXT)") #lvl msgs
         await bot.xp.execute("CREATE TABLE IF NOT EXISTS xp(guild_id INTERGER, user_id INTERGER, user_xp INTERGER)")
 
 
@@ -126,13 +128,18 @@ async def setup_stuff():
         "bMsg" : msg[3]
                 }
         bot.welcomecache[f'{msg[0]}'] = di
+    
+    xp = await bot.xp.execute_fetchall("SELECT * FROM chatlvlsenabled") #chat lvl enabled
+    for enabled in xp:
+        bot.arelvlsenabled[f"{enabled[0]}"] = f"{enabled[1]}"
 
     
     print('cache is setup!!')
     # print(f'prefixes - {bot.prefixes}')
     #print(f'logs - {bot.logcache}')
     #print(f'aRole - {bot.autorolecache}')
-    #print(f'welcome - {bot.welcomecache}')
+    #print(f'welcome - {bot.welcomecache}') 
+    #print(f'lvls - {bot.arelvlsenabled}') 
     print(f'blacklist - {bot.ubl}')
 
 
