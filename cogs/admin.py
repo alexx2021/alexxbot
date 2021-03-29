@@ -23,6 +23,7 @@ from discord.ext.buttons import Paginator
 class Pag(Paginator):
     async def teardown(self):
         try:
+            await asyncio.sleep(0.25)
             await self.page.clear_reactions()
         except discord.HTTPException:
             pass
