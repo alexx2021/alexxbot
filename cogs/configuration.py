@@ -28,6 +28,23 @@ class Configuration(commands.Cog):
             
         e = discord.Embed(description = f'Set prefix to `{prefix}`', color = 0)
         await ctx.send(embed = e)
+
+    @has_permissions(manage_guild=True)
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    @commands.guild_only()
+    @commands.command(help='Enable/Disable chat level messages.')
+    async def togglelevelmessages(self, ctx: commands.Context):
+        guild = await self.bot.xp.execute_fetchall("SELECT * FROM lvlsenabled WHERE guild_id = ?",(ctx.guild.id,))
+        if guild:
+            if guild[0][1] == 'TRUE':
+                await self.bot.xp.execute('UPDATE lvlsenabled SET enabled = ? WHERE guild_id = ?',('FALSE',ctx.guild.id))
+                await ctx.send('**Disabled** leveling messages!')
+            else:
+                await self.bot.xp.execute('UPDATE lvlsenabled SET enabled = ? WHERE guild_id = ?',('TRUE',ctx.guild.id))
+                await ctx.send('**Enabled** leveling messages!')
+        else:
+            await self.bot.xp.execute('INSERT INTO lvlsenabled VALUES(?,?)',(ctx.guild.id,'TRUE'))
+            await ctx.send('**Enabled** leveling messages!')
     
     
     @has_permissions(manage_guild=True)
