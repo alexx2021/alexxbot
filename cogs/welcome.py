@@ -43,29 +43,29 @@ class Welcome(commands.Cog):
     async def on_member_join(self, member):
         #await asyncio.sleep(1)
         server = member.guild.id
-        rows1 = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
-        if rows1 != []:
-            toprow1 = rows1[0] 
-            logCH = toprow1[1]
-            wMsg = toprow1[2]
+        
+        
+        try:   
+            data = self.bot.welcomecache[f"{member.guild.id}"]
+        except KeyError:
+            return
+
+        channel = discord.utils.get(member.guild.channels, id=int(data["logch"]))
+        if channel:
+            wMsg = data["wMsg"]
             
-            channel = discord.utils.get(member.guild.channels, id=logCH)
-            if not channel:
-                return
-            try:
-                await channel.send(wMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}",))
+            try:    
+                await channel.send(wMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}"))
             except KeyError:
                 await channel.send('One or more of the placeholders you used in the welcome message was incorrect, or not a placeholder. To remove this message, please change it.')
             except ValueError:
                 await channel.send('One or more of the placeholders you used in the welcome message was incorrect, or not a placeholder. To remove this message, please change it.')
             except discord.errors.Forbidden:
-                server = member.guild.id
-
-                rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server,),)
-                if rows != []:
-                    await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-                    await self.bot.sc.commit()
-                    logger.info(msg=f'Deleted welcome channel b/c the bot did not have perms to speak - {server} ({server.id})')
+                await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
+                await self.bot.sc.commit()
+                self.bot.welcomecache.pop(f"{member.guild.id}")
+                logger.info(msg=f'Deleted welc channel b/c the bot did not have perms to speak - {member.guild} ({member.guild.id})')
+                return
 
 
 
@@ -74,33 +74,30 @@ class Welcome(commands.Cog):
         #await asyncio.sleep(1)
         if member == self.bot.user:
             return
-       
         server = member.guild.id
-        rows1 = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server,),)
-        if rows1 != []:
+        
+        
+        try:   
+            data = self.bot.welcomecache[f"{member.guild.id}"]
+        except KeyError:
+            return
 
-            toprow1 = rows1[0] 
-            logCH = toprow1[1]
-            bMsg = toprow1[3]
+        channel = discord.utils.get(member.guild.channels, id=int(data["logch"]))
+        if channel:
+            wMsg = data["bMsg"]
             
-            channel = discord.utils.get(member.guild.channels, id=logCH)
-            if not channel:
-                return
             try:    
-                await channel.send(bMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}"))
+                await channel.send(wMsg.format(mention = f"{member.mention}", servername = f"{member.guild.name}", membercount = f"{member.guild.member_count}", membername = f"{member}"))
             except KeyError:
                 await channel.send('One or more of the placeholders you used in the goodbye message was incorrect, or not a placeholder. To remove this message, please change it.')
             except ValueError:
-                await channel.send('One or more of the placeholders you used in the welcome message was incorrect, or not a placeholder. To remove this message, please change it.')
+                await channel.send('One or more of the placeholders you used in the goodbye message was incorrect, or not a placeholder. To remove this message, please change it.')
             except discord.errors.Forbidden:
-                server = member.guild.id
-
-                rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server,),)
-                if rows != []:
-                    await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-                    await self.bot.sc.commit()
-                    logger.info(msg=f'Deleted welcome channel b/c the bot did not have perms to speak - {server} ({server.id})')
- 
+                await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
+                await self.bot.sc.commit()
+                self.bot.welcomecache.pop(f"{member.guild.id}")
+                logger.info(msg=f'Deleted welc channel b/c the bot did not have perms to speak - {member.guild} ({member.guild.id})')
+                return 
 
 
 

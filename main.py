@@ -58,6 +58,7 @@ bot.prefixes = {}
 bot.ubl = {}
 bot.logcache = {}
 bot.autorolecache = {}
+bot.welcomecache = {}
 
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -116,11 +117,22 @@ async def setup_stuff():
     roles = await bot.sc.execute_fetchall("SELECT * FROM autorole") #autorole id cache
     for role in roles:
         bot.autorolecache[f"{role[0]}"] = f"{role[1]}"
+
+    msgs = await bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome")
+    for msg in msgs:
+        di = {
+        "logch" : msg[1], 
+        "wMsg" : msg[2],
+        "bMsg" : msg[3]
+                }
+        bot.welcomecache[f'{msg[0]}'] = di
+
     
     print('cache is setup!!')
     # print(f'prefixes - {bot.prefixes}')
     #print(f'logs - {bot.logcache}')
     #print(f'aRole - {bot.autorolecache}')
+    #print(f'welcome - {bot.welcomecache}')
     print(f'blacklist - {bot.ubl}')
 
 
