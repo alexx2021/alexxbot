@@ -150,6 +150,12 @@ class Configuration(commands.Cog):
                 
                 await self.bot.sc.execute("INSERT INTO welcome VALUES(?, ?, ?, ?)", (server_id, log_channel, wMsg, bMsg))
                 await self.bot.sc.commit()
+                di = {
+                "logch" : log_channel, 
+                "wMsg" : wMsg,
+                "bMsg" : bMsg
+                        }
+                self.bot.welcomecache.update({f'{ctx.guild.id}': di})                
                 await ctx.send(f'Done! Welcome/goodbye channel set to {channel.mention}.')
 
             else:
@@ -158,6 +164,10 @@ class Configuration(commands.Cog):
 
                     await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server_id,))
                     await self.bot.sc.commit()
+                    try:
+                        self.bot.welcomecache.pop(f"{ctx.guild.id}")
+                    except KeyError:
+                        pass
                     await ctx.send('Welcome/goodbye channel has been reset. Run the command again to set the new channel.')
 
         if channel is None:
@@ -194,6 +204,12 @@ class Configuration(commands.Cog):
                 
                 await self.bot.sc.execute("INSERT INTO welcome VALUES(?, ?, ?, ?)", (server_id, local_log_channel, wMsg, bMsg))
                 await self.bot.sc.commit()
+                di = {
+                "logch" : local_log_channel, 
+                "wMsg" : wMsg,
+                "bMsg" : bMsg
+                        }
+                self.bot.welcomecache.update({f'{ctx.guild.id}': di})                
                 await ctx.send(f'Done! Welcome/goodbye channel set to {ctx.channel.mention}.')
 
             else:
@@ -202,6 +218,10 @@ class Configuration(commands.Cog):
 
                     await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server_id,))
                     await self.bot.sc.commit()
+                    try:
+                        self.bot.welcomecache.pop(f"{ctx.guild.id}")
+                    except KeyError:
+                        pass
                     await ctx.send('Welcome/goodbye channel has been reset. Run the command again to set the new channel.')
 
     @bot_has_permissions(manage_roles=True)
