@@ -129,9 +129,6 @@ class Configuration(commands.Cog):
         server_id = ctx.guild.id
         error = discord.Embed(description='I do not have permission to speak in that channel!', color = discord.Color.red(), title= ":x: Error")
         
-        on = discord.Embed(description=f'Logging channel set to {channel.mention}.', color = 0)
-        on.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-        
         localON = discord.Embed(description=f'Logging channel set to {ctx.channel.mention}.', color = 0)
         localON.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         
@@ -148,6 +145,9 @@ class Configuration(commands.Cog):
             rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
             
             if rows == []:
+                on = discord.Embed(description=f'Logging channel set to {channel.mention}.', color = 0)
+                on.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                
                 self.bot.logcache.update({f"{ctx.guild.id}" : f"{log_channel}"})
 
                 await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, log_channel, null))
