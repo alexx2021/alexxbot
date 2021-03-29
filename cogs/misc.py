@@ -29,21 +29,25 @@ class Events(commands.Cog):
         await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server,))
         await self.bot.sc.commit()
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.25)
         await self.bot.pr.execute("DELETE FROM prefixes WHERE guild_id = ?",(server,))
         await self.bot.pr.commit()
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.25)
         await self.bot.m.execute("DELETE FROM pmuted_users WHERE guild_id = ?",(server,))
         await self.bot.m.commit()
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.25)
         await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
         await self.bot.sc.commit()
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.25)
         await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(server,))
         await self.bot.sc.commit()
+
+        await asyncio.sleep(0.25)
+        await self.bot.xp.execute("DELETE FROM xp WHERE guild_id = ?",(server,))
+        await self.bot.xp.commit()
 
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
