@@ -29,16 +29,6 @@ class Welcome(commands.Cog):
 
 
 
-
-    ### on join
-    # check db to see who invited them by checking the inv_by
-    # if they were invited send a message to the channel with who invited them and that person's new inv count
-    # if they were invited by 4, send the message and mention that the inviter could not be determined
-
-    ### on leave 
-    # check db to see who invited them, if its not 4, send who invited them and their new count
-    # if it is 4, send message saying they left and bot doesnt know who invited them
-
     @commands.Cog.listener()
     async def on_member_join(self, member):
         #await asyncio.sleep(1)
