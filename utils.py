@@ -49,8 +49,9 @@ async def get_or_fetch_guild(self, guild_id): #from r danny :)
 async def sendlog(self, guild, content):
     try:   
         ch = self.bot.logcache[f"{guild.id}"]
-        channel = await get_or_fetch_channel(self, guild, ch)
-        await channel.send(embed=content)
+        channel = discord.utils.get(guild.channels, id=ch)
+        if channel:
+            await channel.send(embed=content)
     except KeyError:
         return
     except discord.errors.Forbidden:
@@ -58,6 +59,7 @@ async def sendlog(self, guild, content):
         await self.bot.sc.commit()
         self.bot.logcache.pop(f"{guild.id}")
         logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
+        return
 
 async def check_if_log(self, guild):
     try:
