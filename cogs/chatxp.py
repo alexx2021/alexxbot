@@ -187,9 +187,6 @@ class ChatXP(commands.Cog):
                 description=f"{member.mention} hasn't sent a message yet.",
                 colour=discord.Colour.red(),
             )
-            embed.set_footer(
-                text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
-            )
             return await ctx.send(embed=embed)
         
         query = 'SELECT * FROM xp WHERE guild_id = ? ORDER BY user_xp DESC' 
@@ -225,6 +222,13 @@ class ChatXP(commands.Cog):
             query = 'SELECT * FROM xp WHERE guild_id = ? ORDER BY user_xp DESC' 
             params = (ctx.guild.id,)
             rankings = await self.bot.xp.execute_fetchall(query, params)
+            if not rankings:
+                embed = discord.Embed(
+                title="Error :(",
+                description='There is no one to display on the leaderboard yet.\nTry again later!',
+                colour=discord.Colour.red(),
+                )
+                return await ctx.send(embed=embed)
             
             desc =''
             for rank, record in enumerate(rankings, start=1):
