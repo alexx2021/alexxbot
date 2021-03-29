@@ -54,28 +54,31 @@ class Configuration(commands.Cog):
         server_id = ctx.guild.id
         
         if channel is not None:
+            perms = channel.permissions_for(ctx.guild.me) #check to see if the bot can speak in the channel
+            if not perms.send_messages:
+                return await ctx.send('I do not have permissions to speak in that channel!')
                 
-                log_channel = channel.id
-                null = str('null')
-                rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
-                
-                if rows == []:
-                    self.bot.logcache.update({f"{ctx.guild.id}" : f"{log_channel}"})
+            log_channel = channel.id
+            null = str('null')
+            rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
+            
+            if rows == []:
+                self.bot.logcache.update({f"{ctx.guild.id}" : f"{log_channel}"})
 
-                    await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, log_channel, null))
+                await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, log_channel, null))
+                await self.bot.sc.commit()
+                await ctx.send(f'Done! Logging channel set to {channel.mention}.')
+
+            else:
+                rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
+                if rows != []:
+                    try:
+                        self.bot.logcache.pop(f"{ctx.guild.id}")
+                    except KeyError:
+                        pass
+                    await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
                     await self.bot.sc.commit()
-                    await ctx.send(f'Done! Logging channel set to {channel.mention}.')
-
-                else:
-                    rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
-                    if rows != []:
-                        try:
-                            self.bot.logcache.pop(f"{ctx.guild.id}")
-                        except IndexError:
-                            pass
-                        await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
-                        await self.bot.sc.commit()
-                        await ctx.send('Logging channel has been reset. Run the command again to set the new channel.')
+                    await ctx.send('Logging channel has been reset. Run the command again to set the new channel.')
 
         if channel is None:
                 local_log_channel = ctx.channel.id
@@ -94,7 +97,7 @@ class Configuration(commands.Cog):
                     if rows != []:
                         try:
                             self.bot.logcache.pop(f"{ctx.guild.id}")
-                        except IndexError:
+                        except KeyError:
                             pass
                         await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
                         await self.bot.sc.commit()
@@ -112,6 +115,10 @@ class Configuration(commands.Cog):
         
         if channel is not None:
             log_channel = channel.id
+            perms = channel.permissions_for(ctx.guild.me) #check if the bot can speak in the channel it needs to 
+            if not perms.send_messages:
+                return await ctx.send('I do not have permissions to speak in that channel!')
+            
             rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server_id,),)
             
             
@@ -202,7 +209,6 @@ class Configuration(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.guild)
     @commands.command(aliases=["autorole"],help='Sets the role that new users get on join. Respects the discord rule verification menu.')
     async def setautorole(self, ctx, role: discord.Role):
-        await self.bot.wait_until_ready()
         if ctx.author.top_role.position <= role.position:
             return await ctx.send('Error. The role you chose is above your highest role.')
         if ctx.guild.me.top_role.position <= role.position:
@@ -229,7 +235,7 @@ class Configuration(commands.Cog):
         if auto:
             try:
                 self.bot.autorolecache.pop(f"{ctx.guild.id}")
-            except IndexError:
+            except KeyError:
                 pass
             await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(ctx.guild.id,))
             await self.bot.sc.commit()
@@ -238,7 +244,7 @@ class Configuration(commands.Cog):
         else:
             try:
                 self.bot.autorolecache.pop(f"{ctx.guild.id}")
-            except IndexError:
+            except KeyError:
                 pass
             e = discord.Embed(description = f'There is no autorole currently set up in this server.', color = 0)
             await ctx.send(embed = e)
