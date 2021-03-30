@@ -211,7 +211,7 @@ class ChatXP(commands.Cog):
 
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.guild_only()
-    @commands.command(aliases=("levels","top","lb"), help = 'View the server leaderboard!')
+    @commands.command(aliases=("top","lb"), help = 'View the server leaderboard!')
     async def leaderboard(self, ctx: commands.Context):
             error = discord.Embed(description='This guild does not have xp enabled!\nAsk an admin to enable it with the `togglechatleveling` command!', color = discord.Color.red(), title= ":x: Error")
             try:
