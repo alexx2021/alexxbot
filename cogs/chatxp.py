@@ -197,9 +197,7 @@ class ChatXP(commands.Cog):
         level = (int (db_member[0][2] ** (1/3.25)))
         embed = discord.Embed(
             title=f"**Rank:** #{rank}",
-            description=f"""**Level: **{level}
-            **Total XP:** {db_member[0][2]}
-            **XP to next level:** {db_member[0][2] - round((level ** 3.25))} / {round(((level+ 1) ** 3.25) - (level ** 3.25))}""",
+            description=f"**Level: **{level}\n**Total XP:** {db_member[0][2]}\n**XP to next level:** {db_member[0][2] - round((level ** 3.25))} / {round(((level+ 1) ** 3.25) - (level ** 3.25))}",
             colour=discord.Colour.green(),
         )
         embed.set_author(name=f"{member}", icon_url=member.avatar_url)
