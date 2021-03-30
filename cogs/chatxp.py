@@ -48,7 +48,13 @@ class ChatXP(commands.Cog):
             member = await self.bot.xp.execute_fetchall(query, params)
             if member:
                 xp = member[0][2]
-                new_xp = xp + randint(10, 25)
+                if xp == 0.5:
+                    new_xp = xp + 0.5
+                elif xp < 30:
+                    if xp >= 1:
+                        new_xp = xp + randint(1, 2)
+                else:
+                    new_xp = xp + randint(10, 25)
 
                 level = (int (xp ** (1/3.25)))
                 new_level = (int (new_xp **(1/3.25)))
@@ -60,7 +66,7 @@ class ChatXP(commands.Cog):
                 await self.bot.xp.execute(query, params)
                 await self.bot.xp.commit()
             else:
-                await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, randint(10, 25)))
+                await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, 0.5))
                 await self.bot.xp.commit()
 
 
