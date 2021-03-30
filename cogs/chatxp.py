@@ -100,7 +100,7 @@ class ChatXP(commands.Cog):
     async def resetxp(self, ctx, member: discord.Member = None):
         done = '<a:check:826577847023829032> Done. Reset your XP. '
         warn = discord.Embed(description = 'You are about to reset your own XP and rank. \nAre you sure?', color = discord.Color.red(), title = 'Warning')       
-        error = '<a:x_:826577785173704754> This guild does not have xp enabled!\nThere is nothing to reset!'
+        error = '<a:x_:826577785173704754> This guild does not have xp enabled! There is nothing to reset!'
         try:
             enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
