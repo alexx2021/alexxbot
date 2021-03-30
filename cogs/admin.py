@@ -285,7 +285,29 @@ class Admin(commands.Cog):
 
         await pager.start(ctx)
 
-
+    @commands.Cog.listener()
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        def check(reaction, user):
+            return str(reaction.emoji) == "🔁" and user == after.author and reaction.message == after
+        
+        if(before.author.bot):
+            return
+        if before.author == self.bot.user:
+            return
+        
+        after_ctx = await self.bot.get_context(after)
+        if (after.author.id == 247932598599417866):  
+            if after_ctx.command:
+                try:
+                    await after.add_reaction("🔁")
+                    reaction, user = await self.bot.wait_for("reaction_add", check=check, timeout=20)
+                    try:
+                        await after.clear_reaction(reaction.emoji)
+                    except discord.HTTPException:
+                        await after.remove_reaction(reaction.emoji, self.user)
+                    await self.bot.process_commands(after)
+                except asyncio.TimeoutError:
+                    await after.clear_reaction(reaction.emoji)
 
     
     # @commands.Cog.listener()
