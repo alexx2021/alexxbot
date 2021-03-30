@@ -227,7 +227,7 @@ async def on_message(message: discord.Message):
                         await message.channel.send('I am missing permissions to send embeds :(')
                         return #let the server know if the bot cannot send embeds
                     else:
-                        e = discord.Embed(color=0, description= f'The prefix for this guild is `{p[2]}`\n You can change it with `{p[2]}setprefix <newprefix>`')
+                        e = discord.Embed(color=0, description= f'The prefix for this guild is `{p[2]}`\n You can change it with `{p[2]}setprefix <newprefix>`', title=":eyes: - Hello there!")
                         await message.channel.send(embed=e) #send embed if all is good
 
     await bot.process_commands(message)
