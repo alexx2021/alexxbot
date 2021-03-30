@@ -98,18 +98,17 @@ class ChatXP(commands.Cog):
     @commands.command(help="Reset a member's XP and level.")
     @has_permissions(manage_guild=True)
     async def resetxp(self, ctx, member: discord.Member = None):
-        done = discord.Embed(description = 'Done. Reset your XP. ', color = 0)
-        done.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        done = '<a:check:826577847023829032> Done. Reset your XP. '
         warn = discord.Embed(description = 'You are about to reset your own XP and rank. \nAre you sure?', color = discord.Color.red(), title = 'Warning')       
-        error = discord.Embed(description='This guild does not have xp enabled!\nThere is nothing to reset!', color = discord.Color.red(), title= ":x: Error")
+        error = '<a:x_:826577785173704754> This guild does not have xp enabled!\nThere is nothing to reset!'
         try:
             enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
-                return await ctx.send(embed=error)
+                return await ctx.send(error)
         except KeyError:
-            return await ctx.send(embed=error)           
+            return await ctx.send(error)           
         try:    
             if not member:
                 msg = await ctx.send(embed = warn)
@@ -130,12 +129,11 @@ class ChatXP(commands.Cog):
                     params = (gid, uid)
                     await self.bot.xp.execute_fetchall(query, params)
                     await self.bot.xp.commit()
-                    await ctx.send(embed = done)
+                    await ctx.send(done)
                 else:
                     await ctx.send('Operation cancelled.')
             if member:
-                done1 = discord.Embed(description = f'Done. Reset the XP of {member.mention}.', color = 0)
-                done1.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                done1 = f'<a:check:826577847023829032> Done. Reset the XP of {member.mention}.'
                 warn2 = discord.Embed(description = f'You are about to reset {member.mention}\'s XP and rank.\nAre you sure?', color = discord.Color.red(), title = 'Warning') 
                 
                 msg = await ctx.send(embed = warn2)
@@ -156,11 +154,11 @@ class ChatXP(commands.Cog):
                     params = (gid, uid)
                     await self.bot.xp.execute_fetchall(query, params)
                     await self.bot.xp.commit()
-                    await ctx.send(embed = done1)
+                    await ctx.send(done1)
                 else:
                     await ctx.send('Operation cancelled.')
         except asyncio.exceptions.TimeoutError:
-            return await ctx.send(f'You did not react in time.')
+            return await ctx.send('You did not react in time.')
 
     
     
@@ -168,19 +166,19 @@ class ChatXP(commands.Cog):
     @commands.guild_only()
     @commands.command(help='Use this to check your chat level!')
     async def rank(self, ctx: commands.Context, member: discord.Member = None):
-        error = discord.Embed(description='This guild does not have xp enabled!\nAsk an admin to enable it with the `togglechatleveling` command!', color = discord.Color.red(), title= ":x: Error")
+        error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
         try:
             enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
-                return await ctx.send(embed=error)
+                return await ctx.send(error)
         except KeyError:
-            return await ctx.send(embed=error)            
+            return await ctx.send(error)            
         
         member = member or ctx.author
         if member.bot:
-            return await ctx.send("Bots don't have levels!")
+            return await ctx.send("<a:x_:826577785173704754> Bots don't have levels!")
         query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
         gid = ctx.guild.id
         params = (gid, member.id)
@@ -189,8 +187,8 @@ class ChatXP(commands.Cog):
         
         if not db_member:
             embed = discord.Embed(
-                title="Error :(",
-                description=f"{member.mention} hasn't sent a message yet.",
+                title="<a:x_:826577785173704754> Error",
+                description=f"{member.mention} hasn't sent a message yet. :(",
                 colour=discord.Colour.red(),
             )
             return await ctx.send(embed=embed)
@@ -213,22 +211,22 @@ class ChatXP(commands.Cog):
     @commands.guild_only()
     @commands.command(aliases=("top","lb"), help = 'View the server leaderboard!')
     async def leaderboard(self, ctx: commands.Context):
-            error = discord.Embed(description='This guild does not have xp enabled!\nAsk an admin to enable it with the `togglechatleveling` command!', color = discord.Color.red(), title= ":x: Error")
+            error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
             try:
                 enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
                 if 'TRUE' in enabled:
                     pass
                 else:
-                    return await ctx.send(embed=error)
+                    return await ctx.send(error)
             except KeyError:
-                return await ctx.send(embed=error)   
+                return await ctx.send(error)   
             
             query = 'SELECT * FROM xp WHERE guild_id = ? ORDER BY user_xp DESC' 
             params = (ctx.guild.id,)
             rankings = await self.bot.xp.execute_fetchall(query, params)
             if not rankings:
                 embed = discord.Embed(
-                title="Error :(",
+                title="<a:x_:826577785173704754> Error",
                 description='There is no one to display on the leaderboard yet.\nTry again later!',
                 colour=discord.Colour.red(),
                 )
