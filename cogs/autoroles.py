@@ -4,7 +4,7 @@ from discord.ext import commands
 
 
 
-class Autorole(commands.Cog):
+class theAutorole(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
@@ -60,4 +60,4 @@ class Autorole(commands.Cog):
 
             
 def setup(bot):
-    bot.add_cog(Autorole(bot))
+    bot.add_cog(theAutorole(bot))
