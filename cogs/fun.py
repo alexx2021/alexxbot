@@ -30,10 +30,11 @@ class Fun(commands.Cog):
         
         
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://some-random-api.ml/meme") as response:
+            url = ['https://evergene.io/api/memes','https://evergene.io/api/dankmemes']
+            async with session.get(random.choice(url)) as response:
                 data = await response.json()
-        embed = discord.Embed(title=data["caption"], colour=0x7289da)
-        embed.set_image(url=data["image"])
+        embed = discord.Embed(title='Meme', colour=0x7289da)
+        embed.set_image(url=data["url"])
         embed.set_footer(
             text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
         )
