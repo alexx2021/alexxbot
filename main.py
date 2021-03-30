@@ -22,7 +22,6 @@ intents.typing = False
 intents.presences = False
 
 
-
 async def get_prefix(bot, msg: discord.Message):
 
     user_id = bot.user.id
@@ -52,7 +51,7 @@ async def get_prefix(bot, msg: discord.Message):
 
 
 
-bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents)
+bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents, allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False))
 bot.remove_command('help')
 bot.prefixes = {}
 bot.ubl = {}
