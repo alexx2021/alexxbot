@@ -272,7 +272,7 @@ class Fun(commands.Cog):
                 if r.status == 200:
                     data = await r.json()
                 else:
-                    return await ctx.send('An error occurred. Please try again later.')
+                    return await ctx.send('<a:x_:826577785173704754> An error occurred. Please try again later.')
                 embed = discord.Embed(description="No results found!", colour=0x7289da)
 
                 #check if list has no length (no results)
@@ -280,7 +280,7 @@ class Fun(commands.Cog):
                     if len(data["list"]) == 0:
                         return await ctx.send(embed=embed)
                 except KeyError:
-                    return await ctx.send('An error occurred. Please try again later.')
+                    return await ctx.send('<a:x_:826577785173704754> An error occurred. Please try again later.')
 
 
 

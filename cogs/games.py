@@ -27,7 +27,7 @@ class Chatgames(commands.Cog):
         insultoutcomes = [True, True, False, False, False, False]
          
         if user == ctx.author:
-            await ctx.send(f"You can't fight yourself, {ctx.author.mention}.")
+            await ctx.send(f"<a:x_:826577785173704754> You can't fight yourself, {ctx.author.mention}.")
         else:
             try:    
                 e = discord.Embed(color=0, title='Deathbattle')
