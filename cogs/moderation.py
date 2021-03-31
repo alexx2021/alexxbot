@@ -60,24 +60,24 @@ class Moderation(commands.Cog):
         user_id = str(member.id)
     
         if ctx.message.author.id == member.id: #checks to see if you are muting yourself
-            return await ctx.send(f'{ctx.author.mention} you cannot mute yourself, silly human! `>.<`')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot mute yourself, silly human! `>.<`')
 
         # if member.guild_permissions.manage_messages: #checks to see if you are muting someone who you probs shoudln't be able to mute
         #     return await ctx.send(f'{ctx.author.mention} you cannot mute someone who also has permission to mute people! `:C`')
 
         if member.top_role >= ctx.author.top_role:
-            await ctx.send(f'{ctx.author.mention} you cannot mute someone who has an equal or higher role than you! `:C`')
+            await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot mute someone who has an equal or higher role than you! `:C`')
             return
         
         if member.id == BOT_ID:
-            return await ctx.send(f'{ctx.author.mention} you cannot mute me with my own commands! `>.<`')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot mute me with my own commands! `>.<`')
         
         role3 = discord.utils.get(member.guild.roles, name="alexxmuted")
         if role3:
             if role3 in member.roles:
-                return await ctx.send('User is already muted!')
+                return await ctx.send('<a:x_:826577785173704754> User is already muted!')
             if member.guild.me.top_role.position <= role3.position:
-                return await ctx.send('Error. The alexxmuted role is above my highest role.')
+                return await ctx.send('<a:x_:826577785173704754> Error. The alexxmuted role is above my highest role.')
 
 
         role2 = discord.utils.get(member.guild.roles, name="alexxmuted") # retrieves muted role returns none if there isn't 
@@ -105,7 +105,7 @@ class Moderation(commands.Cog):
             await self.bot.m.execute("INSERT INTO pmuted_users VALUES(?, ?)", (guild_id, user_id)) #adds user to db
             await self.bot.m.commit()
 
-            await ctx.send(f"{member.mention} has been muted.")
+            await ctx.send(f"{member.mention} has been muted. <a:check:826577847023829032>")
 
             embedSummary = discord.Embed(color=0x7289da)
             embedSummary.title = f"Channel permissions setup summary" 
@@ -133,7 +133,7 @@ class Moderation(commands.Cog):
             await self.bot.m.execute("INSERT INTO pmuted_users VALUES(?, ?)", (guild_id, user_id)) #adds user to db
             await self.bot.m.commit()
             
-            await ctx.send(f"{member.mention} has been muted.") #0x979c9f
+            await ctx.send(f"{member.mention} has been muted. <a:check:826577847023829032>") #0x979c9f
             
             embed = discord.Embed(color=0x979c9f)
             embed.title = f"{member} muted" 
@@ -173,7 +173,7 @@ class Moderation(commands.Cog):
         role = discord.utils.get(member.guild.roles, name="alexxmuted")
         if role:
             if member.guild.me.top_role.position <= role.position:
-                return await ctx.send('Error. The alexxmuted role is above my highest role.')
+                return await ctx.send('<a:x_:826577785173704754> Error. The alexxmuted role is above my highest role.')
 
             if role in member.roles:
                 await member.remove_roles(discord.utils.get(member.guild.roles, name="alexxmuted")) # removes muted role
@@ -186,7 +186,7 @@ class Moderation(commands.Cog):
                 await self.bot.m.execute(query, params)
                 await self.bot.m.commit()
 
-                await ctx.send(f"{member.mention} has been unmuted.")
+                await ctx.send(f"{member.mention} has been unmuted. <a:check:826577847023829032>")
 
                 embed = discord.Embed(color=0x979c9f)
                 embed.title = f"{member} unmuted" 
@@ -198,9 +198,9 @@ class Moderation(commands.Cog):
                 await sendlog(self, ctx.guild, embed)    	
 
             else:
-                return await ctx.send('User is not muted!')
+                return await ctx.send('<a:x_:826577785173704754> User is not muted!')
         else:
-            return await ctx.send('No muted role has been created for this server! Mute someone to create one.')
+            return await ctx.send('<a:x_:826577785173704754> No muted role has been created for this server! Mute someone to create one.')
 
 
     #event to check if the user is still muted upon joining a server
@@ -239,22 +239,22 @@ class Moderation(commands.Cog):
     @commands.command(help='Bans a user.')
     async def ban(self, ctx, user: discord.User,*, reason=None):
         if ctx.message.author.id == user.id: #checks to see if you are banning yourself
-            return await ctx.send(f'{ctx.author.mention} you cannot ban yourself, silly human! `>.<`')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot ban yourself, silly human! `>.<`')
         
         member = await get_or_fetch_member(self, ctx.guild, user.id)
         if member:
             if member.top_role >= ctx.author.top_role:
-                await ctx.send(f'{ctx.author.mention} you cannot ban someone who has an equal or higher role than you! `:C`')
+                await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot ban someone who has an equal or higher role than you! `:C`')
                 return
             if member.guild.me.top_role <= member.top_role:
-                return await ctx.send('Error. The user you are trying to ban is above my highest role.')
+                return await ctx.send('<a:x_:826577785173704754> Error. The user you are trying to ban is above my highest role.')
         
         if user.id == BOT_ID:
-            return await ctx.send(f'{ctx.author.mention} you cannot ban me with my own commands! SMH.')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot ban me with my own commands! SMH.')
 
         try:
             await ctx.guild.ban(user, reason=f"By {ctx.author} for {reason}")
-            await ctx.send(f'{user.mention} was banned! `>:(`')
+            await ctx.send(f'{user.mention} was banned! `>:(` <a:check:826577847023829032>')
 				
 
             embed = discord.Embed(color=0x546e7a)
@@ -267,7 +267,7 @@ class Moderation(commands.Cog):
             await sendlog(self, ctx.guild, embed)      
 
         except:
-            return await ctx.send("Could not ban this user.")
+            return await ctx.send("<a:x_:826577785173704754> Could not ban this user.")
 
             
     #bans a user
@@ -276,21 +276,21 @@ class Moderation(commands.Cog):
     @commands.command(help='Kicks a user.')
     async def kick(self, ctx, member: discord.Member,*, reason=None):
         if ctx.message.author.id == member.id: #checks to see if you are kick yourself
-            return await ctx.send(f'{ctx.author.mention} you cannot kick yourself, silly human! `>.<`')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot kick yourself, silly human! `>.<`')
         
         if member.top_role >= ctx.author.top_role:
-            await ctx.send(f'{ctx.author.mention} you cannot kick someone who has an equal or higher role than you! `:C`')
+            await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot kick someone who has an equal or higher role than you! `:C`')
             return
         
         if member.id == BOT_ID:
-            return await ctx.send(f'{ctx.author.mention} you cannot kick me with my own commands! SMH.')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot kick me with my own commands! SMH.')
         
         if member.guild.me.top_role <= member.top_role:
-            return await ctx.send('Error. The user you are trying to kick is above my highest role.')
+            return await ctx.send('<a:x_:826577785173704754> Error. The user you are trying to kick is above my highest role.')
 
         try:
             await ctx.guild.kick(member, reason=f"By {ctx.author} for {reason}")
-            await ctx.send(f'{member.mention} was kicked! `>:(`')
+            await ctx.send(f'{member.mention} was kicked! `>:(` <a:check:826577847023829032>')
 				
 
             embed = discord.Embed(color=0x546e7a)
@@ -303,7 +303,7 @@ class Moderation(commands.Cog):
             await sendlog(self, ctx.guild, embed)   
 
         except:
-            return await ctx.send("Could not kick this user.")
+            return await ctx.send("<a:x_:826577785173704754> Could not kick this user.")
         # try:
         #     await member.send(f'You were kicked from **{member.guild}** for "{reason}"')
         # except discord.errors.Forbidden:
@@ -316,23 +316,23 @@ class Moderation(commands.Cog):
     @commands.command(help='Softbans a user.')
     async def softban(self, ctx, user: discord.User,*, reason=None):
         if ctx.message.author.id == user.id: #checks to see if you are banning yourself
-            return await ctx.send(f'{ctx.author.mention} you cannot softban yourself, silly human! `>.<`')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot softban yourself, silly human! `>.<`')
 
         member = await get_or_fetch_member(self, ctx.guild, user.id)
         if member:
             if member.top_role >= ctx.author.top_role:
-                await ctx.send(f'{ctx.author.mention} you cannot softban someone who has an equal or higher role than you! `:C`')
+                await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot softban someone who has an equal or higher role than you! `:C`')
                 return
             if member.guild.me.top_role <= member.top_role:
-                return await ctx.send('Error. The user you are trying to softban is above my highest role.')
+                return await ctx.send('<a:x_:826577785173704754> Error. The user you are trying to softban is above my highest role.')
         
         if user.id == BOT_ID:
-            return await ctx.send(f'{ctx.author.mention} you cannot softban me with my own commands! SMH.')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot softban me with my own commands! SMH.')
 
         try:
             await ctx.guild.ban(user, reason=f"By {ctx.author} for {reason}")
             await ctx.guild.unban(user)
-            await ctx.send(f'{user.mention} was softbanned! `>:(`')
+            await ctx.send(f'{user.mention} was softbanned! `>:(` <a:check:826577847023829032>')
 				
             embed = discord.Embed(color=0x546e7a)
             embed.title = f"{user} softbanned" 
@@ -343,7 +343,7 @@ class Moderation(commands.Cog):
             
             await sendlog(self, ctx.guild, embed)
         except:
-            return await ctx.send("Could not softban this user.")
+            return await ctx.send("<a:x_:826577785173704754> Could not softban this user.")
         
         # if member:
         #     try:
@@ -360,7 +360,7 @@ class Moderation(commands.Cog):
     async def unban(self, ctx, user: discord.User):
         try:
             await ctx.guild.unban(user)
-            await ctx.send(f'{user} was unbanned!')
+            await ctx.send(f'{user} was unbanned! <a:check:826577847023829032>')
 
             embed = discord.Embed(color=0x546e7a)
             embed.title = f"{user} unbanned" 
@@ -373,7 +373,7 @@ class Moderation(commands.Cog):
 
 
         except:
-            return await ctx.send('Could not unban this user.')
+            return await ctx.send('<a:x_:826577785173704754> Could not unban this user.')
 
 
     #sets slowmode in a channel
@@ -382,13 +382,13 @@ class Moderation(commands.Cog):
     @commands.command(aliases=["sm"], help="Sets the slowmode, in seconds.")
     async def slowmode(self, ctx, seconds: int):
         if seconds > 21600:
-            return await ctx.send(f"You tried to set the slowmode to **{seconds}** seconds, but the maximum is **21600** seconds")
+            return await ctx.send(f"<a:x_:826577785173704754> You tried to set the slowmode to **{seconds}** seconds, but the maximum is **21600** seconds")
 
         if seconds > 0:
-            await ctx.send(f"Set the slowmode in this channel to **{seconds}** seconds!")
+            await ctx.send(f"Set the slowmode in this channel to **{seconds}** seconds! <a:check:826577847023829032>")
         else:
             seconds = 0
-            await ctx.send(f'Disabled slowmode!')
+            await ctx.send(f'Disabled slowmode! <a:check:826577847023829032>')
         await ctx.channel.edit(slowmode_delay=seconds)
 
 def setup(bot):
