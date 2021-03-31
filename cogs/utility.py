@@ -112,7 +112,7 @@ class Utility(commands.Cog):
             firstmessage = await ctx.send(f'{ctx.author.mention}, Send the title.')
             title = await self.bot.wait_for('message', check=check, timeout=30)
             if len(title.content) >= 256:
-                return await ctx.send(f'Title was **{len(title.content)}** chars long, but it cannot be longer than 256.')
+                return await ctx.send(f'<a:x_:826577785173704754> Title was **{len(title.content)}** chars long, but it cannot be longer than 256.')
             await firstmessage.delete()
         
             secondmessage = await ctx.send(f'{ctx.author.mention}, Send the description.')
@@ -197,13 +197,13 @@ class Utility(commands.Cog):
                     counter = f"{seconds} second(s)"
                 
                 if seconds < 10:
-                    await ctx.send(f"Time must not be less than 10 seconds.")
+                    await ctx.send(f"<a:x_:826577785173704754> Time must not be less than 10 seconds.")
                     return
                 if seconds > 7776000:
-                    await ctx.send(f"Time must not be more than 90 days")
+                    await ctx.send(f"<a:x_:826577785173704754> Time must not be more than 90 days")
                     return
             except ValueError:
-                return await ctx.send('Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
+                return await ctx.send('<a:x_:826577785173704754> Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
 
             
             
@@ -212,7 +212,7 @@ class Utility(commands.Cog):
             prize = description.content
 
             if len(prize) > 201:
-                return await ctx.send(f'Prize text cannot be longer than 200 chars.')
+                return await ctx.send(f'<a:x_:826577785173704754> Prize text cannot be longer than 200 chars.')
 
         
         except asyncio.exceptions.TimeoutError:
@@ -279,16 +279,16 @@ class Utility(commands.Cog):
                 counter = f"**{seconds} second(s)**"
             
             if seconds < 10:
-                await ctx.send(f"Time must not be less than 10 seconds.")
+                await ctx.send(f"<a:x_:826577785173704754> Time must not be less than 10 seconds.")
                 return
             if seconds > 7776000:
-                await ctx.send(f"Time must not be more than 90 days")
+                await ctx.send(f"<a:x_:826577785173704754> Time must not be more than 90 days")
                 return
             if len(text) > 1900:
-                await ctx.send(f"The text you provided is too long.")
+                await ctx.send(f"<a:x_:826577785173704754> The text you provided is too long.")
                 return
         except ValueError:
-            return await ctx.send('Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
+            return await ctx.send('<a:x_:826577785173704754> Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
         
         future = int(time.time()+seconds)
         id = int(ctx.author.id)
@@ -299,7 +299,7 @@ class Utility(commands.Cog):
         if rows3 != []:
             try:
                 if rows3[2]:
-                    return await ctx.send(f'{ctx.author.mention}, you cannot have more than 3 reminders at once!')
+                    return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, you cannot have more than 3 reminders at once!')
             except IndexError:
                 pass
 
