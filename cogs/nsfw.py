@@ -10,7 +10,7 @@ class NSFW(commands.Cog):
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(hidden=True)
-    async def nsfwcommands(self, ctx):
+    async def nsfw(self, ctx):
         e = discord.Embed(Color=0, title = 'NSFW Commands',description='catgirl\nboobs\npussy\nspank\nhentai\nanal\nbj')
         await ctx.send(embed=e)
 
