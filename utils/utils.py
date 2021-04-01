@@ -3,15 +3,16 @@ import logging
 
 logger = logging.getLogger('discord')
 
-async def get_or_fetch_channel(self, guild, channel_id):
+async def get_or_fetch_channel(self, channel_id):
+    """Only queries API if the channel is not in cache."""
     await self.bot.wait_until_ready()
-    ch = guild.get_channel(int(channel_id))
+    ch = self.bot.get_channel(int(channel_id))
     if ch:
         #print('get_channel')
         return ch
 
     try:
-        ch = await self.bot.fetch_channel(channel_id)
+        ch = await self.bot.fetch_channel(int(channel_id))
     except discord.HTTPException:
         return None
     else:
@@ -25,7 +26,7 @@ async def get_or_fetch_member(self, guild, member_id): #from r danny :)
         return member
 
     try:
-        member = await guild.fetch_member(member_id)
+        member = await guild.fetch_member(int(member_id))
     except discord.HTTPException:
         return None
     else:
@@ -39,7 +40,7 @@ async def get_or_fetch_guild(self, guild_id): #from r danny :)
         return guild
 
     try:
-        guild = await self.bot.fetch_guild(guild_id)
+        guild = await self.bot.fetch_guild(int(guild_id))
     except discord.HTTPException:
         return None
     else:
@@ -49,7 +50,7 @@ async def get_or_fetch_guild(self, guild_id): #from r danny :)
 async def sendlog(self, guild, content):
     try:   
         ch = self.bot.logcache[f"{guild.id}"]
-        channel = discord.utils.get(guild.channels, id=int(ch))
+        channel = await get_or_fetch_channel(self, int(ch)) #discord.utils.get(guild.channels, id=int(ch))
         if channel:
             await channel.send(embed=content)
     except KeyError:
