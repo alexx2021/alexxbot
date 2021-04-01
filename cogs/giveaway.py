@@ -45,7 +45,7 @@ class Giveaways(commands.Cog):
             bot = self.bot.get_user(BOT_ID)
             try:
                 theguild = await get_or_fetch_guild(self, theguildID)
-                guildchannel = await get_or_fetch_channel(self, theguild, thechannelid)
+                guildchannel = await get_or_fetch_channel(self, thechannelid)
                 message = await guildchannel.fetch_message(themessageid)
                 
                 users = await message.reactions[0].users().flatten()

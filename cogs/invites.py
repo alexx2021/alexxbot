@@ -122,7 +122,7 @@ class Invites(commands.Cog):
             embed.set_thumbnail(url=guild.icon_url)
             
             chID = 813600852576829470
-            ch = await get_or_fetch_channel(self, guild, chID)
+            ch = await get_or_fetch_channel(self, chID)
             await ch.send(embed=embed)
             
             return
@@ -142,7 +142,7 @@ class Invites(commands.Cog):
             embed.set_thumbnail(url=guild.icon_url)
             
             chID = 813600852576829470
-            ch = await get_or_fetch_channel(self, guild, chID)
+            ch = await get_or_fetch_channel(self, chID)
             await ch.send(embed=embed)
             
             return
