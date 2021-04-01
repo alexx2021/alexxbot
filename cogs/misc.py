@@ -1,7 +1,7 @@
 import discord
 import datetime
 import asyncio
-from utils.utils import get_or_fetch_channel, gofc_alt
+from utils.utils import get_or_fetch_channel
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 
