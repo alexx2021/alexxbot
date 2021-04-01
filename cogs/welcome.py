@@ -1,3 +1,4 @@
+from utils.utils import get_or_fetch_channel
 import discord
 import logging
 from discord.ext import commands
@@ -40,7 +41,7 @@ class Welcome(commands.Cog):
         except KeyError:
             return
 
-        channel = discord.utils.get(member.guild.channels, id=int(data["logch"]))
+        channel = await get_or_fetch_channel(self, int(data["logch"]))
         if channel:
             wMsg = data["wMsg"]
             
@@ -72,7 +73,7 @@ class Welcome(commands.Cog):
         except KeyError:
             return
 
-        channel = discord.utils.get(member.guild.channels, id=int(data["logch"]))
+        channel = await get_or_fetch_channel(self, int(data["logch"]))
         if channel:
             wMsg = data["bMsg"]
             
