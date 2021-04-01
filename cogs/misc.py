@@ -1,5 +1,7 @@
 import discord
+import datetime
 import asyncio
+from utils.utils import get_or_fetch_channel, gofc_alt
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 
@@ -22,6 +24,16 @@ class Events(commands.Cog):
 #################################################
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
+        embed = discord.Embed(colour=discord.Color.red(), title = 'Left a server :(')
+        embed.timestamp = datetime.datetime.utcnow()
+        embed.add_field(name=(str(guild.name)), value=str(guild.id),inline=False)
+        embed.add_field(name='Server Owner', value=(f'{guild.owner}\n{guild.owner.id}'))
+        embed.set_thumbnail(url=guild.icon_url)
+        
+        ch = await get_or_fetch_channel(self, 827244995576332288)
+        if ch:
+            await ch.send(embed=embed)  
+        
         await asyncio.sleep(2)
         server = guild.id
 
@@ -56,6 +68,28 @@ class Events(commands.Cog):
         await asyncio.sleep(0.25)
         await self.bot.xp.execute("DELETE FROM chatlvlsenabled WHERE guild_id = ?",(server,))
         await self.bot.xp.commit()
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        embed = discord.Embed(colour=discord.Color.green(), title = 'New server!')
+        embed.timestamp = datetime.datetime.utcnow()
+        embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
+        "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
+        "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
+        "\n" + "Created at " + str(guild.created_at), inline=False)
+        embed.add_field(name='Server Owner', value=(f'{guild.owner}\n{guild.owner.id}'))
+        
+        if guild.me.guild_permissions.administrator:
+            admin = True
+        else:
+            admin = False
+
+        embed.add_field(name='Permissions', value=f'Admin: {admin}') 
+        embed.set_thumbnail(url=guild.icon_url)
+        
+        ch = await get_or_fetch_channel(self, 827244995576332288)
+        if ch:
+            await ch.send(embed=embed)
 
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
