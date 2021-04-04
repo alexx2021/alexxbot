@@ -67,6 +67,7 @@ class Fun(commands.Cog):
             try:
                 await user.send('https://tenor.com/view/bumblebee-17029825')
                 await user.send(f'a lovely surprise, courtesy of `{ctx.author}`')
+                await ctx.send('👍')
             except:
                 return
             finally:
