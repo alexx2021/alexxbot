@@ -8,7 +8,6 @@ import datetime
 
 async def is_wl(ctx):
     guildlist = [
-    814039730026840094,
     741054230370189343,
     812951618945286185,
     704554442153787453,
@@ -17,14 +16,13 @@ async def is_wl(ctx):
     597965043333726220,
     796212175693152256,
     ]
-    #0b kits
-     #iridescent
-      #alexx support
-       #sniper kingdom
-        #burrow's resource pack
-         #minty
-          #server
-            #math pre cal 1
+    #iridescent
+     #alexx support
+      #sniper kingdom
+       #burrow's resource pack
+        #minty
+         #server
+          #math pre cal 1
     guildID = ctx.guild.id
     if guildID in guildlist:
         return True 
