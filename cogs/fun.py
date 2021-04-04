@@ -59,7 +59,8 @@ class Fun(commands.Cog):
     @commands.command(help="Rickrolls the victim in their dms!",)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def rickroll(self, ctx, user: discord.User):
-        await ctx.message.delete()
+        if ctx.guild.me.guild_permissions.manage_messages:
+            await ctx.message.delete()
         if user.id == 247932598599417866:
         	await ctx.send(f'{ctx.author.mention} OOP! You cannot rickroll this user >:)', delete_after=3.0)
         else:
