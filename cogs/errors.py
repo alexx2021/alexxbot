@@ -6,11 +6,10 @@
 import discord
 from discord.ext import commands
 import datetime
-import DiscordUtils
+import utils.musicUtils
 import traceback
 import sys
-from discord.ext.commands.errors import MaxConcurrencyReached
-from discord.ext.commands.errors import NSFWChannelRequired
+from discord.ext.commands.errors import CommandError, MaxConcurrencyReached
 
 
 class Errors(commands.Cog):
@@ -22,6 +21,8 @@ class Errors(commands.Cog):
     async def on_command_error(self, ctx, error):
 
         error = getattr(error, "original", error)
+        # if isinstance(error, commands.CommandError):
+        #     error = error.original
 
         if isinstance(error, commands.CommandNotFound):
             #await ctx.send('Invalid command used.')
@@ -96,14 +97,14 @@ class Errors(commands.Cog):
         elif isinstance(error, commands.errors.CheckFailure):
             return
         
-        elif isinstance(error, DiscordUtils.NotConnectedToVoice):
+        elif isinstance(error, utils.musicUtils.NotConnectedToVoice):
             return await ctx.send('<a:x_:826577785173704754> The bot is not currently in a voice channel! Join a voice channel and play a song and it will join.')
 
 
-        elif isinstance(error, DiscordUtils.NotPlaying):
+        elif isinstance(error, utils.musicUtils.NotPlaying):
             return await ctx.send('<a:x_:826577785173704754> There is no song currently playing!')
 
-        elif isinstance(error, DiscordUtils.EmptyQueue):
+        elif isinstance(error, utils.musicUtils.EmptyQueue):
             return await ctx.send('<a:x_:826577785173704754> The queue is currently empty!')
 
         else:
