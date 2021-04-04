@@ -71,7 +71,7 @@ class Fun(commands.Cog):
             except:
                 return
             finally:
-        	    logger.info(msg=f'user rickrolled successfully by {ctx.author}')
+        	    logger.info(msg=f'user rickrolled successfully by {ctx.author} ({ctx.author.id})')
 
     
     @commands.guild_only()
