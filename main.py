@@ -134,30 +134,38 @@ async def setup_stuff():
 
     
     print('cache is setup!!')
-    # print(f'prefixes - {bot.prefixes}')
-    #print(f'logs - {bot.logcache}')
-    #print(f'aRole - {bot.autorolecache}')
-    #print(f'welcome - {bot.welcomecache}') 
-    #print(f'lvls - {bot.arelvlsenabled}') 
     print(f'blacklist - {bot.ubl}')
 
 
+extensions = (
+        "admin",
+        "autoroles",
+        "chatxp",
+        "configuration",
+        "customhelp",
+        "errors",
+        "fun",
+        "games",
+        "giveaway",
+        "invites",
+        "logging",
+        "misc",
+        "moderation",
+        "music",
+        "nsfw",
+        "reminders",
+        "stats",
+        "utility",
+        "welcome",
+    )
+
 loop.create_task(setup_stuff()) #sets up stuff before cogs load
 
-try: #tries to load cogs in the correct path for the bot host
-    for filename in os.listdir('/home/container/cogs'):
-        if filename.endswith('.py'):
-            bot.load_extension(f'cogs.{filename[:-3]}')
-            print(f'Loaded {filename[:-3]}')
-except: #if it fails, looks in a different path (for my own testing purposes)
-    for filename in os.listdir('/users/alexander/documents/repo#2/alexxbot/cogs'):
-        if filename.endswith('.py'):
-            bot.load_extension(f'cogs.{filename[:-3]}')
-            print(f'Loaded {filename[:-3]}')
-
-
-
-
+count = 0
+for ext in extensions:
+    bot.load_extension(f"cogs.{ext}")
+    print(f'Loaded {ext}')
+    count += 1
 
 @bot.event
 async def on_ready():
@@ -166,22 +174,11 @@ async def on_ready():
     print('--------------------------')
     print(f'Logged in as: {bot.user.name}')
     print(f'With ID: {bot.user.id}')
+    print(f'{count} total extensions loaded')
+    print(f"Servers - {str(len(bot.guilds))}")
     print('--------------------------')
 
     # the rest  of the startup output is in Invites.py
-
-
-
-# ############################user blacklist
-# @bot.check_once
-# async def is_blacklisted(ctx):
-#     print('checked')
-#     async with aiosqlite.connect('blacklists.db') as c:
-#         rows = await c.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(ctx.author.id,),)
-#         if rows != []:
-#             return False
-#         else:
-#             return True
 
 #reduces forbiddden errors due to not being able to respond to commands lol
 @bot.check_once
@@ -195,7 +192,6 @@ async def can_do_stuff(ctx: commands.Context):
             return False
         else:
             return True
-
 
 
 @bot.event

@@ -95,13 +95,12 @@ class Invites(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         await asyncio.sleep(2)
-        print('Starting to cache invites!')
+        #print('Starting to cache invites!')
         #print('--------------------------')
         await self.tracker.cache_invites()
         #print('--------------------------')
-        print('Finished caching invites!')
+        #print('Finished caching invites!')
         print('Bot is ready!')
-        print(f"Servers - {str(len(self.bot.guilds))}")
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
