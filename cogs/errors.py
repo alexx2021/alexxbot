@@ -108,7 +108,7 @@ class Errors(commands.Cog):
 
         else:
             embed = discord.Embed(title=':x: Command Error', colour=0xe74c3c) #Red
-            embed.add_field(name='Command', value=error)
+            embed.add_field(name='Error', value=error)
             embed.add_field(name='Who', value=f'{ctx.author} ({ctx.author.id})')
             embed.add_field(name=f"Command:", value=f"{ctx.message.clean_content}")
             embed.description = '```py\n%s\n```' % traceback.format_exc()
