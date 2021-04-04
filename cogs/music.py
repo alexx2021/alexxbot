@@ -93,7 +93,7 @@ class Music(commands.Cog):
 
     @commands.check(is_wl)    
     @commands.command(aliases=["p"],hidden=True)
-    async def play(self, ctx, *, url):
+    async def play(self, ctx, *, songname):
         
         if ctx.voice_client:
             if not ctx.author.voice:
@@ -106,11 +106,11 @@ class Music(commands.Cog):
                 await ctx.author.voice.channel.connect()
                 await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
 
-        if "mau5" in url:
+        if "mau5" in songname:
             await ctx.send(f'{ctx.author.mention} deadmau5 is cool - i approve')
-        if "https:" in url:
+        if "https:" in songname:
             return await ctx.send('URLs are not supported at this time as the music module is still in development.')
-        if "http:" in url:
+        if "http:" in songname:
             return await ctx.send('URLs are not supported at this time as the music module is still in development.')
 
 
@@ -122,7 +122,7 @@ class Music(commands.Cog):
         if not ctx.voice_client.is_playing():
             
             try:
-                await player.queue(url, search=True)
+                await player.queue(songname, search=True)
             except IndexError:
                 return await ctx.send('No songs found.')
 
@@ -136,7 +136,7 @@ class Music(commands.Cog):
             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
             await ctx.send(embed=embed)
         else:
-            song = await player.queue(url, search=True)
+            song = await player.queue(songname, search=True)
 
             converted_time = await convertT(song.duration)
             
