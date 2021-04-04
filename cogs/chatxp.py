@@ -16,7 +16,7 @@ class Pag(Paginator):
 
 #test
         
-class Chatlevels(commands.Cog):
+class Chatxp(commands.Cog):
     def __init__(self, bot):
         self.bot = bot    
         self.cd_mapping = commands.CooldownMapping.from_cooldown(
@@ -273,4 +273,4 @@ class Chatlevels(commands.Cog):
         print('-----------dump-----------')
 
 def setup(bot):
-    bot.add_cog(Chatlevels(bot))
+    bot.add_cog(Chatxp(bot))
