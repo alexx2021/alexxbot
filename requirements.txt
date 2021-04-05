@@ -7,3 +7,4 @@ buttons
 DiscordUtils
 aiosqlite
 statcord.py
+objgraph
