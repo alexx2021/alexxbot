@@ -211,7 +211,7 @@ class Chatxp(commands.Cog):
         await ctx.send(embed=embed)
 
     #@commands.max_concurrency(1, per=BucketType.user, wait=False)
-    @bot_has_permissions(manage_messages=True)
+    #@bot_has_permissions(manage_messages=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.guild_only()
     @commands.command(aliases=("top","lb"), help = 'View the server leaderboard!')
