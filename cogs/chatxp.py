@@ -2,9 +2,12 @@ import asyncio
 import discord
 from discord.ext import commands
 from random import randint
+import logging
 from discord.ext.commands.cooldowns import BucketType
-from discord.ext.commands.core import has_permissions
+from discord.ext.commands.core import bot_has_permissions, has_permissions
 from discord.ext.buttons import Paginator
+
+logger = logging.getLogger('discord')
 
 class Pag(Paginator):
     async def teardown(self):
@@ -12,7 +15,7 @@ class Pag(Paginator):
             await asyncio.sleep(0.25)
             await self.page.clear_reactions()
         except discord.HTTPException:
-            pass
+            logger.warn(msg="HTTP Exception due to paginator in lb")
 
 #test
         
@@ -207,10 +210,15 @@ class Chatxp(commands.Cog):
         embed.set_author(name=f"{member}", icon_url=member.avatar_url)
         await ctx.send(embed=embed)
 
+    #@commands.max_concurrency(1, per=BucketType.user, wait=False)
+    @bot_has_permissions(manage_messages=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.guild_only()
     @commands.command(aliases=("top","lb"), help = 'View the server leaderboard!')
     async def leaderboard(self, ctx: commands.Context):
+            if not ctx.guild.me.guild_permissions.manage_messages:
+                logger.info(msg=f'LEADERBOARD CHECKED (possible http exception) invoked by User: {ctx.author} ({ctx.author.id}) in guild: {ctx.guild} ({ctx.guild.id})')
+
             error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
             try:
                 enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
@@ -244,7 +252,7 @@ class Chatxp(commands.Cog):
             pager = Pag(
                 title=f"Leaderboard for {ctx.guild}", 
                 colour=discord.Colour.green(),
-                timeout=20,
+                timeout=10,
                 entries=[desc[i: i + 2000] for i in range(0, len(desc), 2000)],
                 length=1,
             )
