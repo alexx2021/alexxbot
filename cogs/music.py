@@ -68,6 +68,17 @@ class Music(commands.Cog):
         self.bot = bot 
         self.music = utils.musicUtils.Music() 
 
+
+    @commands.is_owner()
+    @commands.command(hidden=True)
+    async def dcall(self, ctx):
+        for guild in self.bot.guilds:
+            player = self.music.get_player(guild_id=guild.id)
+            if player:
+                await player.stop()
+                await ctx.send(f':ok_hand: {guild} ({guild.id}) stopped!')
+                asyncio.sleep(0.5)
+
     @commands.check(check_in_vc) 
     @commands.check(is_wl)    
     @commands.command(aliases=["l"],hidden=True)
