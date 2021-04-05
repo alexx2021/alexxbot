@@ -6,6 +6,8 @@ from discord.ext import commands
 import random
 import logging
 
+from discord.ext.commands.cooldowns import BucketType
+
 logger = logging.getLogger('discord')
 
 
@@ -123,20 +125,21 @@ class Fun(commands.Cog):
                 await ctx.send(embed=embed)
 
     #chooses random result and tells you if you are gay :)
+    @commands.max_concurrency(1, per=BucketType.user, wait=False)
     @commands.guild_only()
     @commands.command(help=('beep beep.'))
     async def gaydar(self, ctx, *, user):
-        await ctx.send('Beep Beep Beep....')
-        await asyncio.sleep(0.5)
-        await ctx.send('Results processed.')
-        await asyncio.sleep(0.5)
-        await ctx.send(f'{ctx.author.mention} Are you sure you want to know the truth? (say yes)')
+        msg = await ctx.send('Beep Beep Beep....')
+        await asyncio.sleep(1)
+        await msg.edit(content='Results processed.')
+        await asyncio.sleep(1)
+        await msg.edit(content=f'{ctx.author.mention} Are you sure you want to know the truth? (say yes)')
         
         def check(m):
-            return m.content == 'yes'
+            return m.content.lower() == 'yes'
 
         try:
-            await self.bot.wait_for('message', check=check, timeout=10)
+            await self.bot.wait_for('message', check=check, timeout=15)
             isgaystring = ["They are confirmed ✨gay✨!!", "They are straight!","Ask again later, im low on battery :(","eighwph49w-g-j-5hw-gjr"]
             await ctx.send(f'{random.choice(isgaystring)}')
         except asyncio.exceptions.TimeoutError:
