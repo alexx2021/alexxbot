@@ -119,7 +119,7 @@ class Music(commands.Cog):
             try:
                 await player.queue(songname, search=True)
             except IndexError:
-                return await ctx.send('No songs found.')
+                return await ctx.send('<a:x_:826577785173704754> No songs found.')
 
             song = await player.play()
             
@@ -233,9 +233,12 @@ class Music(commands.Cog):
                 timeout=10,
                 entries=[desc[i: i + 2000] for i in range(0, len(desc), 2000)],
                 length=1,
+                suffix=f'\n*Requested by {ctx.author}*'
             )
-
             await pager.start(ctx)
+        else:
+            await ctx.send('<a:x_:826577785173704754> There is nothing in the queue.')
+
 
     @commands.check(is_wl)      
     @commands.command(aliases=["nowplaying"],hidden=True)
