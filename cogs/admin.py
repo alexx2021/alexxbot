@@ -38,7 +38,7 @@ class Admin(commands.Cog):
     async def logout(self, ctx):
         await ctx.send('👌')
         try:
-            await self.bot.logout()
+            await self.bot.close()
         except:
             await ctx.send('something went wrong.')
 
