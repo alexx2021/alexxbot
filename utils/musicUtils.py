@@ -87,6 +87,8 @@ async def get_video_data(url, search, bettersearch, loop):
                 data = data["entries"][0]
             except KeyError:
                 pass
+            except TypeError:
+                pass
             del ytdl
             source = data["url"]
             url = "https://www.youtube.com/watch?v="+data["id"]
@@ -98,26 +100,45 @@ async def get_video_data(url, search, bettersearch, loop):
             channel = data["uploader"]
             channel_url = data["uploader_url"]
             return Song(source, url, title, description, views, duration, thumbnail, channel, channel_url, False)
-        
-def check_queue(ctx, opts, music, after, on_play, loop):
+
+
+def check_queue(self, ctx, opts, music, after, on_play, loop):
+    
+    player = self.music.get_player(guild_id=ctx.guild.id)
+    
     try:
         song = music.queue[ctx.guild.id][0]
     except IndexError:
         return
+
     if not song.is_looping:
         try:
             music.queue[ctx.guild.id].pop(0)
         except IndexError:
             return
+
         if len(music.queue[ctx.guild.id]) > 0:
             source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(music.queue[ctx.guild.id][0].source, **opts))
-            ctx.voice_client.play(source, after=lambda error: after(ctx, opts, music, after, on_play, loop))
+            ctx.voice_client.play(source, after=lambda error: after(self, ctx, opts, music, after, on_play, loop))
             song = music.queue[ctx.guild.id][0]
             if on_play:
                 loop.create_task(on_play(ctx, song))
+        else:
+            coro = ctx.send('❗ Reached the end of the queue.')
+            
+            sendmsg = asyncio.run_coroutine_threadsafe(coro, loop)
+            
+            try:
+                sendmsg.result() #send msg saying queue is over
+            except: # dont show error if sending message fails
+                pass
+
+            coroStop = player.stop()
+            stopPlayer = asyncio.run_coroutine_threadsafe(coroStop, loop) 
+            stopPlayer.result() #clean up the player instance and disconnect from vc
     else:
         source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(music.queue[ctx.guild.id][0].source, **opts))
-        ctx.voice_client.play(source, after=lambda error: after(ctx, opts, music, after, on_play, loop))
+        ctx.voice_client.play(source, after=lambda error: after(self, ctx, opts, music, after, on_play, loop))
         song = music.queue[ctx.guild.id][0]
         if on_play:
             loop.create_task(on_play(ctx, song))
@@ -190,7 +211,7 @@ class MusicPlayer(object):
         return song
     async def play(self):
         source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(self.music.queue[self.ctx.guild.id][0].source, **self.ffmpeg_opts))
-        self.voice.play(source, after=lambda error: self.after_func(self.ctx, self.ffmpeg_opts, self.music, self.after_func, self.on_play_func, self.loop))
+        self.voice.play(source, after=lambda error: self.after_func(self, self.ctx, self.ffmpeg_opts, self.music, self.after_func, self.on_play_func, self.loop))
         song = self.music.queue[self.ctx.guild.id][0]
         if self.on_play_func:
             await self.on_play_func(self.ctx, song)
@@ -218,6 +239,8 @@ class MusicPlayer(object):
             self.music.queue[self.ctx.guild.id] = []
             self.voice.stop()
             self.music.players.remove(self)
+            await self.ctx.voice_client.disconnect()
+            #print('done')
         except:
             raise NotPlaying("Cannot loop because nothing is being played")
         if self.on_stop_func:
