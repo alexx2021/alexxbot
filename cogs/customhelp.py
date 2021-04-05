@@ -56,7 +56,7 @@ class Help(commands.Cog):
     @commands.cooldown(3, 10, commands.BucketType.member)
     @commands.command(
                       description='Help command',
-                      aliases=['commands', 'invite'])
+                      aliases=['commands', 'invite'],hidden=True)
     async def help(self, ctx, *commands: str):
         """ Shows this message """
         embed = discord.Embed(title=bot_title, description=f'Mention me to get my prefix on this server!')
