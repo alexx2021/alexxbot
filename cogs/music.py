@@ -1,8 +1,19 @@
+import asyncio
 import discord
 from discord.ext import commands
+from discord.ext.commands.core import bot_has_permissions
 import utils.musicUtils
 import datetime
+from discord.ext.buttons import Paginator
 
+
+class Pag(Paginator):
+    async def teardown(self):
+        try:
+            await asyncio.sleep(0.25)
+            await self.page.clear_reactions()
+        except discord.HTTPException:
+            pass
 
 
 
@@ -30,8 +41,7 @@ async def is_wl(ctx):
         return False
     
 async def not_pl(ctx):
-    embed = discord.Embed(description=('There is nothing currently playing :('), color=0xff0000)
-    await ctx.send(embed=embed)
+    await ctx.send('<a:x_:826577785173704754> There is nothing currently playing :(')
 
 async def convertT(songDur):
     conversion = datetime.timedelta(seconds=songDur)
@@ -39,12 +49,17 @@ async def convertT(songDur):
     return converted_time
 
 async def check_in_vc(ctx):
-    # if ctx.voice_ c l i e n t:
-    #     if not ctx.author.voice:
-    #         embed = discord.Embed(description=(f'{ctx.author}, you must be in a voice channel to use this command!'), color=0xff0000)
-    #         await ctx.send(embed=embed)
-    #         return
-        pass
+    if ctx.guild.me.voice:
+        vc = ctx.guild.me.voice.channel
+    else:
+        vc = None
+
+    # If we've connected to a voice chat and we're in the same voice channel
+    if not vc or (ctx.author.voice and vc == ctx.author.voice.channel):
+        return True
+    else:
+        await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, you must be in the same voice channel as me to use this command!')
+        return False
 
 
 
@@ -53,65 +68,45 @@ class Music(commands.Cog):
         self.bot = bot 
         self.music = utils.musicUtils.Music() 
 
-    @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
-            player = self.music.get_player(guild_id=member.guild.id)
-            if not player:
-                mg = member.guild
-                if mg.voice_client:
-                    await mg.voice_client.disconnect()
-
-
-    # @commands.check(is_wl)
-    # @commands.command(aliases=["j"])
-    # async def join(self, ctx):
-    #     if ctx.voice_client:
-    #         if not ctx.author.voice:
-    #             embed = discord.Embed(description=(f'{ctx.author.mention}, you must be in a voice channel to use this command!'), color=0xff0000)
-    #             await ctx.send(embed=embed)
-    #             return
-    #     if ctx.voice_client is None: #joins vc if its not already in one
-    #         if ctx.author.voice:
-    #             channel = ctx.author.voice
-    #             await ctx.author.voice.channel.connect()
-    #             await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
-
-    
+    @commands.check(check_in_vc) 
     @commands.check(is_wl)    
     @commands.command(aliases=["l"],hidden=True)
     async def leave(self, ctx):
+        
         if ctx.author.voice:
             player = self.music.get_player(guild_id=ctx.guild.id)
             if player:
                 await player.stop()
             await ctx.voice_client.disconnect()
-        else:
-            embed = discord.Embed(description=(f'{ctx.author.mention}, you must be in a voice channel to use this command!'), color=0xff0000)
-            await ctx.send(embed=embed)
         
     
-
+    @commands.check(check_in_vc)
     @commands.check(is_wl)    
     @commands.command(aliases=["p"],hidden=True)
     async def play(self, ctx, *, songname):
         
+
         if ctx.voice_client:
             if not ctx.author.voice:
-                embed = discord.Embed(description=(f'{ctx.author.mention}, you must be in a voice channel to use this command!'), color=0xff0000)
-                await ctx.send(embed=embed)
+                await ctx.send(embed=f'<a:x_:826577785173704754> You must be in a voice channel to use this command!')
                 return
         if ctx.voice_client is None: #joins vc if its not already in one
             if ctx.author.voice:
                 channel = ctx.author.voice.channel
+                
+                chperms = channel.permissions_for(ctx.guild.me)
+                if not chperms.connect:
+                    return await ctx.send('<a:x_:826577785173704754> I cannot connect to that channel. (missing permissions)')
+                if not chperms.speak:
+                    return await ctx.send('<a:x_:826577785173704754> I cannot speak in that channel. (missing permissions)')
+
                 await ctx.author.voice.channel.connect()
                 await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
 
         if "mau5" in songname:
             await ctx.send(f'{ctx.author.mention} deadmau5 is cool - i approve')
-        if "https:" in songname:
-            return await ctx.send('URLs are not supported at this time as the music module is still in development.')
         if "http:" in songname:
-            return await ctx.send('URLs are not supported at this time as the music module is still in development.')
+            return await ctx.send('<a:x_:826577785173704754> URLs are not supported at this time as the music module is still in development.')
 
 
 
@@ -146,11 +141,11 @@ class Music(commands.Cog):
             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
             await ctx.send(embed=embed)
 
-
+    @commands.check(check_in_vc)
     @commands.check(is_wl)      
     @commands.command(hidden=True)
     async def pause(self, ctx):
-        await check_in_vc(ctx)
+        
 
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -161,10 +156,11 @@ class Music(commands.Cog):
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.check(check_in_vc)
     @commands.check(is_wl)      
     @commands.command(hidden=True)
     async def resume(self, ctx):
-        await check_in_vc(ctx)
+        
 
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -175,10 +171,11 @@ class Music(commands.Cog):
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.check(check_in_vc)
     @commands.check(is_wl)       
     @commands.command(hidden=True)
     async def stop(self, ctx):
-        await check_in_vc(ctx)
+        
 
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -189,10 +186,11 @@ class Music(commands.Cog):
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.check(check_in_vc)
     @commands.check(is_wl)        
     @commands.command(hidden=True)
     async def loop(self, ctx):
-        await check_in_vc(ctx)
+        
 
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -208,7 +206,8 @@ class Music(commands.Cog):
             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
             await ctx.send(embed=embed)
 
-    @commands.check(is_wl)     
+    @commands.check(is_wl) 
+    @bot_has_permissions(manage_messages=True)    
     @commands.command(aliases=["q"],hidden=True)
     async def queue(self, ctx):
         player = self.music.get_player(guild_id=ctx.guild.id)
@@ -220,22 +219,23 @@ class Music(commands.Cog):
         if len([song.name for song in player.current_queue()]) > 0:
             embed = discord.Embed(title=(f'Queue'), color=0x7289da)
             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-            desc = ["**(showing the first 10 songs)**"]
-            num = 0
-            for song in player.current_queue():
-
-                if num <= 10:
-                    #print(num)
-                    converted_time = await convertT(song.duration)
-                    
-                    desc.append(f'**{str(num)}.** '+ song.name + f' `{converted_time}`')
-                    num += 1
-            
-            joined = "\n".join(desc)
-            embed.description=(str(joined))
+            desc = ''
+            for rank, song in enumerate(player.current_queue(), start=0):
+                converted_time = await convertT(song.duration)
+                
+                desc +=f'**{rank}.** '+ song.name + f' `{converted_time}`\n'
+        
             
 
-            await ctx.send(embed=embed)
+            pager = Pag(
+                title=f"Queue", 
+                colour=0x7289da,
+                timeout=10,
+                entries=[desc[i: i + 2000] for i in range(0, len(desc), 2000)],
+                length=1,
+            )
+
+            await pager.start(ctx)
 
     @commands.check(is_wl)      
     @commands.command(aliases=["nowplaying"],hidden=True)
@@ -286,11 +286,11 @@ class Music(commands.Cog):
         except discord.errors.Forbidden:
             pass
         
-
+    @commands.check(check_in_vc)
     @commands.check(is_wl)     
     @commands.command(hidden=True)                                                                                                                     #### TODO FIX ####
     async def skip(self, ctx):
-        await check_in_vc(ctx)
+        
 
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -302,13 +302,14 @@ class Music(commands.Cog):
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.check(check_in_vc)
     @commands.check(is_wl) 
     @commands.command(aliases=["vol"],hidden=True)
     async def volume(self, ctx, vol:int ):
-        await check_in_vc(ctx)
+        
 
         if vol > 200:
-            await ctx.channel.send('Volume cannot be greater than 200%!')
+            await ctx.channel.send('<a:x_:826577785173704754> Volume cannot be greater than 200%!')
             return
 
         player = self.music.get_player(guild_id=ctx.guild.id)
@@ -320,10 +321,11 @@ class Music(commands.Cog):
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.check(check_in_vc)
     @commands.check(is_wl)     
     @commands.command(hidden=True)
     async def remove(self, ctx, index: int):
-        await check_in_vc(ctx)
+        
 
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -333,8 +335,7 @@ class Music(commands.Cog):
         try:
             song = await player.remove_from_queue(int(index))
         except IndexError:
-            embed = discord.Embed(description=('The song you tried to remove does not exist!'), color=0xff0000)
-            await ctx.send(embed=embed)
+            await ctx.send('<a:x_:826577785173704754> The song you tried to remove does not exist!')
             return
 
         embed = discord.Embed(description=(f'Removed **{song.name}** from the queue.'), color=0x7289da)
