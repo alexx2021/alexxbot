@@ -19,6 +19,7 @@
 
 
 
+import datetime
 import youtube_dl
 import asyncio
 import discord
@@ -123,6 +124,21 @@ def check_queue(self, ctx, opts, music, after, on_play, loop):
             song = music.queue[ctx.guild.id][0]
             if on_play:
                 loop.create_task(on_play(ctx, song))
+
+            conversion = datetime.timedelta(seconds=song.duration)
+            converted_time = str(conversion)
+            embed = discord.Embed(color=discord.Color.blue())
+            embed.title = "Now playing:"
+            embed.description = (f'{song.name} `{converted_time}`')
+            
+            coro = ctx.send(embed=embed)
+            
+            sendmsg = asyncio.run_coroutine_threadsafe(coro, loop)
+            
+            try:
+                sendmsg.result() #send msg that shows next song
+            except: # dont show error if sending message fails
+                pass
         else:
             coro = ctx.send('❗ Reached the end of the queue.')
             
