@@ -244,7 +244,7 @@ class Music(commands.Cog):
                 timeout=10,
                 entries=[desc[i: i + 2000] for i in range(0, len(desc), 2000)],
                 length=1,
-                suffix=f'\n*Requested by {ctx.author}*'
+                suffix=f'\nRequested by {ctx.author}'
             )
             await pager.start(ctx)
         else:
