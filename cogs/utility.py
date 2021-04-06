@@ -6,6 +6,7 @@ import asyncio
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 import time
+from utils.utils import get_or_fetch_member
 # from discord import Spotify
 # from discord import CustomActivity
 
@@ -37,33 +38,73 @@ class Utility(commands.Cog):
 
 
     #userinfo command
+    @commands.cooldown(3, 6, commands.BucketType.user)
     @commands.guild_only()
     @commands.command(aliases=["whois"], help='Displays information about a mentioned user.')
-    async def userinfo(self, ctx, member: discord.Member=None):
-        if member is None:
-            member = ctx.author
-        roles = [role for role in member.roles]
-        del roles[0]
-        embed = discord.Embed(color=0x7289da, title=f"User Information")
-        embed.set_author(name=f"{member}", icon_url=member.avatar_url)
-        embed.timestamp = datetime.datetime.utcnow()
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    async def userinfo(self, ctx, user: discord.User=None):
+        if user is None:
+            user = ctx.author
+            roles = [role for role in user.roles]
+            del roles[0]
+            embed = discord.Embed(color=0x7289da, title=f"User Information")
+            embed.set_author(name=f"{user}", icon_url=user.avatar_url)
+            embed.timestamp = datetime.datetime.utcnow()
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
 
-        embed.add_field(name="ID:", value=member.id)
-        embed.add_field(name="Joined Server On:", value=member.joined_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
+            embed.add_field(name="ID:", value=user.id)
+            embed.add_field(name="Joined Server On:", value=user.joined_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
 
-        embed.add_field(name="Created Account On:", value=member.created_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
-        embed.add_field(name="Display Name:", value=member.display_name)
+            embed.add_field(name="Created Account On:", value=user.created_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
+            embed.add_field(name="Display Name:", value=user.display_name)
 
-        roles2 = [role.mention for role in roles]
-        if roles2 == []:
-            roles2 = ['None']
-        if len(roles2) > 10:
-            roles2 = ['Error. User has too many roles.']
+            roles2 = [role.mention for role in roles]
+            if roles2 == []:
+                roles2 = ['None']
+            if len(roles2) > 10:
+                roles2 = ['Error. User has too many roles.']
 
-        embed.add_field(name="Roles:", value="".join(roles2))
-        embed.add_field(name="Highest Role:", value=member.top_role.mention)
-        await ctx.send(embed=embed)
+            embed.add_field(name="Roles:", value="".join(roles2))
+            embed.add_field(name="Highest Role:", value=user.top_role.mention)
+            await ctx.send(embed=embed)
+            return
+        
+        member = await get_or_fetch_member(self, ctx.guild, user.id)
+        if member:
+            user = member
+            roles = [role for role in user.roles]
+            del roles[0]
+            embed = discord.Embed(color=0x7289da, title=f"User Information")
+            embed.set_author(name=f"{user}", icon_url=user.avatar_url)
+            embed.timestamp = datetime.datetime.utcnow()
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+            embed.add_field(name="ID:", value=user.id)
+            embed.add_field(name="Joined Server On:", value=user.joined_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
+
+            embed.add_field(name="Created Account On:", value=user.created_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
+            embed.add_field(name="Display Name:", value=user.display_name)
+
+            roles2 = [role.mention for role in roles]
+            if roles2 == []:
+                roles2 = ['None']
+            if len(roles2) > 10:
+                roles2 = ['Error. User has too many roles.']
+
+            embed.add_field(name="Roles:", value="".join(roles2))
+            embed.add_field(name="Highest Role:", value=user.top_role.mention)
+            await ctx.send(embed=embed)
+            return
+        else:
+            embed = discord.Embed(color=0x7289da, title=f"User Information")
+            embed.set_author(name=f"{user} (not in this server)", icon_url=user.avatar_url)
+            embed.timestamp = datetime.datetime.utcnow()
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+
+            embed.add_field(name="ID:", value=user.id)
+
+            embed.add_field(name="Created Account On:", value=user.created_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
+            await ctx.send(embed=embed)
+
 
 	#server info command
     @commands.cooldown(2, 5, commands.BucketType.user)
