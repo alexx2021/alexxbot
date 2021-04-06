@@ -26,6 +26,7 @@ async def is_wl(ctx):
     812520226603794432,
     597965043333726220,
     796212175693152256,
+    828536119628267540,
     ]
     #iridescent
      #alexx support
@@ -34,6 +35,7 @@ async def is_wl(ctx):
         #minty
          #server
           #math pre cal 1
+            #my newest class server
     guildID = ctx.guild.id
     if guildID in guildlist:
         return True 
