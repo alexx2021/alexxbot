@@ -136,7 +136,7 @@ class Fun(commands.Cog):
         await msg.edit(content=f'{ctx.author.mention} Are you sure you want to know the truth? (say yes)')
         
         def check(m):
-            return m.content.lower() == 'yes'
+            return (m.content.lower() == 'yes') and (m.author.id == ctx.author.id)
 
         try:
             await self.bot.wait_for('message', check=check, timeout=15)
