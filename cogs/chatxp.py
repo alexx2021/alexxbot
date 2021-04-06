@@ -6,6 +6,7 @@ import logging
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands.core import bot_has_permissions, has_permissions
 from discord.ext.buttons import Paginator
+import aiohttp
 
 logger = logging.getLogger('discord')
 
@@ -17,7 +18,26 @@ class Pag(Paginator):
         except discord.HTTPException:
             logger.warn(msg="HTTP Exception due to paginator in lb")
 
-#test
+async def import_meesix(self, ctx):
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get(f'https://mee6.xyz/api/plugins/levels/leaderboard/{ctx.guild.id}') as r: 
+            data = await r.json()
+            if r.status == 200:
+                msg = await ctx.send('<a:loading:828842034630492231> Importing data from mee6...')
+                if data["players"]:
+                    users = data["players"]
+                    for user in users:
+                        userid = user["id"]
+                        userxp = user["xp"]
+                        await self.bot.xp.execute('INSERT INTO XP VALUES (?,?,?)', (ctx.guild.id, userid, userxp,))
+                    await self.bot.xp.commit()
+                    await asyncio.sleep(0.5)
+                    await msg.edit(content='<a:check:826577847023829032> Done importing data from mee6.')
+                    return True
+            else:
+                await ctx.send('<a:x_:826577785173704754> There was an error fetching the data from mee6. Make sure that your server has existing mee6 level data before using this command.')
+                return False
+    
         
 class Chatxp(commands.Cog):
     def __init__(self, bot):
@@ -258,6 +278,29 @@ class Chatxp(commands.Cog):
             )
 
             await pager.start(ctx)
+    
+    @commands.max_concurrency(1, per=BucketType.guild, wait=False)
+    @commands.cooldown(2, 15, commands.BucketType.guild)
+    @has_permissions(manage_guild=True)
+    @commands.command(help='Import your xp data directly from mee6!')
+    async def importxp(self, ctx):
+        cmd = self.bot.get_command('levels toggle')
+    
+        try:
+            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            if 'TRUE' in enabled:
+                await cmd.invoke(ctx) #disable
+                if await import_meesix(self, ctx): #insert data here
+                    await cmd.invoke(ctx) #enable
+            
+            else:
+                if await import_meesix(self, ctx): #insert data here
+                    await cmd.invoke(ctx) #enable
+        except KeyError:
+            if await import_meesix(self, ctx): #insert data here
+                await cmd.invoke(ctx) #enable
+
+
 
 
     @commands.is_owner()
