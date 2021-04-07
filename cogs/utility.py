@@ -206,6 +206,41 @@ class Utility(commands.Cog):
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.group(help='Use this to create a poll/add reactions to the msg above.')
+    async def poll(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `create`, `react`.')
+
+    @bot_has_permissions(manage_messages=True)
+    @has_permissions(manage_messages=True)
+    @commands.cooldown(2, 8, commands.BucketType.user)
+    @commands.guild_only()
+    @poll.command(help='Add reactions to the latest message in the channel it is used in.')
+    async def react(self, ctx: commands.Context):
+        count = 0
+        async for msg in ctx.channel.history(limit=2):
+            count += 1
+            if count == 2:
+                await msg.add_reaction('👍')
+                await msg.add_reaction('👎')
+                await ctx.send('<a:check:826577847023829032> reactions added!', delete_after=2.0)
+        await ctx.message.delete()
+    
+    @bot_has_permissions(manage_messages=True)
+    @has_permissions(manage_messages=True)
+    @commands.cooldown(2, 8, commands.BucketType.user)
+    @commands.guild_only()
+    @poll.command(help='Create a poll!')
+    async def create(self, ctx: commands.Context, *,question: str):
+        e = discord.Embed(color = discord.Color.blurple(), title = 'Poll', description=question)
+        e.set_footer(icon_url=ctx.author.avatar_url, text=f'Created by {ctx.author}')
+        msg = await ctx.send(embed=e)
+        await msg.add_reaction('👍')
+        await msg.add_reaction('👎')
+        await ctx.message.delete()
+
+    
+
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @has_permissions(manage_messages=True)
     @bot_has_permissions(manage_messages=True)
