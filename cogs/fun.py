@@ -140,7 +140,8 @@ class Fun(commands.Cog):
 
         try:
             await self.bot.wait_for('message', check=check, timeout=15)
-            isgaystring = ["They are confirmed ✨gay✨!!", "They are straight!","Ask again later, im low on battery :(","eighwph49w-g-j-5hw-gjr"]
+            isgaystring = ["They are confirmed ✨gay✨!!", "They are straight!","They are confirmed ✨gay✨!!", "They are straight!",
+                "They are confirmed ✨gay✨!!", "They are straight!","Ask again later, im low on battery :(","eighwph49w-g-j-5hw-gjr"]
             await ctx.send(f'{random.choice(isgaystring)}')
         except asyncio.exceptions.TimeoutError:
             return await ctx.send(f'You did not decide in time, {ctx.author.mention}. ')
