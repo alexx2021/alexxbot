@@ -307,7 +307,7 @@ class Admin(commands.Cog):
                         await after.remove_reaction(reaction.emoji, self.bot.user)
                     await self.bot.process_commands(after)
                 except asyncio.TimeoutError:
-                    await after.clear_reaction(reaction.emoji)
+                    await after.remove_reaction("🔁", self.bot.user)
 
     
     # @commands.Cog.listener()
