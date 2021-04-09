@@ -62,6 +62,24 @@ async def sendlog(self, guild, content):
         logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
         return
 
+async def sendlogFile(self, guild, content):
+    try:   
+        ch = self.bot.logcache[f"{guild.id}"]
+        channel = await get_or_fetch_channel(self, int(ch)) #discord.utils.get(guild.channels, id=int(ch))
+        if channel:
+            perms = channel.permissions_for(channel.guild.me)
+            if not perms.attach_files:
+                return await channel.send('I am missing permissions to send files!')
+            await channel.send(file=content)
+    except KeyError:
+        return
+    except discord.errors.Forbidden:
+        await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
+        await self.bot.sc.commit()
+        self.bot.logcache.pop(f"{guild.id}")
+        logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
+        return
+
 async def check_if_log(self, guild):
     try:
         check = self.bot.logcache[f"{guild.id}"]

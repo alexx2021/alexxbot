@@ -1,7 +1,8 @@
+import io
 import discord
 import datetime
 from discord.ext import commands
-from utils.utils import check_if_log, sendlog
+from utils.utils import check_if_log, sendlog, sendlogFile
 
 
     
@@ -64,6 +65,27 @@ class Logging(commands.Cog):
                 e.set_footer(text=f'ID: {message.author.id}' + '\u200b')
 
             await sendlog(self, message.guild, e)
+
+    @commands.Cog.listener()
+    async def on_bulk_message_delete(self, messages):
+        msg = messages[0]
+        if await check_if_log(self, msg.guild):
+            buffer = io.BytesIO()
+            theContent = ''
+            for message in messages:
+                theContent += f'{message.author} ({message.author.id}): {message.content}\n'
+            buffer = io.BytesIO(theContent.encode("utf8"))
+            
+            e = discord.Embed(color=0xffa500, title=f'{len(messages)} messages purged in #{messages[0].channel.name}')
+            e.timestamp = datetime.datetime.utcnow()
+            await sendlog(self, message.guild, e)
+            
+            file = discord.File(fp=buffer, filename=f"{message.guild.id}-{message.channel.id}.txt")
+            await sendlogFile(self, message.guild, file)
+            buffer.close()
+            
+
+
         
 
     #message edit logger
@@ -95,14 +117,29 @@ class Logging(commands.Cog):
             if message_after.embeds:
                 return
             
-            #if message is too long
-            if len(message_before.content) + len(message_after.content) > 2000:
-                return
             
             embed = discord.Embed(color=0x3498db)
             embed.set_author(name=f"{message_before.author}", icon_url=message_before.author.avatar_url)
             embed.title = f"Message edited in #{message_before.channel.name}"
-            embed.description = f'**Before:** {message_before.content} \n+**After: ** {message_after.content}'
+            embed.description = f'[Jump to the message]({message_after.jump_url})'
+            
+            if not message_before.content:
+                embed.add_field(name='Before',value='...', inline=False)
+            else:
+                if len(message_before.content) > 1023:
+                    embed.add_field(name='Before',value=f'{message_before.content[:1020] + "..."}', inline=False)
+                else:
+                    embed.add_field(name='Before',value=f'{message_before.content}', inline=False)
+
+            if not message_after.content:
+                embed.add_field(name='After',value='...', inline=False)
+            else:
+                if len(message_after.content) > 1023:
+                    embed.add_field(name='After',value=f'{message_after.content[:1020] + "..."}', inline=False)
+                else:
+                    embed.add_field(name='After',value=f'{message_after.content}', inline=False)
+                
+
             embed.timestamp = datetime.datetime.utcnow()
             embed.set_footer(text=f'ID: {message_before.author.id}' + '\u200b')
 
