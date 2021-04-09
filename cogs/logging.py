@@ -68,6 +68,14 @@ class Logging(commands.Cog):
 
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, messages):
+
+        #ignore channel for logging if it has "alexxlogsignore" in its topic
+        topic = messages[0].channel.topic
+        if topic is not None:
+            if 'alexxlogsignore' in topic:
+                return
+
+
         msg = messages[0]
         if await check_if_log(self, msg.guild):
             buffer = io.BytesIO()
