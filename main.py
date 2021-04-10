@@ -51,7 +51,7 @@ async def get_prefix(bot, msg: discord.Message):
 
 
 
-bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents, allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False))
+bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents, allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False), activity=Activity(name=f"alexx.lol | _help", type=ActivityType.playing))
 bot.remove_command('help')
 bot.prefixes = {}
 bot.ubl = {}
@@ -170,7 +170,6 @@ for ext in extensions:
 @bot.event
 async def on_ready():
     await bot.wait_until_ready()
-    await bot.change_presence(activity=Activity(name=f"alexx.lol | _help", type=ActivityType.playing))
     print('--------------------------')
     print(f'Logged in as: {bot.user.name}')
     print(f'With ID: {bot.user.id}')
