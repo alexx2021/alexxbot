@@ -187,7 +187,7 @@ async def can_do_stuff(ctx: commands.Context):
         if not perms.send_messages:
             return False
         elif not perms.embed_links:
-            await ctx.send('I am missing permissions to send embeds :(')
+            await ctx.send('I require permission to send embeds in order to work.')
             return False
         else:
             return True
