@@ -233,7 +233,7 @@ class Music(commands.Cog):
             embed = discord.Embed(title=(f'Queue'), color=0x7289da)
             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
             desc = ''
-            for rank, song in enumerate(player.current_queue(), start=0):
+            for rank, song in enumerate(player.current_queue(), start=1):
                 converted_time = await convertT(song.duration)
                 
                 desc +=f'**{rank}.** '+ song.name + f' `{converted_time}`\n'
@@ -348,6 +348,9 @@ class Music(commands.Cog):
             await not_pl(ctx)
             return
             
+        index = index - 1
+        if index < 0:
+            return await ctx.send('<a:x_:826577785173704754> The song you tried to remove does not exist!')
         try:
             song = await player.remove_from_queue(int(index))
         except IndexError:
