@@ -7,24 +7,31 @@ from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 import time
 from utils.utils import get_or_fetch_member
-# from discord import Spotify
-# from discord import CustomActivity
+
+def to_emoji(c):
+    base = 0x1f1e6
+    return chr(base + c)
 
 #Utility Category
 class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self._cd = commands.CooldownMapping.from_cooldown(5.0, 10.0, commands.BucketType.user)
 
+    async def cog_check(self, ctx):
+        bucket = self._cd.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after)
 
 
     @commands.group(help='Use this to create a poll/add reactions to the msg above.')
     async def poll(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `create`, `react`.')
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `create`, `react`, `custom`.')
 
     @bot_has_permissions(manage_messages=True)
     @has_permissions(manage_messages=True)
-    @commands.cooldown(2, 8, commands.BucketType.user)
     @commands.guild_only()
     @poll.command(help='Add reactions to the latest message in the channel it is used in.')
     async def react(self, ctx: commands.Context):
@@ -39,7 +46,6 @@ class Utility(commands.Cog):
     
     @bot_has_permissions(manage_messages=True)
     @has_permissions(manage_messages=True)
-    @commands.cooldown(2, 8, commands.BucketType.user)
     @commands.guild_only()
     @poll.command(help='Create a poll!')
     async def create(self, ctx: commands.Context, *,question: str):
@@ -50,8 +56,38 @@ class Utility(commands.Cog):
         await msg.add_reaction('👎')
         await ctx.message.delete()
 
+
+    @poll.command(help='Enter a question and your preferred choices afterwards!')
+    @commands.guild_only()
+    async def custom(self, ctx, *question_and_choices: str):
+
+        if len(question_and_choices) < 3:
+            return await ctx.send('<a:x_:826577785173704754> Command is missing required arguments. Correct usage: `poll custom <question> <option1> <option2>....`')
+        elif len(question_and_choices) > 21:
+            return await ctx.send('You can only have up to 20 choices.')
+
+        perms = ctx.channel.permissions_for(ctx.me)
+        if not (perms.read_message_history or perms.add_reactions):
+            return await ctx.send('I need Read Message History and Add Reactions permissions.')
+
+        question = question_and_choices[0]
+        choices = [(to_emoji(e), v) for e, v in enumerate(question_and_choices[1:])]
+
+        try:
+            await ctx.message.delete()
+        except:
+            pass
+
+        body = "\n".join(f"{key}: {c}" for key, c in choices)
+
+        e = discord.Embed(color = discord.Color.blurple(), title = 'Poll', description=f"{question}\n\n{body}")
+        e.set_footer(icon_url=ctx.author.avatar_url, text=f'Created by {ctx.author}')
+        poll = await ctx.send(embed=e)
+
+        for emoji, _ in choices:
+            await poll.add_reaction(emoji)
+
     #ping command
-    @commands.cooldown(1, 1, commands.BucketType.user)
     @commands.command(help="Shows the latency of the bot & websocket in milliseconds.",)
     async def ping(self, ctx):
         start = time.perf_counter()
@@ -142,7 +178,6 @@ class Utility(commands.Cog):
 
 
 	#server info command
-    @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.command(help='Displays information about the server.')
     async def serverinfo(self, ctx):
         embed = discord.Embed(title="Server Information", colour=0x7289da, timestamp=datetime.datetime.utcnow())
@@ -173,7 +208,6 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @commands.cooldown(1, 4, commands.BucketType.user)
     @commands.guild_only()
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @bot_has_permissions(embed_links=True, manage_messages=True)
@@ -228,7 +262,6 @@ class Utility(commands.Cog):
 
 
     #about command
-    @commands.cooldown(2, 6, commands.BucketType.user)
     @commands.command(aliases=["info", "about"],help="Gives you information about the bot.")
     async def stats(self, ctx):
         embed = discord.Embed(color=0x7289da)

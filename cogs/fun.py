@@ -15,9 +15,15 @@ logger = logging.getLogger('discord')
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+        self._cd = commands.CooldownMapping.from_cooldown(5.0, 10.0, commands.BucketType.user)
+
+    async def cog_check(self, ctx):
+        bucket = self._cd.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after)
+            
     @commands.guild_only() 
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     @commands.command(help='Finds a random meme for you.')
     async def meme(self, ctx):
         # async with aiohttp.ClientSession() as session:
@@ -45,7 +51,6 @@ class Fun(commands.Cog):
     #fact command
     @commands.guild_only()
     @commands.command(help=('Finds a random fact for you.'))
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def fact(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/fact') as r: 
@@ -78,7 +83,6 @@ class Fun(commands.Cog):
     
     @commands.guild_only()
     @commands.command(help=('Hug someone.'))
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def hug(self, ctx, member: discord.Member=None):
         if member is None:
             async with aiohttp.ClientSession() as cs:
@@ -102,7 +106,6 @@ class Fun(commands.Cog):
 
     @commands.guild_only()
     @commands.command(help=('Slap someone.'))
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def slap(self, ctx, member: discord.Member=None):
         if member is None:
             async with aiohttp.ClientSession() as cs:
@@ -159,7 +162,6 @@ class Fun(commands.Cog):
     #cat command
     @commands.guild_only()
     @commands.command(help=('cat.'))
-    @commands.cooldown(5, 10, commands.BucketType.channel)
     async def cat(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/meow') as r:  #https://aws.random.cat/meow
@@ -173,7 +175,6 @@ class Fun(commands.Cog):
     #cat command
     @commands.guild_only()
     @commands.command(help=('dog.'))
-    @commands.cooldown(5, 10, commands.BucketType.channel)
     async def dog(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/woof') as r: #https://dog.ceo/api/breeds/image/random
@@ -187,7 +188,6 @@ class Fun(commands.Cog):
     #goose command 
     @commands.guild_only()
     @commands.command(help='goose.')
-    @commands.cooldown(5, 10, commands.BucketType.channel)
     async def goose(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/goose') as r:
@@ -202,7 +202,6 @@ class Fun(commands.Cog):
     #duck command
     @commands.guild_only()
     @commands.command(help=('duck.'))
-    @commands.cooldown(5, 10, commands.BucketType.channel)
     async def duck(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://random-d.uk/api/v1/random?type=png') as r:
@@ -217,7 +216,6 @@ class Fun(commands.Cog):
     #bunny command
     @commands.guild_only()
     @commands.command(help=('bunny.'))
-    @commands.cooldown(5, 10, commands.BucketType.channel)
     async def bunny(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://api.bunnies.io/v2/loop/random/?media=gif,png') as r:

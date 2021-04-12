@@ -14,6 +14,13 @@ BOT_ID = int(752585938630082641)
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self._cd = commands.CooldownMapping.from_cooldown(6.0, 10.0, commands.BucketType.user)
+
+    async def cog_check(self, ctx):
+        bucket = self._cd.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after)
 
     
     @commands.Cog.listener()

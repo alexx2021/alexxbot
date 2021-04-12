@@ -6,6 +6,13 @@ from discord.ext import commands
 class NSFW(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self._cd = commands.CooldownMapping.from_cooldown(5.0, 10.0, commands.BucketType.user)
+
+    async def cog_check(self, ctx):
+        bucket = self._cd.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after)
 
     @commands.guild_only()
     @commands.is_nsfw()
@@ -17,7 +24,6 @@ class NSFW(commands.Cog):
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(aliases=['cg'],hidden=True)
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def catgirl(self, ctx):
         if ctx.guild.id == 741973094310215692:
             pass
@@ -38,7 +44,6 @@ class NSFW(commands.Cog):
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(aliases=['boob'],hidden=True)
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def boobs(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/boobs') as r: 
@@ -55,7 +60,6 @@ class NSFW(commands.Cog):
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(hidden=True,aliases=['puss'])
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def pussy(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/pussy') as r: 
@@ -72,7 +76,6 @@ class NSFW(commands.Cog):
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(hidden=True)
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def spank(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/spank') as r: 
@@ -89,7 +92,6 @@ class NSFW(commands.Cog):
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(hidden=True)
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def hentai(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/hentai') as r: 
@@ -124,7 +126,6 @@ class NSFW(commands.Cog):
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(hidden=True)
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def anal(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/anal') as r: 
@@ -141,7 +142,6 @@ class NSFW(commands.Cog):
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(hidden=True)
-    @commands.cooldown(4, 10, commands.BucketType.channel)
     async def bj(self, ctx):
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/bj') as r: 
