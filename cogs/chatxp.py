@@ -285,17 +285,39 @@ class Chatxp(commands.Cog):
     @commands.command(help='Import your xp data directly from mee6!')
     async def importxp(self, ctx):
         cmd = self.bot.get_command('levels toggle')
+        warn = discord.Embed(description = 'You are about to reset the leveling system for this server.\n__ALL DATA WILL BE LOST__.\nAre you sure?', color = discord.Color.red(), title = 'Warning')
     
         try:
             enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
-                await cmd.invoke(ctx) #disable
-                if await import_meesix(self, ctx): #insert data here
-                    await cmd.invoke(ctx) #enable
-            
+                msg = await ctx.send(embed = warn)
+                await asyncio.sleep(0.25)
+                await msg.add_reaction("✅")
+                await asyncio.sleep(0.25)
+                await msg.add_reaction("❌")
+                reaction, person = await self.bot.wait_for(
+                                "reaction_add",
+                                timeout=60,
+                                check=lambda reaction, user: user == ctx.author
+                                and reaction.message.channel == ctx.channel)
+                
+                if str(reaction.emoji) == "✅":
+                    query = 'DELETE FROM xp WHERE guild_id = ?' 
+                    gid = ctx.guild.id
+                    params = (gid,)
+                    await self.bot.xp.execute(query, params)
+                    await self.bot.xp.commit() # xp is still enabled no need to disable first
+                    if await import_meesix(self, ctx): #insert data here
+                        pass
+                else:
+                    return await ctx.send('Operation cancelled.')
+
             else:
                 if await import_meesix(self, ctx): #insert data here
                     await cmd.invoke(ctx) #enable
+
+        except asyncio.exceptions.TimeoutError:
+            return await ctx.send('You did not react in time.')
         except KeyError:
             if await import_meesix(self, ctx): #insert data here
                 await cmd.invoke(ctx) #enable
