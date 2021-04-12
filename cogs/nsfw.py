@@ -11,7 +11,7 @@ class NSFW(commands.Cog):
     @commands.is_nsfw()
     @commands.command(hidden=True)
     async def nsfw(self, ctx):
-        e = discord.Embed(Color=0, title = 'NSFW Commands',description='catgirl\nboobs\npussy\nspank\nhentai\nanal\nbj')
+        e = discord.Embed(Color=0, title = 'NSFW Commands',description='boobs\npussy\nspank\nhentai\nanal\nbj')
         await ctx.send(embed=e)
 
     @commands.guild_only()
@@ -19,6 +19,10 @@ class NSFW(commands.Cog):
     @commands.command(aliases=['cg'],hidden=True)
     @commands.cooldown(4, 10, commands.BucketType.channel)
     async def catgirl(self, ctx):
+        if ctx.guild.id == 741973094310215692:
+            pass
+        else:
+            return
         async with aiohttp.ClientSession() as cs:
             async with cs.get('https://nekos.life/api/v2/img/neko') as r: 
                 data = await r.json()
