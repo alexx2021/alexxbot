@@ -104,7 +104,7 @@ class Chatxp(commands.Cog):
                 perms = message.channel.permissions_for(message.guild.me)
                 if perms.send_messages: #only send if we can
                     await message.channel.send(
-                        f"Nice job {message.author.mention}, you leveled up to level **{level}**!")
+                        f"Nice job {message.author.mention}, you are now level **{level}**!")
 
     @commands.command(hidden=True)
     @commands.is_owner()
