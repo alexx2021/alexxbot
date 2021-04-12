@@ -1,10 +1,14 @@
 import asyncio
+import datetime
+from utils.utils import blacklist_user_main, gech_main
 import discord
 from discord.ext import commands
 import os
 import logging
 import aiosqlite
+import aiohttp
 from dotenv import load_dotenv
+from collections import Counter, defaultdict
 from discord import Activity, ActivityType
 
 load_dotenv()
@@ -49,24 +53,46 @@ async def get_prefix(bot, msg: discord.Message):
 
     return base
 
+async def make_session(bot):
+    bot.session = aiohttp.ClientSession(loop=bot.loop)
+    print('Global session created.')
 
 
-bot = commands.Bot(command_prefix= get_prefix, case_insensitive=True, intents=intents, allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False), activity=Activity(name=f"alexx.lol | _help", type=ActivityType.playing))
+
+bot = commands.Bot(
+command_prefix= get_prefix, 
+case_insensitive=True, 
+intents=intents, 
+allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False), 
+activity=Activity(name=f"alexx.lol | _help", type=ActivityType.playing)
+)
+
 bot.remove_command('help')
+
+def def_value():
+    return False
+
+#cache database stuff
 bot.prefixes = {}
-bot.ubl = {}
+bot.ubl = defaultdict(def_value)
 bot.logcache = {}
 bot.autorolecache = {}
 bot.welcomecache = {}
 bot.arelvlsenabled = {}
 
+#users who spam get added to a dict, and if they spam 5 times they get auto-blacklisted from the bot
+bot._auto_spam_count = Counter()
+
+#global database connections
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
 bot.pr = loop.run_until_complete(aiosqlite.connect('prefix.db'))
 bot.sc = loop.run_until_complete(aiosqlite.connect('serverconfigs.db'))
 bot.rm = loop.run_until_complete(aiosqlite.connect('reminders.db'))
-bot.m = loop.run_until_complete(aiosqlite.connect('muted.db'))
+bot.m = loop.run_until_complete(aiosqlite.connect('muted.db')) #todo - maybe merge this with another db?
 bot.xp = loop.run_until_complete(aiosqlite.connect('chatxp.db'))
+
+
 
 
 
@@ -95,7 +121,8 @@ async def setup_db(choice):
 
 
 
-async def setup_stuff():
+async def setup_stuff(bot):
+    await make_session(bot)
     await blacklist_setup()
     await setup_db(True) # set to false if you do not need tables to be created
     
@@ -105,10 +132,9 @@ async def setup_stuff():
 
     
     users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist") #blacklist cache
-    totalusers = []
+    yes = True
     for user in users:
-        totalusers.append(str(user[0]))
-    bot.ubl[f"users"] = f"{totalusers}"
+        bot.ubl[user[0]] = yes
     
 
     logs = await bot.sc.execute_fetchall("SELECT server_id, log_channel FROM logging") #logging ch cache
@@ -159,7 +185,7 @@ extensions = (
         "welcome",
     )
 
-loop.create_task(setup_stuff()) #sets up stuff before cogs load
+loop.create_task(setup_stuff(bot)) #sets up stuff before cogs load
 
 count = 0
 for ext in extensions:
@@ -179,7 +205,30 @@ async def on_ready():
 
     # the rest  of the startup output is in Invites.py
 
+async def log_spammer(ctx, message, retry_after, *, autoblock=False):
+    ch = await gech_main(bot, 813600852576829470)
+
+    guild_name = getattr(ctx.guild, 'name', 'No Guild (DMs)')
+    guild_id = getattr(ctx.guild, 'id', None)
+    fmt =f'User {message.author} (ID {message.author.id}) in guild {guild_name} (ID {guild_id}) spamming, retry_after: {round(retry_after, 2)}'
+    logger.warning(msg=fmt)
+    print(fmt)
+    if not autoblock:
+        return
+    
+    embed = discord.Embed(title='Auto-blocked Member', colour=discord.Color.red())
+    embed.add_field(name='Member', value=f'{message.author} (ID: {message.author.id})', inline=False)
+    embed.add_field(name='Guild Info', value=f'{guild_name} (ID: {guild_id})', inline=False)
+    embed.add_field(name='Channel Info', value=f'{message.channel} (ID: {message.channel.id}', inline=False)
+    embed.timestamp = datetime.datetime.utcnow()
+    return await ch.send(embed=embed)
+
+
+
+
+spam_control = commands.CooldownMapping.from_cooldown(10, 12, commands.BucketType.user)
 #reduces forbiddden errors due to not being able to respond to commands lol
+#the autoblacklist stuff is also mashed up in here cause you apparantly (cant spell) cant have more than one bot.check
 @bot.check_once
 async def can_do_stuff(ctx: commands.Context):
     if ctx.message.guild:
@@ -190,8 +239,25 @@ async def can_do_stuff(ctx: commands.Context):
             await ctx.send('I require permission to send embeds in order to work.')
             return False
         else:
-            return True
+            bucket = spam_control.get_bucket(ctx.message)
+            retry_after = bucket.update_rate_limit()
+            if retry_after and ctx.message.author.id != 247932598599417866: # last number is 6
+                bot._auto_spam_count[ctx.message.author.id] += 1
+                if bot._auto_spam_count[ctx.message.author.id] >= 5:
+                    del bot._auto_spam_count[ctx.message.author.id]
+                    await log_spammer(ctx, ctx.message, retry_after, autoblock=True)
+                    await blacklist_user_main(bot, ctx.author)
+                else:
+                    await log_spammer(ctx, ctx.message, retry_after)
+                return False
+            else:
+                if bot._auto_spam_count[ctx.message.author.id] <= 3:
+                    bot._auto_spam_count.pop(ctx.message.author.id, None)
+                return True         
 
+@bot.command(hidden=True)
+async def bop(ctx):
+    pass
 
 @bot.event
 async def on_message(message: discord.Message):
@@ -203,7 +269,7 @@ async def on_message(message: discord.Message):
     p = tuple(await get_prefix(bot, message))
 
     if message.content.startswith(p): # only query cache if a command is run
-        if str(message.author.id) in bot.ubl["users"]:
+        if bot.ubl[message.author.id] == True:
             return
 
 ######################################################################################################

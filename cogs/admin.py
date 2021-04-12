@@ -3,6 +3,7 @@ import io
 import textwrap
 from traceback import format_exception
 import asyncio
+from utils.utils import blacklist_user, unblacklist_user
 import discord
 import aiosqlite
 from discord.ext import commands
@@ -164,55 +165,18 @@ class Admin(commands.Cog):
     
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def adduser(self, ctx, user1: discord.User):
-        userid = str(user1.id)
-        if user1.id == OWNER_ID:
+    async def adduser(self, ctx, user: discord.User):
+        if user.id == OWNER_ID:
             return await ctx.send('oops, you tried to blacklist yourself...')
-
-        async with aiosqlite.connect('blacklists.db') as c:    
-            await c.execute("INSERT INTO userblacklist VALUES(?)", (userid,))
-            await c.commit()
-        await asyncio.sleep(0.25)
-        
-        
-        users = await self.bot.bl.execute_fetchall("SELECT * FROM userblacklist")
-        
-        totalusers = []
-
-        for user in users:
-            totalusers.append(str(user[0]))
-        
-        self.bot.ubl.update({"users" : f"{totalusers}"})
-        await ctx.send(f'User with id of `{user1.id}` was blacklisted ✅')
+        await blacklist_user(self, user)
+        await ctx.send(f'{user} with the id of `{user.id}` was blacklisted ✅')
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def removeuser(self, ctx, user1: discord.User):
-        userid = str(user1.id)
-        async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("DELETE FROM userblacklist WHERE user_id = ?",(userid,))
-            await c.commit()
-        await asyncio.sleep(0.25)
-        
-        users = await self.bot.bl.execute_fetchall("SELECT * FROM userblacklist")
-        
-        totalusers = []
+    async def removeuser(self, ctx, user: discord.User):
+        await unblacklist_user(self, user)
+        await ctx.send(f'{user} with the id of `{user.id}` was removed from the blacklist ✅')
 
-        for user in users:
-            totalusers.append(str(user[0]))
-        
-        self.bot.ubl.update({"users" : f"{totalusers}"})
-        await ctx.send(f'User with id of `{user1.id}` was removed from the blacklist ✅')
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def checkuser(self, ctx, user: discord.User):
-        async with aiosqlite.connect('blacklists.db') as c:
-            rows = await c.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(user.id,),)
-            if rows == []:
-                return await ctx.send(f'User with id of `{user.id}` was `NOT` found in the blacklist.')
-            if rows != []:
-                return await ctx.send(f'User with id of `{user.id}` `was found` in the blacklist.')
         
     @commands.command(hidden=True)
     @commands.is_owner()
