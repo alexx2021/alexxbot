@@ -273,6 +273,7 @@ class Admin(commands.Cog):
                     try:
                         await after.clear_reaction(reaction.emoji)
                     except discord.HTTPException:
+                        await asyncio.sleep(0.25)
                         await after.remove_reaction(reaction.emoji, self.bot.user)
                     await self.bot.process_commands(after)
                 except asyncio.TimeoutError:
