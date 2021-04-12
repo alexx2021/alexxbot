@@ -22,7 +22,9 @@ class Fun(commands.Cog):
         retry_after = bucket.update_rate_limit()
         if retry_after:
             raise commands.CommandOnCooldown(bucket, retry_after)
-            
+        else:
+            return True
+
     @commands.guild_only() 
     @commands.command(help='Finds a random meme for you.')
     async def meme(self, ctx):

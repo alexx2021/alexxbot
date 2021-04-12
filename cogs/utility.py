@@ -23,6 +23,8 @@ class Utility(commands.Cog):
         retry_after = bucket.update_rate_limit()
         if retry_after:
             raise commands.CommandOnCooldown(bucket, retry_after)
+        else:
+            return True
 
 
     @commands.group(help='Use this to create a poll/add reactions to the msg above.')
