@@ -4,6 +4,7 @@ import datetime
 from discord.ext import commands
 from discord.ext.commands import has_permissions
 from discord.ext.commands import bot_has_permissions
+from discord.ext.commands.cooldowns import BucketType
 from utils.utils import get_or_fetch_member, sendlog
 
 BOT_ID = int(752585938630082641)
@@ -42,6 +43,7 @@ class Moderation(commands.Cog):
 
     #clear command
     @bot_has_permissions(manage_messages=True, read_message_history=True)    
+    @commands.max_concurrency(1, per=BucketType.channel, wait=True)
     @has_permissions(manage_messages=True)
     @commands.command(aliases=["purge"], help="Clears messages. Messages older than 2 weeks cannot be deleted.")
     async def clear(self, ctx,*, limit:int):

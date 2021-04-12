@@ -1,6 +1,7 @@
 import asyncio
 import discord
 from discord.ext import commands
+from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands.core import bot_has_permissions
 import utils.musicUtils
 import datetime
@@ -104,6 +105,7 @@ class Music(commands.Cog):
     
     @commands.check(check_in_vc)
     @commands.check(is_wl)    
+    @commands.max_concurrency(1, per=BucketType.guild, wait=True)
     @commands.command(aliases=["p"],hidden=True)
     async def play(self, ctx, *, songname):
         
