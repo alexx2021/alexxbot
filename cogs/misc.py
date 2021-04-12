@@ -38,9 +38,6 @@ class Events(commands.Cog):
         server = guild.id
 
 
-        await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server,))
-        await self.bot.sc.commit()
-
         await asyncio.sleep(0.25)
         await self.bot.pr.execute("DELETE FROM prefixes WHERE guild_id = ?",(server,))
         await self.bot.pr.commit()
@@ -51,21 +48,13 @@ class Events(commands.Cog):
 
         await asyncio.sleep(0.25)
         await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-        await self.bot.sc.commit()
-
-        await asyncio.sleep(0.25)
         await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(server,))
+        await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server,))
         await self.bot.sc.commit()
 
         await asyncio.sleep(0.25)
         await self.bot.xp.execute("DELETE FROM xp WHERE guild_id = ?",(server,))
-        await self.bot.xp.commit()
-
-        await asyncio.sleep(0.25)
         await self.bot.xp.execute("DELETE FROM lvlsenabled WHERE guild_id = ?",(server,))
-        await self.bot.xp.commit()
-
-        await asyncio.sleep(0.25)
         await self.bot.xp.execute("DELETE FROM chatlvlsenabled WHERE guild_id = ?",(server,))
         await self.bot.xp.commit()
 
@@ -78,13 +67,6 @@ class Events(commands.Cog):
         "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
         "\n" + "Created at " + str(guild.created_at), inline=False)
         embed.add_field(name='Server Owner', value=(f'{guild.owner}\n{guild.owner.id}'))
-        
-        if guild.me.guild_permissions.administrator:
-            admin = True
-        else:
-            admin = False
-
-        embed.add_field(name='Permissions', value=f'Admin: {admin}') 
         embed.set_thumbnail(url=guild.icon_url)
         
         ch = await get_or_fetch_channel(self, 827244995576332288)
