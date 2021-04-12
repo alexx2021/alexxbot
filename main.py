@@ -226,7 +226,7 @@ async def log_spammer(ctx, message, retry_after, *, autoblock=False):
 
 
 
-spam_control = commands.CooldownMapping.from_cooldown(10, 12, commands.BucketType.user)
+spam_control = commands.CooldownMapping.from_cooldown(9, 12, commands.BucketType.user)
 #reduces forbiddden errors due to not being able to respond to commands lol
 #the autoblacklist stuff is also mashed up in here cause you apparantly (cant spell) cant have more than one bot.check
 @bot.check_once
