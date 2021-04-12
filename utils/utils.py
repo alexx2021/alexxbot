@@ -19,6 +19,22 @@ async def get_or_fetch_channel(self, channel_id):
         #print('fetch_channel')
         return ch
 
+async def gech_main(bot, channel_id):
+    """Gech func for instances where there is no "self" available"""
+    await bot.wait_until_ready()
+    ch = bot.get_channel(int(channel_id))
+    if ch:
+        #print('get_channel')
+        return ch
+
+    try:
+        ch = await bot.fetch_channel(int(channel_id))
+    except discord.HTTPException:
+        return None
+    else:
+        #print('fetch_channel')
+        return ch
+
 async def get_or_fetch_member(self, guild, member_id): #from r danny :)
     member = guild.get_member(int(member_id))
     if member is not None:
@@ -88,3 +104,21 @@ async def check_if_log(self, guild):
     except KeyError:
         #print('CheckifLog False')
         return False
+########################BLACKLIST###########################
+async def blacklist_user(self, user):
+    await self.bot.bl.execute("INSERT INTO userblacklist VALUES(?)", (user.id,))
+    await self.bot.bl.commit()
+    
+    self.bot.ubl.update({user.id : True})
+
+async def unblacklist_user(self, user):
+    await self.bot.bl.execute("DELETE FROM userblacklist WHERE user_id = ?",(user.id,))
+    await self.bot.bl.commit()
+    
+    self.bot.ubl.update({user.id : False})
+
+async def blacklist_user_main(bot, user):
+    await bot.bl.execute("INSERT INTO userblacklist VALUES(?)", (user.id,))
+    await bot.bl.commit()
+    
+    bot.ubl.update({user.id : True})
