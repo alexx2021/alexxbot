@@ -53,9 +53,6 @@ async def get_prefix(bot, msg: discord.Message):
 
     return base
 
-async def make_session(bot):
-    bot.session = aiohttp.ClientSession(loop=bot.loop)
-    print('Global session created.')
 
 
 
@@ -122,7 +119,6 @@ async def setup_db(choice):
 
 
 async def setup_stuff(bot):
-    await make_session(bot)
     await blacklist_setup()
     await setup_db(True) # set to false if you do not need tables to be created
     
