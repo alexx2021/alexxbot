@@ -277,7 +277,7 @@ async def on_message(message: discord.Message):
     if not message.author.bot: #bots dont trigger this
         if message.content in [f'<@!{bot.user.id}>', f'<@{bot.user.id}>']: #check if msg is a mention
             
-            if str(message.author.id) in bot.ubl["users"]: #blacklist check
+            if bot.ubl[message.author.id] == True:
                 return
             else:
                 if message.guild:
