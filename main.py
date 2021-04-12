@@ -295,6 +295,24 @@ async def on_message(message: discord.Message):
 
 
 
+bot.socketStats = Counter()
+@bot.listen()
+async def on_socket_response(message):  # this event isn't documented
+    msg = message["t"] #is the event name
+    #update the counter with this event name
+    bot.socketStats[msg] += 1
+
+@commands.is_owner()
+@bot.command(hidden=True)
+async def socket(ctx):
+    content = ''
+    for item in list(bot.socketStats):
+        if not item == None:
+            content += f"{item} {bot.socketStats[item]}\n"
+    await ctx.send(content)
+
+
+
 
 @commands.is_owner()
 @bot.command(hidden=True)
