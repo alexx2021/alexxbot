@@ -103,6 +103,7 @@ class NSFW(commands.Cog):
                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
                 await ctx.send(embed=embed)
 
+    @commands.is_owner()
     @commands.guild_only()
     @commands.is_nsfw()
     @commands.command(hidden=True)
