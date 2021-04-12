@@ -6,6 +6,7 @@ import asyncio
 from utils.utils import blacklist_user, unblacklist_user
 import discord
 import aiosqlite
+import time
 from discord.ext import commands
 from discord.ext.commands.core import bot_has_permissions
 
@@ -227,6 +228,8 @@ class Admin(commands.Cog):
         }
 
         stdout = io.StringIO()
+        
+        start = time.perf_counter()
 
         try:
             with contextlib.redirect_stdout(stdout):
@@ -238,13 +241,15 @@ class Admin(commands.Cog):
                 result = f"{stdout.getvalue()}\n-- {obj}\n"
         except Exception as e:
             result = "".join(format_exception(e, e, e.__traceback__))
+        
+        end = time.perf_counter()
 
         pager = Pag(
-            timeout=100,
+            timeout=30,
             entries=[result[i: i + 2000] for i in range(0, len(result), 2000)],
             length=1,
             prefix="```py\n",
-            suffix="```"
+            suffix=f"```\n Time elapsed: {round(((end - start)*1000), 2)}ms"
         )
 
         await pager.start(ctx)
