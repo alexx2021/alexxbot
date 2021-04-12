@@ -105,19 +105,19 @@ async def check_if_log(self, guild):
         #print('CheckifLog False')
         return False
 ########################BLACKLIST###########################
-async def blacklist_user(self, user):
+async def blacklist_user(self, user: discord.User):
     await self.bot.bl.execute("INSERT INTO userblacklist VALUES(?)", (user.id,))
     await self.bot.bl.commit()
     
     self.bot.ubl.update({user.id : True})
 
-async def unblacklist_user(self, user):
+async def unblacklist_user(self, user: discord.User):
     await self.bot.bl.execute("DELETE FROM userblacklist WHERE user_id = ?",(user.id,))
     await self.bot.bl.commit()
     
     self.bot.ubl.update({user.id : False})
 
-async def blacklist_user_main(bot, user):
+async def blacklist_user_main(bot, user: discord.User):
     await bot.bl.execute("INSERT INTO userblacklist VALUES(?)", (user.id,))
     await bot.bl.commit()
     
