@@ -6,7 +6,6 @@ from discord.ext import commands
 import os
 import logging
 import aiosqlite
-import aiohttp
 from dotenv import load_dotenv
 from collections import Counter, defaultdict
 from discord import Activity, ActivityType
@@ -64,7 +63,80 @@ allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False
 activity=Activity(name=f"alexx.lol | _help", type=ActivityType.playing)
 )
 
-bot.remove_command('help')
+
+class MyHelp(commands.HelpCommand):
+    bot.linksString = '[Documentation](http://alexx.lol) | [Support Server](https://discord.gg/zPWMRMXQ7H) | [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
+   # help
+    async def send_bot_help(self, mapping):
+        """ Sends the main help menu """
+        e = discord.Embed(title=f"Alexx-bot Help", color = discord.Color.blurple(), description=bot.linksString)
+        for cog in bot.cogs:
+            counter = 0
+            for command in bot.get_cog(cog).get_commands():
+                if command.hidden:
+                    pass
+                else:
+                    counter += 1
+            if counter != 0:
+                cogObj = bot.get_cog(cog)
+                e.add_field(name=cog, value=f'`{self.clean_prefix}help {cog}`\n{cogObj.description}', inline = False)
+        await self.context.reply(embed=e)
+       
+   # help <command>
+    async def send_command_help(self, command):
+        """ Generates a string of how to use a command """
+        e = discord.Embed(title=f"Alexx-bot Help", color = discord.Color.blurple())
+        temp = f'**Command**\n`{self.clean_prefix}'
+        # Aliases
+        if len(command.aliases) == 0:
+            temp += f'{command.name}'
+        elif len(command.aliases) == 1:
+            temp += f'[{command.name}|{command.aliases[0]}]'
+        else:
+            t = '|'.join(command.aliases)
+            temp += f'[{command.name}|{t}]'
+        # Parameters
+        params = command.signature
+        temp += f' {params}`\n**Description**\n{command.help}'
+        e.description = temp
+        e.set_footer(text='<> denotes a required argument | [] denotes an optional argument')
+        await self.context.reply(embed = e)
+      
+   # help <group>
+    async def send_group_help(self, group):
+        e = discord.Embed(title="Alexx-bot Help", color = discord.Color.blurple())
+        temp = f"**{str(group)}**\n{group.short_doc}\n\n"
+        for command in group.commands:
+            if command.hidden:
+                temp += ''
+            elif command.help is None:
+                temp += f'`{command}`\n'
+            else:
+                temp += f'`{command}` '
+                temp += f'{command.help}\n'
+        e.description = temp
+        e.set_footer(text=f'Use "{self.clean_prefix}help <command>" for info on a specific command')
+        await self.context.reply(embed = e)
+        
+    
+   # help <cog>
+    async def send_cog_help(self, cog):
+        """ Generates help for cogs """
+        e = discord.Embed(title="Alexx-bot Help", color = discord.Color.blurple())
+        temp = f"**{cog.qualified_name}**\n{cog.description}\n\n"
+        for command in cog.get_commands():
+            if command.hidden:
+                temp += ''
+            elif command.help is None:
+                temp += f'`{command}`\n'
+            else:
+                temp += f'`{command}` '
+                temp += f'{command.help}\n'
+        e.description = temp
+        e.set_footer(text=f'Use "{self.clean_prefix}help <command>" for info on a specific command')
+        await self.context.reply(embed = e)
+
+bot.help_command = MyHelp()
 
 def def_value():
     return False
@@ -164,7 +236,6 @@ extensions = (
         "autoroles",
         "chatxp",
         "configuration",
-        "customhelp",
         "errors",
         "fun",
         "games",
@@ -174,7 +245,6 @@ extensions = (
         "misc",
         "moderation",
         "music",
-        "nsfw",
         "reminders",
         "stats",
         "utility",
