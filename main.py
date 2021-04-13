@@ -110,9 +110,9 @@ class MyHelp(commands.HelpCommand):
             if command.hidden:
                 temp += ''
             elif command.help is None:
-                temp += f'`{command}`\n'
+                temp += f'`{self.clean_prefix}{command}`\n'
             else:
-                temp += f'`{command}` '
+                temp += f'`{self.clean_prefix}{command}` '
                 temp += f'{command.help}\n'
         e.description = temp
         e.set_footer(text=f'Use "{self.clean_prefix}help <command>" for info on a specific command')
@@ -128,9 +128,9 @@ class MyHelp(commands.HelpCommand):
             if command.hidden:
                 temp += ''
             elif command.help is None:
-                temp += f'`{command}`\n'
+                temp += f'`{self.clean_prefix}{command}`\n'
             else:
-                temp += f'`{command}` '
+                temp += f'`{self.clean_prefix}{command}` '
                 temp += f'{command.help}\n'
         e.description = temp
         e.set_footer(text=f'Use "{self.clean_prefix}help <command>" for info on a specific command')
