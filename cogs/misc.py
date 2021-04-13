@@ -8,7 +8,7 @@ from discord.ext.commands.cooldowns import BucketType
 
 
 
-class Events(commands.Cog):
+class Events(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
         
@@ -76,7 +76,7 @@ class Events(commands.Cog):
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @commands.cooldown(1, 5, commands.BucketType.channel)
-    @commands.command(hidden=True)
+    @commands.command()
     async def minty(self, ctx):
 
         def check(message):
@@ -106,12 +106,12 @@ class Events(commands.Cog):
             return await ctx.send(f'You did not reply in time :(')
     
     @commands.cooldown(1, 1, commands.BucketType.user)
-    @commands.command(hidden=True)
+    @commands.command()
     async def pong(self, ctx):
         await ctx.send(':thinking:')
     
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def test(self, ctx):
         perms = ctx.channel.permissions_for(ctx.guild.me)
         if not perms.send_messages:

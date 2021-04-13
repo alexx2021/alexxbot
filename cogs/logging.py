@@ -6,13 +6,13 @@ from utils.utils import check_if_log, sendlog, sendlogFile
 
 
     
-class Logging(commands.Cog):
+class Logging(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot    
 
 
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def dumpL(self, ctx):
         rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging")
         print('-----------dump-----------')

@@ -10,7 +10,7 @@ import datetime
 
 
 #Reminders Category
-class Reminders(commands.Cog):
+class Reminders(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
         self.check_reminders.start()
@@ -18,7 +18,7 @@ class Reminders(commands.Cog):
    
 
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def dumpR(self, ctx):
         rows = await self.bot.rm.execute_fetchall("SELECT OID, id, future, remindtext FROM reminders")
         print('-----------dump-----------')
@@ -28,7 +28,7 @@ class Reminders(commands.Cog):
         await ctx.channel.send('done.')
 
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def testrm(self, ctx):
         x = 0
         while x < 10:

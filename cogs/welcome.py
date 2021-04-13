@@ -4,13 +4,13 @@ import logging
 from discord.ext import commands
 logger = logging.getLogger('discord')
 
-class Welcome(commands.Cog):
+class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot    
 
 
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def dumpW(self, ctx):
         rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome")
         print('-----------dump-----------')
@@ -20,7 +20,7 @@ class Welcome(commands.Cog):
         await ctx.channel.send('done.')
 
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def delwelcome(self, ctx):
         guild = ctx.guild.id
         await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(guild,))

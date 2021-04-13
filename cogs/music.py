@@ -27,7 +27,6 @@ async def is_wl(ctx):
     812520226603794432,
     597965043333726220,
     796212175693152256,
-    828536119628267540,
     ]
     #iridescent
      #alexx support
@@ -36,11 +35,11 @@ async def is_wl(ctx):
         #minty
          #server
           #math pre cal 1
-            #my newest class server
     guildID = ctx.guild.id
     if guildID in guildlist:
         return True 
     else:
+        await ctx.send('<a:x_:826577785173704754> The music module is under development and therefore currently whitelisted. Contact the bot owner if you are interested in using it.')
         return False
     
 async def not_pl(ctx):
@@ -66,7 +65,8 @@ async def check_in_vc(ctx):
 
 
 
-class Music(commands.Cog):
+class Music(commands.Cog, command_attrs=dict(hidden=True)):
+    """🎵 Commands to help you listen to your favorite tunes"""
     def __init__(self, bot):
         self.bot = bot 
         self.music = utils.musicUtils.Music() 
@@ -82,7 +82,7 @@ class Music(commands.Cog):
 
 
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def dcall(self, ctx):
         for guild in self.bot.guilds:
             player = self.music.get_player(guild_id=guild.id)
@@ -93,7 +93,7 @@ class Music(commands.Cog):
 
     @commands.check(check_in_vc) 
     @commands.check(is_wl)    
-    @commands.command(aliases=["l"],hidden=True)
+    @commands.command(aliases=["l"])
     async def leave(self, ctx):
         
         if ctx.author.voice:
@@ -106,7 +106,7 @@ class Music(commands.Cog):
     @commands.check(check_in_vc)
     @commands.check(is_wl)    
     @commands.max_concurrency(1, per=BucketType.guild, wait=True)
-    @commands.command(aliases=["p"],hidden=True)
+    @commands.command(aliases=["p"])
     async def play(self, ctx, *, songname):
         
 
@@ -167,7 +167,7 @@ class Music(commands.Cog):
 
     @commands.check(check_in_vc)
     @commands.check(is_wl)      
-    @commands.command(hidden=True)
+    @commands.command()
     async def pause(self, ctx):
         
 
@@ -182,7 +182,7 @@ class Music(commands.Cog):
 
     @commands.check(check_in_vc)
     @commands.check(is_wl)      
-    @commands.command(hidden=True)
+    @commands.command()
     async def resume(self, ctx):
         
 
@@ -197,7 +197,7 @@ class Music(commands.Cog):
 
     @commands.check(check_in_vc)
     @commands.check(is_wl)       
-    @commands.command(hidden=True)
+    @commands.command()
     async def stop(self, ctx):
         
 
@@ -212,7 +212,7 @@ class Music(commands.Cog):
 
     @commands.check(check_in_vc)
     @commands.check(is_wl)        
-    @commands.command(hidden=True)
+    @commands.command()
     async def loop(self, ctx):
         
 
@@ -232,7 +232,7 @@ class Music(commands.Cog):
 
     @commands.check(is_wl) 
     @bot_has_permissions(manage_messages=True)    
-    @commands.command(aliases=["q"],hidden=True)
+    @commands.command(aliases=["q"])
     async def queue(self, ctx):
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -265,7 +265,7 @@ class Music(commands.Cog):
 
 
     @commands.check(is_wl)      
-    @commands.command(aliases=["nowplaying"],hidden=True)
+    @commands.command(aliases=["nowplaying"])
     async def np(self, ctx):
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -289,7 +289,7 @@ class Music(commands.Cog):
 
     @commands.check(is_wl)
     @commands.cooldown(2, 10, commands.BucketType.user)    
-    @commands.command(help='If you would like to save a song you hear playing, do this command and you will be DMed the link!',aliases=["favorite"],hidden=True)
+    @commands.command(help='If you would like to save a song you hear playing, do this command and you will be DMed the link!',aliases=["favorite"])
     async def save(self, ctx):
         player = self.music.get_player(guild_id=ctx.guild.id)
         if not player:
@@ -315,7 +315,7 @@ class Music(commands.Cog):
         
     @commands.check(check_in_vc)
     @commands.check(is_wl)     
-    @commands.command(hidden=True)                                                                                                                     #### TODO FIX ####
+    @commands.command()
     async def skip(self, ctx):
         
 
@@ -331,7 +331,7 @@ class Music(commands.Cog):
 
     @commands.check(check_in_vc)
     @commands.check(is_wl) 
-    @commands.command(aliases=["vol"],hidden=True)
+    @commands.command(aliases=["vol"])
     async def volume(self, ctx, vol:int ):
         
 
@@ -350,7 +350,7 @@ class Music(commands.Cog):
 
     @commands.check(check_in_vc)
     @commands.check(is_wl)     
-    @commands.command(hidden=True)
+    @commands.command()
     async def remove(self, ctx, index: int):
         
 

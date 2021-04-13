@@ -4,13 +4,13 @@ from discord.ext import commands
 
 
 
-class aR(commands.Cog):
+class aR(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
     
 
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def dumpar(self, ctx):
         roles = await self.bot.sc.execute_fetchall("SELECT * FROM autorole")
         print('-----------dump-----------')

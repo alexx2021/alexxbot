@@ -87,7 +87,7 @@ class InviteTracker(object):
 
 
 
-class Invites(commands.Cog):
+class Invites(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
         self.tracker = InviteTracker(bot)
@@ -192,7 +192,7 @@ class Invites(commands.Cog):
 
 
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def dumpd(self, ctx):
        await self.tracker.dumpdict(ctx)
     

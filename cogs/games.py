@@ -9,6 +9,7 @@ from discord.ext.commands.core import bot_has_permissions
 
 
 class Chatgames(commands.Cog):
+    """🎮 Games to play with your friends"""
     def __init__(self, bot):
         self.bot = bot
     

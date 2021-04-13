@@ -5,6 +5,7 @@ from discord.ext.commands.core import bot_has_permissions, has_permissions
 import asyncio
     
 class Configuration(commands.Cog):
+    """🛠️ Commands to configure the bot's features for your server"""
     def __init__(self, bot):
         self.bot = bot    
 

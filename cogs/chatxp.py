@@ -39,7 +39,8 @@ async def import_meesix(self, ctx):
                 return False
     
         
-class Chatxp(commands.Cog):
+class Chatlevels(commands.Cog):
+    """💬 Commands related to the chat leveling module"""
     def __init__(self, bot):
         self.bot = bot    
         self.cd_mapping = commands.CooldownMapping.from_cooldown(
@@ -283,7 +284,7 @@ class Chatxp(commands.Cog):
     @commands.cooldown(2, 15, commands.BucketType.guild)
     @has_permissions(manage_guild=True)
     @commands.command(help='Import your xp data directly from mee6!')
-    async def importxp(self, ctx):
+    async def importdata(self, ctx):
         cmd = self.bot.get_command('levels toggle')
         warn = discord.Embed(description = 'You are about to reset the leveling system for this server.\n__ALL DATA WILL BE LOST__.\nAre you sure?', color = discord.Color.red(), title = 'Warning')
     
@@ -346,4 +347,4 @@ class Chatxp(commands.Cog):
         print('-----------dump-----------')
 
 def setup(bot):
-    bot.add_cog(Chatxp(bot))
+    bot.add_cog(Chatlevels(bot))

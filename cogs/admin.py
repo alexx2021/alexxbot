@@ -31,11 +31,11 @@ class Pag(Paginator):
             pass
 
 #Owner Category
-class Admin(commands.Cog):
+class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def logout(self, ctx):
         await ctx.send('👌')
@@ -46,7 +46,7 @@ class Admin(commands.Cog):
 
 
     #gets current servers the bot is in
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def listguilds(self, ctx):
         servers = self.bot.guilds
@@ -71,7 +71,7 @@ class Admin(commands.Cog):
             await asyncio.sleep(1)
 
     #makes the bot leave the given server ID
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def leaveguild(self, ctx, serverid:int):
         try:
@@ -86,7 +86,7 @@ class Admin(commands.Cog):
             await ctx.send('An error occured.', delete_after=5.0)
 
     #owner only command to change the status of the bot
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def status(self, ctx,* ,status):
         await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(f'{status}'))
@@ -94,7 +94,7 @@ class Admin(commands.Cog):
 
     
     #simple say command to make the bot say something. Owner only atm
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def say(self, ctx,* ,args):
         mesg = ''.join(args)
@@ -105,7 +105,7 @@ class Admin(commands.Cog):
         return await ctx.send(mesg)
     
     #renames a channel
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def rc(self, ctx, *, new_name):
         try:
@@ -116,7 +116,7 @@ class Admin(commands.Cog):
             await ctx.send('An error occured.', delete_after=5.0)
     
     #deletes a channel
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def dc(self, ctx):
         try:
@@ -124,7 +124,7 @@ class Admin(commands.Cog):
         except:
             await ctx.send('An error occured.', delete_after=5.0)
     
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def cc(self, ctx,*, name):
         try:
@@ -132,7 +132,7 @@ class Admin(commands.Cog):
         except:
             await ctx.send('An error occured.', delete_after=5.0)
 
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def listperms(self, ctx, member: discord.Member = None):
         if not member:
@@ -143,7 +143,7 @@ class Admin(commands.Cog):
     #bans a user
     @bot_has_permissions(ban_members=True)
     @commands.is_owner()    
-    @commands.command(hidden=True)
+    @commands.command()
     async def bean(self, ctx, user: discord.User,*, reason=None):
         if ctx.message.author.id == user.id: #checks to see if you are banning yourself
             return await ctx.send(f'{ctx.author.mention} you cannot ban yourself, silly human! `>.<`')
@@ -164,7 +164,7 @@ class Admin(commands.Cog):
 
 
     
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def adduser(self, ctx, user: discord.User):
         if user.id == OWNER_ID:
@@ -172,14 +172,14 @@ class Admin(commands.Cog):
         await blacklist_user(self, user)
         await ctx.send(f'{user} with the id of `{user.id}` was blacklisted ✅')
 
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def removeuser(self, ctx, user: discord.User):
         await unblacklist_user(self, user)
         await ctx.send(f'{user} with the id of `{user.id}` was removed from the blacklist ✅')
 
         
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def addguild(self, ctx, guild:int):
         guildID = str(guild)
@@ -188,7 +188,7 @@ class Admin(commands.Cog):
             await c.commit()
         await ctx.send(f'Guild with id of `{guild}` was blacklisted ✅')
 
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def removeguild(self, ctx, guild:int):
         guildID = str(guild)
@@ -197,7 +197,7 @@ class Admin(commands.Cog):
             await c.commit()
         await ctx.send(f'Guild with id of `{guild}` was removed from the blacklist ✅')
 
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.is_owner()
     async def checkguild(self, ctx, guild:int):
         guildID = str(guild)
@@ -211,7 +211,7 @@ class Admin(commands.Cog):
 
 
 
-    @commands.command(name="eval", hidden=True)
+    @commands.command(name="eval")
     @commands.is_owner()
     async def _eval(self, ctx, *, code):
         code = clean_code(code)

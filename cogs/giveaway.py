@@ -10,14 +10,14 @@ BOT_ID = int(752585938630082641)
 TEST_BOT_ID = int(715446479837462548)
 
 
-class Giveaways(commands.Cog):
+class Giveaways(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
         self.check_giveaways.start()
 
     
     @commands.is_owner()
-    @commands.command(hidden=True)
+    @commands.command()
     async def dumpG(self, ctx):
         rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways")
         print('-----------dump-----------')

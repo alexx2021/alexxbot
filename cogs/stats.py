@@ -6,7 +6,7 @@ import os
 import statcord
 
 
-class StatcordPost(commands.Cog):
+class StatcordPost(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
         self.key = os.getenv("STAT_KEY")

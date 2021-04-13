@@ -13,6 +13,7 @@ logger = logging.getLogger('discord')
 
 #Fun Category
 class Fun(commands.Cog):
+    """🙂 Fun commands"""
     def __init__(self, bot):
         self.bot = bot
         self._cd = commands.CooldownMapping.from_cooldown(5.0, 10.0, commands.BucketType.user)

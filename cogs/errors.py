@@ -12,7 +12,7 @@ import sys
 from discord.ext.commands.errors import CommandError, MaxConcurrencyReached
 
 
-class Errors(commands.Cog):
+class Errors(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot    
 

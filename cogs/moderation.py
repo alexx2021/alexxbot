@@ -13,6 +13,7 @@ BOT_ID = int(752585938630082641)
 
 #Moderation Category
 class Moderation(commands.Cog):
+    """🚨 Commands to help you keep your server safe"""
     def __init__(self, bot):
         self.bot = bot
         self._cd = commands.CooldownMapping.from_cooldown(5.0, 10.0, commands.BucketType.user)
