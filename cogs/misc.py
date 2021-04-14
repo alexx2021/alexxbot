@@ -1,8 +1,9 @@
 import discord
 import datetime
 import asyncio
+from discord import Activity, ActivityType
 from utils.utils import get_or_fetch_channel
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 
 
@@ -11,6 +12,7 @@ from discord.ext.commands.cooldowns import BucketType
 class Events(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
+        self.status_scroll.start()
         
     # @commands.Cog.listener()
     # async def on_guild_join(self, guild):
@@ -19,7 +21,15 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     #         await guild.text_channels[0].send('https://cdn.discordapp.com/attachments/386995303066107907/533479547589623810/unknown.png')
     #     except:
     #         return
+    @tasks.loop(minutes=1.0)
+    async def status_scroll(self):
+        await self.bot.change_presence(activity=Activity(name=f"{len(self.bot.guilds)} guilds" + " | _help ", type=ActivityType.watching))
+        print('updated status')
 
+
+    @status_scroll.before_loop
+    async def status_wait(self):
+        await self.bot.wait_until_ready()
 
 #################################################
     @commands.Cog.listener()
