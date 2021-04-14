@@ -1,5 +1,8 @@
+import asyncio
 import discord
 import logging
+
+from discord.ext import commands
 
 logger = logging.getLogger('discord')
 
@@ -122,3 +125,93 @@ async def blacklist_user_main(bot, user: discord.User):
     await bot.bl.commit()
     
     bot.ubl.update({user.id : True})
+########################HELP###########################
+async def help_paginate(self, bot, msg):
+    if self.context.guild.me.guild_permissions.manage_messages:
+        await msg.add_reaction('💬')
+        await msg.add_reaction('🛠️')
+        await msg.add_reaction('🙂')
+        await msg.add_reaction('🎮')
+        await msg.add_reaction('🚨')
+        await msg.add_reaction('💡')
+        try:
+            await check_reaction_type(self, bot)
+        except asyncio.exceptions.TimeoutError:
+            try:
+                await asyncio.sleep(0.25)
+                await msg.clear_reactions()
+                del bot.help_menu_counter[f"{self.context.message.author.id}-1"]
+                del bot.help_menu_counter[f"{self.context.message.author.id}-2"]
+                del bot.help_menu_counter[f"{self.context.message.author.id}-3"]
+                del bot.help_menu_counter[f"{self.context.message.author.id}-4"]
+                del bot.help_menu_counter[f"{self.context.message.author.id}-5"]
+                del bot.help_menu_counter[f"{self.context.message.author.id}-6"]
+            except discord.HTTPException:
+                pass
+            except KeyError:
+                pass
+
+            #TODO - POP ID WITH 1-6
+
+async def check_reaction_type(self, bot):
+        reaction, person = await bot.wait_for(
+        "reaction_add",
+        timeout=15,
+        check=lambda reaction, user: user == self.context.author
+        and reaction.message.channel == self.context.channel)
+        #print(bot.help_menu_counter)
+        if str(reaction.emoji) == "💬":
+            if not bot.help_menu_counter[f"{self.context.message.author.id}-1"]:  
+                bot.help_menu_counter[f"{self.context.message.author.id}-1"] += 1
+                
+                await self.context.send_help('Chatlevels')
+                await check_reaction_type(self,bot)
+            else:
+                await check_reaction_type(self,bot)
+        elif str(reaction.emoji) == "🛠️":
+            if not bot.help_menu_counter[f"{self.context.message.author.id}-2"]:  
+                bot.help_menu_counter[f"{self.context.message.author.id}-2"] += 1
+                
+                await self.context.send_help('Configuration')
+                await check_reaction_type(self,bot)
+            else:
+                await check_reaction_type(self,bot)
+
+        elif str(reaction.emoji) == "🙂":
+            if not bot.help_menu_counter[f"{self.context.message.author.id}-3"]:
+                bot.help_menu_counter[f"{self.context.message.author.id}-3"] += 1
+                await self.context.send_help('Fun')
+                await check_reaction_type(self,bot)
+            else:
+                await check_reaction_type(self,bot)
+
+        elif str(reaction.emoji) == "🎮":
+            if not bot.help_menu_counter[f"{self.context.message.author.id}-4"]:
+                bot.help_menu_counter[f"{self.context.message.author.id}-4"] += 1
+
+                await self.context.send_help('Chatgames')
+                await check_reaction_type(self,bot)
+            else:
+                await check_reaction_type(self,bot)
+
+
+        elif str(reaction.emoji) == "🚨":
+            if not bot.help_menu_counter[f"{self.context.message.author.id}-5"]:
+                bot.help_menu_counter[f"{self.context.message.author.id}-5"] += 1
+
+                await self.context.send_help('Moderation')
+                await check_reaction_type(self,bot)
+            else:
+                await check_reaction_type(self,bot)
+
+        elif str(reaction.emoji) == "💡":
+            if not bot.help_menu_counter[f"{self.context.message.author.id}-6"]:
+                bot.help_menu_counter[f"{self.context.message.author.id}-6"] += 1
+
+                await self.context.send_help('Utility')
+                await check_reaction_type(self,bot)
+            else:
+                await check_reaction_type(self,bot)
+
+        else:
+            pass

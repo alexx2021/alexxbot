@@ -1,6 +1,8 @@
 import asyncio
 import datetime
-from utils.utils import blacklist_user_main, gech_main
+
+from discord.ext.commands.cooldowns import BucketType
+from utils.utils import blacklist_user_main, gech_main, help_paginate
 import discord
 from discord.ext import commands
 import os
@@ -65,8 +67,14 @@ activity=Activity(name=f"alexx.lol | _help", type=ActivityType.playing)
 
 
 class MyHelp(commands.HelpCommand):
+    def __init__(self, **options):
+        super().__init__(command_attrs={
+        'cooldown': commands.Cooldown(1, 5, commands.BucketType.user), 
+        'max_concurrency': commands.MaxConcurrency(1, per=commands.BucketType.channel, wait=False)})
+    
     bot.linksString = '[Documentation](http://alexx.lol) | [Support Server](https://discord.gg/zPWMRMXQ7H) | [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
-   # help
+    
+    # help
     async def send_bot_help(self, mapping):
         """ Sends the main help menu """
         e = discord.Embed(title=f"Alexx-bot Help", color = discord.Color.blurple(), description=bot.linksString)
@@ -80,7 +88,8 @@ class MyHelp(commands.HelpCommand):
             if counter != 0:
                 cogObj = bot.get_cog(cog)
                 e.add_field(name=cog, value=f'`{self.clean_prefix}help {cog}`\n{cogObj.description}', inline = False)
-        await self.context.reply(embed=e)
+        helpMessage = await self.context.reply(embed=e)
+        await help_paginate(self, bot, helpMessage)
        
    # help <command>
     async def send_command_help(self, command):
@@ -151,6 +160,9 @@ bot.arelvlsenabled = {}
 
 #users who spam get added to a dict, and if they spam 5 times they get auto-blacklisted from the bot
 bot._auto_spam_count = Counter()
+
+#help command dict LOL
+bot.help_menu_counter = Counter()
 
 #global database connections
 loop = asyncio.get_event_loop()
@@ -367,6 +379,7 @@ async def on_socket_response(message):  # this event isn't documented
     msg = message["t"] #is the event name
     #update the counter with this event name
     bot.socketStats[msg] += 1
+    #print(msg)
 
 @commands.is_owner()
 @bot.command(hidden=True)
