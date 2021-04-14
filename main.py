@@ -89,6 +89,7 @@ class MyHelp(commands.HelpCommand):
             if counter != 0:
                 if perms.add_reactions:
                     cmdHelp = ''
+                    e.set_footer(text='React below to view help for each category!')
                 else:
                     cmdHelp = f'`{self.clean_prefix}help {cog}`\n'
                 cogObj = bot.get_cog(cog)
