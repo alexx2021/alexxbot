@@ -24,7 +24,6 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     @tasks.loop(minutes=1.0)
     async def status_scroll(self):
         await self.bot.change_presence(activity=Activity(name=f"{len(self.bot.guilds)} guilds" + " | _help ", type=ActivityType.watching))
-        print('updated status')
 
 
     @status_scroll.before_loop
