@@ -113,6 +113,7 @@ class MyHelp(commands.HelpCommand):
       
    # help <group>
     async def send_group_help(self, group):
+        """ Generates help for groups """
         e = discord.Embed(title="Alexx-bot Help", color = discord.Color.blurple())
         temp = f"**{str(group)}**\n{group.short_doc}\n\n"
         for command in group.commands:

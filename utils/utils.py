@@ -39,6 +39,7 @@ async def gech_main(bot, channel_id):
         return ch
 
 async def get_or_fetch_member(self, guild, member_id): #from r danny :)
+    """Only queries API if the member is not in cache."""
     member = guild.get_member(int(member_id))
     if member is not None:
         #print('get_member')
@@ -53,6 +54,7 @@ async def get_or_fetch_member(self, guild, member_id): #from r danny :)
         return member
 
 async def get_or_fetch_guild(self, guild_id): #from r danny :)
+    """Only queries API if the guild is not in cache."""
     guild = self.bot.get_guild(int(guild_id))
     if guild is not None:
         # print('get_guild')
@@ -156,7 +158,7 @@ async def help_paginate(self, bot, msg):
 async def check_reaction_type(self, bot):
         reaction, person = await bot.wait_for(
         "reaction_add",
-        timeout=15,
+        timeout=20,
         check=lambda reaction, user: user == self.context.author
         and reaction.message.channel == self.context.channel)
         #print(bot.help_menu_counter)
