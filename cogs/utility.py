@@ -277,6 +277,14 @@ class Utility(commands.Cog):
         embed.timestamp = datetime.datetime.utcnow()
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
+    
+    @commands.command(hidden=True)
+    async def invite(self, ctx):
+        await ctx.reply('Thank you for your interest! :slight_smile: You can invite me with this link:\n<https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot>')
+    
+    @commands.command(hidden=True)
+    async def support(self, ctx):
+        await ctx.reply('Need help with the bot? Join here: https://discord.gg/zPWMRMXQ7H')
 
     
 

@@ -72,7 +72,7 @@ class MyHelp(commands.HelpCommand):
         'cooldown': commands.Cooldown(1, 5, commands.BucketType.user), 
         'max_concurrency': commands.MaxConcurrency(1, per=commands.BucketType.user, wait=False)})
     
-    bot.linksString = '[Documentation](http://alexx.lol) | [Support Server](https://discord.gg/zPWMRMXQ7H) | [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
+    bot.linksString = 'ℹ️ [Support Server](https://discord.gg/zPWMRMXQ7H)\n🎉 [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
     
     # help
     async def send_bot_help(self, mapping):
