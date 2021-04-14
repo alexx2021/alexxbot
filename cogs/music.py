@@ -231,7 +231,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             await ctx.send(embed=embed)
 
     @commands.check(is_wl) 
-    @bot_has_permissions(manage_messages=True)    
+    @bot_has_permissions(manage_messages=True, add_reactions=True)
     @commands.command(aliases=["q"])
     async def queue(self, ctx):
         player = self.music.get_player(guild_id=ctx.guild.id)

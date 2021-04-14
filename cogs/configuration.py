@@ -73,6 +73,7 @@ class Configuration(commands.Cog):
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
     @levels.command(help="Enable/disable chat levels on your server.")
     @has_permissions(manage_guild=True)
+    @bot_has_permissions(add_reactions=True)
     async def toggle(self, ctx):
         on = '<a:check:826577847023829032> Enabled chat leveling!'
         off = '<a:check:826577847023829032> Done. Chat levels for this server are now disabled.'

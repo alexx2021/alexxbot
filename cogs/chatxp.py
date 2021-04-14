@@ -121,6 +121,7 @@ class Chatlevels(commands.Cog):
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
     @commands.command(help="Reset a member's XP and level.")
     @has_permissions(manage_guild=True)
+    @bot_has_permissions(add_reactions=True)
     async def resetxp(self, ctx, member: discord.User = None):
         done = '<a:check:826577847023829032> Done. Reset your XP. '
         warn = discord.Embed(description = 'You are about to reset your own XP and rank. \nAre you sure?', color = discord.Color.red(), title = 'Warning')       
@@ -233,13 +234,16 @@ class Chatlevels(commands.Cog):
 
     #@commands.max_concurrency(1, per=BucketType.user, wait=False)
     #@bot_has_permissions(manage_messages=True)
-    @commands.cooldown(2, 10, commands.BucketType.user)
+    @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
+    @bot_has_permissions(add_reactions=True)
     @commands.command(aliases=("top","lb"), help = 'View the server leaderboard!')
     async def leaderboard(self, ctx: commands.Context):
             if not ctx.guild.me.guild_permissions.manage_messages:
-                logger.info(msg=f'LEADERBOARD CHECKED (possible http exception) invoked by User: {ctx.author} ({ctx.author.id}) in guild: {ctx.guild} ({ctx.guild.id})')
-
+                if ctx.guild.id == 741973094310215692:
+                    pass
+                else:
+                    return await ctx.send('<a:x_:826577785173704754> I need the manage messages permission (to edit reactions) for this commmand!')
             error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
             try:
                 enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
@@ -283,6 +287,7 @@ class Chatlevels(commands.Cog):
     @commands.max_concurrency(1, per=BucketType.guild, wait=False)
     @commands.cooldown(2, 15, commands.BucketType.guild)
     @has_permissions(manage_guild=True)
+    @bot_has_permissions(add_reactions=True)
     @commands.command(help='Import your xp data directly from mee6!')
     async def importdata(self, ctx):
         cmd = self.bot.get_command('levels toggle')

@@ -33,7 +33,7 @@ class Utility(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `create`, `react`, `custom`.')
 
-    @bot_has_permissions(manage_messages=True)
+    @bot_has_permissions(add_reactions=True)
     @has_permissions(manage_messages=True)
     @commands.guild_only()
     @poll.command(help='Add reactions to the latest message in the channel it is used in.')
@@ -47,7 +47,7 @@ class Utility(commands.Cog):
                 await ctx.send('<a:check:826577847023829032> reactions added!', delete_after=2.0)
         await ctx.message.delete()
     
-    @bot_has_permissions(manage_messages=True)
+    @bot_has_permissions(add_reactions=True)
     @has_permissions(manage_messages=True)
     @commands.guild_only()
     @poll.command(help='Create a poll!')
@@ -60,6 +60,7 @@ class Utility(commands.Cog):
         await ctx.message.delete()
 
 
+    @bot_has_permissions(add_reactions=True)
     @poll.command(help='Enter a question and your preferred choices afterwards!')
     @commands.guild_only()
     async def custom(self, ctx, *question_and_choices: str):
@@ -281,7 +282,7 @@ class Utility(commands.Cog):
 
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @has_permissions(manage_messages=True)
-    @bot_has_permissions(manage_messages=True)
+    @bot_has_permissions(manage_messages=True, add_reactions=True)
     @commands.cooldown(2, 10, commands.BucketType.guild) 
     @commands.guild_only()
     @commands.command(help='Use this to create a giveaway in your server that randomly chooses the winner!')
