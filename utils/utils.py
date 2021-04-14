@@ -129,7 +129,8 @@ async def blacklist_user_main(bot, user: discord.User):
     bot.ubl.update({user.id : True})
 ########################HELP###########################
 async def help_paginate(self, bot, msg):
-    if self.context.guild.me.guild_permissions.manage_messages:
+    perms = self.context.channel.permissions_for(self.context.guild.me)
+    if perms.add_reactions:
         await msg.add_reaction('💬')
         await msg.add_reaction('🛠️')
         await msg.add_reaction('🙂')

@@ -78,6 +78,7 @@ class MyHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         """ Sends the main help menu """
         e = discord.Embed(title=f"Alexx-bot Help", color = discord.Color.blurple(), description=bot.linksString)
+        perms = self.context.channel.permissions_for(self.context.guild.me)
         for cog in bot.cogs:
             counter = 0
             for command in bot.get_cog(cog).get_commands():
@@ -86,8 +87,12 @@ class MyHelp(commands.HelpCommand):
                 else:
                     counter += 1
             if counter != 0:
+                if perms.add_reactions:
+                    cmdHelp = ''
+                else:
+                    cmdHelp = f'`{self.clean_prefix}help {cog}`\n'
                 cogObj = bot.get_cog(cog)
-                e.add_field(name=cog, value=f'`{self.clean_prefix}help {cog}`\n{cogObj.description}', inline = False)
+                e.add_field(name=cog, value=f'{cmdHelp}{cogObj.description}', inline = False)
         helpMessage = await self.context.reply(embed=e)
         await help_paginate(self, bot, helpMessage)
        
