@@ -172,7 +172,7 @@ bot._auto_spam_count = Counter()
 bot.help_menu_counter = Counter()
 
 # keeps track of last sent minigame automsg + also if its enabled
-bot.chatgames = {}
+bot.autogames = {}
 
 #global database connections
 loop = asyncio.get_event_loop()
@@ -205,6 +205,7 @@ async def setup_db(choice):
 
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
+        await bot.sc.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id INTERGER, channel_id INTERGER)")
 
         await bot.xp.execute("CREATE TABLE IF NOT EXISTS chatlvlsenabled(guild_id INTERGER, enabled TEXT)")  #lvls in general       
         await bot.xp.execute("CREATE TABLE IF NOT EXISTS lvlsenabled(guild_id INTERGER, enabled TEXT)") #lvl msgs
@@ -247,6 +248,14 @@ async def setup_stuff(bot):
     xp = await bot.xp.execute_fetchall("SELECT * FROM chatlvlsenabled") #chat lvl enabled
     for enabled in xp:
         bot.arelvlsenabled[f"{enabled[0]}"] = f"{enabled[1]}"
+
+    autogameguilds = await bot.sc.execute_fetchall("SELECT * FROM autogames") #auto games channel
+    for row in autogameguilds:
+        tempDict = {
+        "lastrun" : 0,
+        "channel_id" : row[1]
+        }
+        bot.autogames[row[0]] = tempDict
 
     
     print('cache is setup!!')
