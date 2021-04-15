@@ -171,6 +171,9 @@ bot._auto_spam_count = Counter()
 #help command dict LOL
 bot.help_menu_counter = Counter()
 
+# keeps track of last sent minigame automsg + also if its enabled
+bot.chatgames = {}
+
 #global database connections
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -268,6 +271,7 @@ extensions = (
         "stats",
         "utility",
         "welcome",
+        "autogames",
     )
 
 loop.create_task(setup_stuff(bot)) #sets up stuff before cogs load
