@@ -5,6 +5,49 @@ from random import randint, shuffle
 import random
 import time
 
+async def are_lvls_enabled(self, guild):
+    try:
+        enabled = self.bot.arelvlsenabled[f"{guild.id}"]
+        if 'TRUE' in enabled:
+            return True
+        else:
+            return False
+    except KeyError:
+        return False
+
+async def give_xp(self, message):
+    start = time.perf_counter()
+    query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
+    gid = message.guild.id
+    uid = message.author.id
+    params = (gid, uid)
+    member = await self.bot.xp.execute_fetchall(query, params)
+    if member:
+        xp = member[0][2]
+        level = (int (xp ** (1/3.25)))
+        if xp == 0.5:
+            new_xp = xp + 0.5
+        elif xp < 30:
+            if xp >= 1:
+                xpToAdd = randint(1, 2)
+                new_xp = xp + xpToAdd
+        else:
+            xpToAdd = randint(15, 25)
+            new_xp = xp + round(((level * xpToAdd) / 2))
+        
+        query = 'UPDATE xp SET user_xp = ? WHERE guild_id = ? AND user_id = ?'
+        params = (new_xp, gid, uid)
+        await self.bot.xp.execute(query, params)
+        await self.bot.xp.commit()
+        end = time.perf_counter()
+        print(f'took{round(end-start, 3)}ms')
+        return (new_xp - xp)
+    else:
+        await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, 1))
+        await self.bot.xp.commit()
+        end = time.perf_counter()
+        print(f'took{round(end-start, 3)}ms (first msg)')
+        return 1
 
 async def scramble_word():
     words = ['hello', 'goodbye', 'discord', 'alex','boost',
@@ -25,8 +68,11 @@ async def check_word(self, message, data, counter):
             return msgcheck.channel == message.channel and not msgcheck.author.bot
         msg = await self.bot.wait_for('message', check=check, timeout=120)
         if data[1] in msg.content:
-            pointCount = randint(1,3)
-            return await message.channel.send(f'{msg.author.mention} got the word correct first, and they got {pointCount} points!')
+            if await are_lvls_enabled(self, message.guild):
+                xpAmt = await give_xp(self, message)
+                return await message.channel.send(f'{msg.author.mention} got the word correct first, and earned **{xpAmt}** xp!')
+            else:
+                return await message.channel.send(f'{msg.author.mention} got the word correct first!')
         else:
             counter += 1 
             if counter > 20:
@@ -58,7 +104,7 @@ async def send_word(self, message):
 
 
     e = discord.Embed(color=discord.Color.random(), title=data[0], description=f'{data[1][0]}{underscores}')
-    e.set_footer(text='Be the first to unscramble this word and earn points for your profile!')
+    e.set_footer(text='Be the first to unscramble this word and earn xp (if it\'s enabled)!')
     e.set_author(name=random.choice(titles))
     await message.channel.send(embed = e)
     await check_word(self, message, data, incorrectCounter)
@@ -81,7 +127,6 @@ class AutoGames(commands.Cog):
     @commands.command()
     async def insert(self, ctx):
         self.bot.autogames.update({ctx.guild.id : {"channel_id": ctx.channel.id, "lastrun": 0, "ongoing": 0}})
-
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):

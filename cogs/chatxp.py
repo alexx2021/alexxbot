@@ -78,7 +78,7 @@ class Chatlevels(commands.Cog):
                     if xp >= 1:
                         new_xp = xp + randint(1, 2)
                 else:
-                    new_xp = xp + randint(10, 25)
+                    new_xp = xp + randint(15, 25)
 
                 level = (int (xp ** (1/3.25)))
                 new_level = (int (new_xp **(1/3.25)))
