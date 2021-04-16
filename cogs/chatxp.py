@@ -92,6 +92,17 @@ class Chatlevels(commands.Cog):
             else:
                 await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, 0.5))
                 await self.bot.xp.commit()
+            try:
+                if member[1]:
+                    query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
+                    params = (gid, uid)
+                    await self.bot.xp.execute_fetchall(query, params)
+                    await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, member[0][2]))
+                    await self.bot.xp.commit()
+                    logger.warning(msg=f'Someones xp was doubled so I fixed it and set their xp to {member[0][2]} - user is {message.author} | userid {uid} | guildid {gid}')
+            except IndexError:
+                pass
+
 
 
 
