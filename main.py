@@ -1,6 +1,6 @@
 import asyncio
 import datetime
-
+import time
 from discord.ext.commands.cooldowns import BucketType
 from utils.utils import blacklist_user_main, gech_main, help_paginate
 import discord
@@ -252,7 +252,7 @@ async def setup_stuff(bot):
     autogameguilds = await bot.sc.execute_fetchall("SELECT * FROM autogames") #auto games channel
     for row in autogameguilds:
         tempDict = {
-        "lastrun" : 0,
+        "lastrun" : time.time(),
         "channel_id" : row[1],
         "ongoing" : 0
         }
