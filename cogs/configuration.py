@@ -281,5 +281,21 @@ class Configuration(commands.Cog):
             e = '<a:x_:826577785173704754> There is no autorole currently set up in this server.'
             await ctx.send(e)
 
+    @commands.command(help='Enable/disable chat games that are automatically sent to the channel you use this command in every 5-10 minutes!')
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    @commands.guild_only()
+    async def autochatgames(self, ctx):
+        try:
+            if self.bot.autogames[ctx.guild.id]:
+                self.bot.autogames.pop(ctx.guild.id)
+                await self.bot.sc.execute('DELETE FROM autogames WHERE guild_id = ?',(ctx.guild.id,))
+                await self.bot.sc.commit()
+                return await ctx.send('<a:check:826577847023829032> Disabled auto chatgames.')
+        except KeyError:
+            self.bot.autogames.update({ctx.guild.id : {"channel_id": ctx.channel.id, "lastrun": 0, "ongoing": 0}})
+            await self.bot.sc.execute('INSERT INTO autogames VALUES(?,?)',(ctx.guild.id, ctx.channel.id,))
+            await self.bot.sc.commit()
+            return await ctx.send('<a:check:826577847023829032> Enabled auto chatgames for this channel.')
+
 def setup(bot):
 	bot.add_cog(Configuration(bot))
