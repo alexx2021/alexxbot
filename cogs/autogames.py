@@ -180,7 +180,7 @@ async def check_backwards_number(self, message, data, counter):
                 return await msg.reply(f'🎉 **{msg.author.name}** got the number correct first!')
         else:
             counter += 1 
-            if counter > 15:
+            if counter > 20:
                 return await message.channel.send('No one got the correct answer in time :(')
             else:
                 #print(counter)
@@ -233,7 +233,7 @@ async def check_math(self, message, data, counter):
                 return await msg.reply(f'🎉 **{msg.author.name}** got the problem correct first!')
         else:
             counter += 1 
-            if counter > 15:
+            if counter > 20:
                 return await message.channel.send('No one got the correct answer in time :(')
             else:
                 #print(counter)
