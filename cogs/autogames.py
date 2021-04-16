@@ -201,6 +201,59 @@ async def send_backwards_number(self, message):
     await check_backwards_number(self, message, data, incorrectCounter)
     self.bot.autogames[message.guild.id].update({"ongoing": 0})
 #####################################################################COPY THE NUMBER BACKWARDS
+async def generate_math():
+    num1 = randint(0,15)
+    num2 = randint(0,15)
+    ops = ["*","-","+"]
+    operator = random.choice(ops)
+    if operator == "*":
+        correctAnswer = (num1 * num2)
+    if operator == "+":
+        correctAnswer = (num1 + num2)
+    if operator == "-":
+        correctAnswer = (num1 - num2)
+
+    return [num1, operator, num2, correctAnswer]
+
+async def check_math(self, message, data, counter):
+    try:    
+        def check(msgcheck):
+            return msgcheck.channel == message.channel and not msgcheck.author.bot
+        msg = await self.bot.wait_for('message', check=check, timeout=120)
+        if msg.content.startswith(str(data[3])):
+            if await are_lvls_enabled(self, message.guild):
+                xpAmt = await give_xp(self, message)
+                return await msg.reply(f'**{msg.author.name}** got the problem correct first, and earned **{xpAmt}** xp!')
+            else:
+                return await message.channel.send(f'{msg.author.mention} got the problem correct first!')
+        else:
+            counter += 1 
+            if counter > 15:
+                return await message.channel.send('No one got the correct answer in time :(')
+            else:
+                #print(counter)
+                await check_math(self, message, data, counter)
+    except asyncio.exceptions.TimeoutError:
+        return await message.channel.send('No one replied in time :(')
+
+
+async def send_math(self, message):
+    self.bot.autogames[message.guild.id].update({"ongoing": 1})
+    self.bot.autogames[message.guild.id].update({"lastrun": time.time()})
+
+
+    incorrectCounter = 0
+    titles = ['❗  Math Event!', '🤔  Solve the problem!','🥺  Pls math asap!' ]
+    data = await generate_math()
+    
+
+    e = discord.Embed(color=discord.Color.random(), description=f'`{data[0]} {data[1]} {data[2]}`')
+    e.set_footer(text='Be the first to solve the problem and earn xp (if it\'s enabled)!')
+    e.set_author(name=random.choice(titles))
+    await message.channel.send(embed = e)
+    await check_math(self, message, data, incorrectCounter)
+    self.bot.autogames[message.guild.id].update({"ongoing": 0})
+#####################################################################COPY THE NUMBER BACKWARDS
 class AutoGames(commands.Cog):
     """WIP"""
     def __init__(self, bot):
@@ -234,14 +287,16 @@ class AutoGames(commands.Cog):
             if ch_id == message.channel.id:
                 perms = message.channel.permissions_for(message.guild.me)
                 if perms.send_messages:
-                    if (lastrun < (time.time() - 5)) and (ongoing != 1): #change to 300 later
-                        game = randint(1, 3)
+                    if (lastrun < (time.time() - randint(1, 5))) and (ongoing != 1): #change to 300 later
+                        game = randint(4, 4)
                         if game == 1:
                             return await send_word(self, message)
                         elif game == 2:
                             return await send_number(self, message)
                         elif game == 3:
                             return await send_backwards_number(self, message)
+                        elif game == 4:
+                            return await send_math(self, message)
         except KeyError:
             pass
 
