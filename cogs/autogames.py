@@ -28,11 +28,11 @@ async def give_xp(self, message):
             new_xp = xp + 0.5
         elif xp < 30:
             if xp >= 1:
-                xpToAdd = randint(1, 2)
+                xpToAdd = randint(2, 5)
                 new_xp = xp + xpToAdd
         else:
             xpToAdd = randint(15, 25)
-            new_xp = xp + round(((level * xpToAdd) / 2))
+            new_xp = xp + round(((level * xpToAdd) / randint(2,3)))
         
         query = 'UPDATE xp SET user_xp = ? WHERE guild_id = ? AND user_id = ?'
         params = (new_xp, gid, uid)
@@ -46,8 +46,13 @@ async def give_xp(self, message):
 
 async def scramble_word():
     words = ['hello', 'goodbye', 'discord', 'alex','boost',
-    'online','offline', 'nitro', 'bot', 'server','program',
-    'python', 'apple', 'pear', 'strawberry', 'chocolate',
+    'online','offline', 'nitro', 'bot', 'server','goat',
+    'apple', 'pear', 'strawberry', 'chocolate',
+    'love', 'button', 'boat', 'taco', 'elephant', 'bird',
+    'duck', 'fox', 'music', 'word', 'scramble', 'egg', 'potato',
+    'tomato','apple', 'lemon', 'carrot', 'cherry', 'pig', 'cow',
+    'math', 'coat', 'shirt', 'sad', 'smile', 'turkey', 'ant', 'cookie',
+    'chicken'    
     ]
     word = random.choice(words)
     unscram = word
@@ -65,9 +70,9 @@ async def check_word(self, message, data, counter):
         if data[1] in msg.content:
             if await are_lvls_enabled(self, message.guild):
                 xpAmt = await give_xp(self, message)
-                return await msg.reply(f'**{msg.author.name}** got the word correct first, and earned **{xpAmt}** xp!')
+                return await msg.reply(f'🎉 **{msg.author.name}** got the word correct first, and earned **{xpAmt}** xp!')
             else:
-                return await message.channel.send(f'{msg.author.mention} got the word correct first!')
+                return await msg.reply(f'🎉 **{msg.author.name}** got the word correct first!')
         else:
             counter += 1 
             if counter > 20:
@@ -118,9 +123,9 @@ async def check_number(self, message, data, counter):
         if msg.content.startswith(str(data)):
             if await are_lvls_enabled(self, message.guild):
                 xpAmt = await give_xp(self, message)
-                return await msg.reply(f'**{msg.author.name}** got the number correct first, and earned **{xpAmt}** xp!')
+                return await msg.reply(f'🎉 **{msg.author.name}** got the number correct first, and earned **{xpAmt}** xp!')
             else:
-                return await message.channel.send(f'{msg.author.mention} got the number correct first!')
+                return await msg.reply(f'🎉 **{msg.author.name}** got the number correct first!')
         else:
             counter += 1 
             if counter > 25:
@@ -170,9 +175,9 @@ async def check_backwards_number(self, message, data, counter):
         if msg.content.startswith(str(data[0])):
             if await are_lvls_enabled(self, message.guild):
                 xpAmt = await give_xp(self, message)
-                return await msg.reply(f'**{msg.author.name}** got the number correct first, and earned **{xpAmt}** xp!')
+                return await msg.reply(f'🎉 **{msg.author.name}** got the number correct first, and earned **{xpAmt}** xp!')
             else:
-                return await message.channel.send(f'{msg.author.mention} got the number correct first!')
+                return await msg.reply(f'🎉 **{msg.author.name}** got the number correct first!')
         else:
             counter += 1 
             if counter > 15:
@@ -223,9 +228,9 @@ async def check_math(self, message, data, counter):
         if msg.content.startswith(str(data[3])):
             if await are_lvls_enabled(self, message.guild):
                 xpAmt = await give_xp(self, message)
-                return await msg.reply(f'**{msg.author.name}** got the problem correct first, and earned **{xpAmt}** xp!')
+                return await msg.reply(f'🎉 **{msg.author.name}** got the problem correct first, and earned **{xpAmt}** xp!')
             else:
-                return await message.channel.send(f'{msg.author.mention} got the problem correct first!')
+                return await msg.reply(f'🎉 **{msg.author.name}** got the problem correct first!')
         else:
             counter += 1 
             if counter > 15:
@@ -253,7 +258,7 @@ async def send_math(self, message):
     await message.channel.send(embed = e)
     await check_math(self, message, data, incorrectCounter)
     self.bot.autogames[message.guild.id].update({"ongoing": 0})
-#####################################################################COPY THE NUMBER BACKWARDS
+#####################################################################MATH PROBLEM
 class AutoGames(commands.Cog):
     """WIP"""
     def __init__(self, bot):
@@ -287,8 +292,8 @@ class AutoGames(commands.Cog):
             if ch_id == message.channel.id:
                 perms = message.channel.permissions_for(message.guild.me)
                 if perms.send_messages:
-                    if (lastrun < (time.time() - randint(1, 5))) and (ongoing != 1): #change to 300 later
-                        game = randint(4, 4)
+                    if (lastrun < (time.time() - randint(300,600))) and (ongoing != 1): #change to 300 later
+                        game = randint(1, 5)
                         if game == 1:
                             return await send_word(self, message)
                         elif game == 2:
@@ -297,6 +302,8 @@ class AutoGames(commands.Cog):
                             return await send_backwards_number(self, message)
                         elif game == 4:
                             return await send_math(self, message)
+                        else:
+                            pass
         except KeyError:
             pass
 
