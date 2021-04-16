@@ -253,7 +253,8 @@ async def setup_stuff(bot):
     for row in autogameguilds:
         tempDict = {
         "lastrun" : 0,
-        "channel_id" : row[1]
+        "channel_id" : row[1],
+        "ongoing" : 0
         }
         bot.autogames[row[0]] = tempDict
 
