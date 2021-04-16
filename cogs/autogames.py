@@ -16,7 +16,6 @@ async def are_lvls_enabled(self, guild):
         return False
 
 async def give_xp(self, message):
-    start = time.perf_counter()
     query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
     gid = message.guild.id
     uid = message.author.id
@@ -39,20 +38,16 @@ async def give_xp(self, message):
         params = (new_xp, gid, uid)
         await self.bot.xp.execute(query, params)
         await self.bot.xp.commit()
-        end = time.perf_counter()
-        print(f'took{round(end-start, 3)}ms')
         return (new_xp - xp)
     else:
         await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, 1))
         await self.bot.xp.commit()
-        end = time.perf_counter()
-        print(f'took{round(end-start, 3)}ms (first msg)')
         return 1
 
 async def scramble_word():
     words = ['hello', 'goodbye', 'discord', 'alex','boost',
     'online','offline', 'nitro', 'bot', 'server','program',
-    'python',
+    'python', 'apple', 'pear', 'strawberry', 'chocolate',
     ]
     word = random.choice(words)
     unscram = word
