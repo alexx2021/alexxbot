@@ -443,6 +443,7 @@ class Moderation(commands.Cog):
             deleted = await ctx.channel.purge(limit=100, check=m_contains, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
             await ctx.send(f'Deleted {(len(deleted))} messages containing **{string}**! `:P`', delete_after=3.0)
     
+    #test
 
     @remove.command(help='Removes messages that were sent by the specified user. Only checks the last 100 messages in the channel.')
     @commands.max_concurrency(1, per=BucketType.channel, wait=True)
