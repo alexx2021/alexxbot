@@ -288,10 +288,14 @@ class Configuration(commands.Cog):
     async def autochatgames(self, ctx):
         try:
             if self.bot.autogames[ctx.guild.id]:
-                self.bot.autogames.pop(ctx.guild.id)
-                await self.bot.sc.execute('DELETE FROM autogames WHERE guild_id = ?',(ctx.guild.id,))
-                await self.bot.sc.commit()
-                return await ctx.send('<a:check:826577847023829032> Disabled auto chatgames.')
+                if self.bot.autogames[ctx.guild.id]["ongoing"] == 0:
+                    self.bot.autogames.pop(ctx.guild.id)
+                    await self.bot.sc.execute('DELETE FROM autogames WHERE guild_id = ?',(ctx.guild.id,))
+                    await self.bot.sc.commit()
+                    return await ctx.send('<a:check:826577847023829032> Disabled auto chatgames.')
+                else:
+                    return await ctx.send('<a:x_:826577785173704754> You cannot disable this feature while there is an ongoing game')
+
         except KeyError:
             self.bot.autogames.update({ctx.guild.id : {"channel_id": ctx.channel.id, "lastrun": 0, "ongoing": 0}})
             await self.bot.sc.execute('INSERT INTO autogames VALUES(?,?)',(ctx.guild.id, ctx.channel.id,))
