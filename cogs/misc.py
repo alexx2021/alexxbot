@@ -12,7 +12,7 @@ from discord.ext.commands.cooldowns import BucketType
 class Events(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
-        self.status_scroll.start()
+        # self.status_scroll.start()
         
     # @commands.Cog.listener()
     # async def on_guild_join(self, guild):
@@ -21,14 +21,17 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     #         await guild.text_channels[0].send('https://cdn.discordapp.com/attachments/386995303066107907/533479547589623810/unknown.png')
     #     except:
     #         return
-    @tasks.loop(minutes=1.0)
-    async def status_scroll(self):
-        await self.bot.change_presence(activity=Activity(name=f"{len(self.bot.guilds)} guilds" + " | _help ", type=ActivityType.watching))
+    # @tasks.loop(minutes=1.0)
+    # async def status_scroll(self):
+    #     #await self.bot.change_presence(activity=Activity(name=f"{len(self.bot.guilds)} guilds" + " | _help ", type=ActivityType.watching))
+    #     #await asyncio.sleep(60)
+    #     await self.bot.change_presence(activity=discord.Streaming(name=f"_help | {len(self.bot.guilds)}s {len(self.bot.users)}u ", url='https://www.twitch.tv/alexxwastakenlol'))
+    #     #await asyncio.sleep(60)
 
 
-    @status_scroll.before_loop
-    async def status_wait(self):
-        await self.bot.wait_until_ready()
+    # @status_scroll.before_loop
+    # async def status_wait(self):
+    #     await self.bot.wait_until_ready()
 
 #################################################
     @commands.Cog.listener()
