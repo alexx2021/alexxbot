@@ -1,4 +1,5 @@
 import asyncio
+from collections import defaultdict
 import discord
 from discord.ext import commands, tasks
 from random import randint, shuffle
@@ -43,6 +44,8 @@ async def give_xp(self, message):
         await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, 1))
         await self.bot.xp.commit()
         return 1
+
+###########################################################################UNSCRAMBLE
 
 async def scramble_word():
     words = ['hello', 'goodbye', 'discord', 'alex','boost',
@@ -110,7 +113,7 @@ async def send_word(self, message):
     await check_word(self, message, data, incorrectCounter)
     self.bot.autogames[message.guild.id].update({"ongoing": 0})
 
-###########################################################################UNSCRAMBLE
+###########################################################################GUESS THE NUMBER
 async def generate_number():
     data = randint(1, 10)
     return data
@@ -157,7 +160,7 @@ async def send_number(self, message):
 
 
 
-#####################################################################GUESS THE NUMBER
+#####################################################################RETYPE BACKWARDS NUMBER
 async def generate_backwards_number():
     data = randint(100000000000, 999999999999)
     data2 = list(str(data))
@@ -205,7 +208,7 @@ async def send_backwards_number(self, message):
     await message.channel.send(embed = e)
     await check_backwards_number(self, message, data, incorrectCounter)
     self.bot.autogames[message.guild.id].update({"ongoing": 0})
-#####################################################################COPY THE NUMBER BACKWARDS
+#####################################################################MATH PROBLEM
 async def generate_math():
     num1 = randint(0,15)
     num2 = randint(0,15)
@@ -258,7 +261,96 @@ async def send_math(self, message):
     await message.channel.send(embed = e)
     await check_math(self, message, data, incorrectCounter)
     self.bot.autogames[message.guild.id].update({"ongoing": 0})
-#####################################################################MATH PROBLEM
+#####################################################################REACT FIRST
+async def generate_emoji():
+    r = randint(1,4)
+    if r == 1:
+        reac = "⬅️"
+        name = "left"
+    elif r == 2:
+        reac = "➡️"
+        name = "right"
+    elif r == 3:
+        reac = "⬆️"
+        name = "up"
+    elif r == 4:
+        reac = "⬇️"
+        name = "down"
+    return [reac, name]
+
+async def generate_random_sequence(theEmbed):
+    dic = {1:"⬅️", 2:"➡️", 3:"⬆️",4:"⬇️"}
+    c = random.choice(list(dic))
+    await theEmbed.add_reaction(dic[c])
+    dic.pop(c)
+    
+    c = random.choice(list(dic))
+    await theEmbed.add_reaction(dic[c])
+    dic.pop(c)
+    
+    c = random.choice(list(dic))
+    await theEmbed.add_reaction(dic[c])
+    dic.pop(c)
+    
+    c = random.choice(list(dic))
+    await theEmbed.add_reaction(dic[c])
+    dic.pop(c)
+
+
+
+async def check_reaction(self, message, data, theEmbed, reactedBefore, antireactspam):
+    try:
+        if reactedBefore == 0:
+            await generate_random_sequence(theEmbed)
+            reactedBefore = 1    
+
+        reaction, person = await self.bot.wait_for(
+                        "reaction_add",
+                        timeout=120,
+                        check=lambda reaction, user: user != self.bot.user and reaction.message.channel == message.channel)
+                
+        if str(reaction.emoji) == data[0]:
+            if await are_lvls_enabled(self, message.guild):
+                if antireactspam[person.id] != 1:
+                    antireactspam[person.id] = 1
+                    xpAmt = await give_xp(self, message)
+                    return await message.channel.send(f'🎉 **{person.mention}** reacted correctly first, and earned **{xpAmt}** xp!')
+                else:
+                    await check_reaction(self, message, data, theEmbed, reactedBefore, antireactspam)
+            else:
+                if antireactspam[person.id] != 1:
+                    antireactspam[person.id] = 1
+                    return await message.channel.send(f'🎉 **{person.mention}** reacted correctly first!')
+                else:
+                    await check_reaction(self, message, data, theEmbed, reactedBefore, antireactspam)
+        else:
+            if antireactspam[person.id] != 1:
+                antireactspam[person.id] = 1
+                await message.channel.send(f':frowning:  **{person.mention}** reacted with the wrong emoji!')
+            await check_reaction(self, message, data, theEmbed, reactedBefore, antireactspam)
+    except asyncio.exceptions.TimeoutError:
+        return await message.channel.send('No one reacted in time :(')
+
+async def send_react(self, message):
+    self.bot.autogames[message.guild.id].update({"ongoing": 1})
+    self.bot.autogames[message.guild.id].update({"lastrun": time.time()})
+
+    titles = ['❗  React Event!', '🤔  Are you fast enough?!','🥺  Pls asap!' ]
+    data = await generate_emoji()
+    
+    def def_value():
+        return 0
+    reactedBefore = 0
+    antireactspam = defaultdict(def_value)
+    
+
+    e = discord.Embed(color=discord.Color.random(), description=f'React to `{data[1]}`!')
+    e.set_footer(text='Be the first to react to the correct emoji and earn xp (if it\'s enabled)!')
+    e.set_author(name=random.choice(titles))
+    theEmbed = await message.channel.send(embed = e)
+    await check_reaction(self, message, data, theEmbed, reactedBefore, antireactspam)
+    self.bot.autogames[message.guild.id].update({"ongoing": 0})
+
 class AutoGames(commands.Cog):
     """WIP"""
     def __init__(self, bot):
@@ -292,8 +384,8 @@ class AutoGames(commands.Cog):
             if ch_id == message.channel.id:
                 perms = message.channel.permissions_for(message.guild.me)
                 if perms.send_messages:
-                    if (lastrun < (time.time() - randint(300,600))) and (ongoing != 1): #change to 300 later
-                        game = randint(1, 5)
+                    if (lastrun < (time.time() - 300)) and (ongoing != 1): #change to 300 later
+                        game = randint(1, 7)
                         if game == 1:
                             return await send_word(self, message)
                         elif game == 2:
@@ -302,6 +394,9 @@ class AutoGames(commands.Cog):
                             return await send_backwards_number(self, message)
                         elif game == 4:
                             return await send_math(self, message)
+                        elif game == 5:
+                            if perms.add_reactions:
+                                return await send_react(self, message)
                         else:
                             pass
         except KeyError:
