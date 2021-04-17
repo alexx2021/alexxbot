@@ -62,7 +62,7 @@ command_prefix= get_prefix,
 case_insensitive=True, 
 intents=intents, 
 allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False), 
-activity=Activity(name=f"_help", type=ActivityType.playing)
+activity=discord.Streaming(name=f"_help", url='https://www.twitch.tv/alexxwastakenlol')
 )
 
 
