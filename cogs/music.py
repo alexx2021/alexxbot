@@ -351,7 +351,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.check(check_in_vc)
     @commands.check(is_wl)     
     @commands.command()
-    async def remove(self, ctx, index: int):
+    async def r(self, ctx, index: int):
         
 
         player = self.music.get_player(guild_id=ctx.guild.id)

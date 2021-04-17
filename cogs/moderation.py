@@ -403,5 +403,57 @@ class Moderation(commands.Cog):
             await ctx.send(f'Disabled slowmode! <a:check:826577847023829032>')
         await ctx.channel.edit(slowmode_delay=seconds)
 
+    @commands.group(help='Use this command to do specialized cleanup in a channel based on what type of content it is.')
+    async def remove(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `bot`, `attachments`, `contains`.') #msg.attachments
+
+    @remove.command(help='Removes messages that were sent by a bot. Only checks the last 100 messages in the channel.')
+    @commands.max_concurrency(1, per=BucketType.channel, wait=True)
+    @has_permissions(manage_messages=True)
+    @bot_has_permissions(manage_messages=True, read_message_history=True)
+    async def bot(self, ctx):
+        def is_bot(m):
+            return m.author.bot
+        with ctx.channel.typing():
+            deleted = await ctx.channel.purge(limit=100, check=is_bot, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            await ctx.send(f'Deleted {(len(deleted))} messages belonging to bots! `:P`', delete_after=3.0)
+
+    @remove.command(help='Removes messages that are attachments. Only checks the last 100 messages in the channel.')
+    @commands.max_concurrency(1, per=BucketType.channel, wait=True)
+    @has_permissions(manage_messages=True)
+    @bot_has_permissions(manage_messages=True, read_message_history=True)
+    async def attachments(self, ctx):
+        def is_att(m):
+            return m.attachments
+        with ctx.channel.typing():
+            deleted = await ctx.channel.purge(limit=100, check=is_att, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            await ctx.send(f'Deleted {(len(deleted))} messages with attachments! `:P`', delete_after=3.0)
+            
+    @remove.command(help='Removes messages that contain text you input. Only checks the last 100 messages in the channel.')
+    @commands.max_concurrency(1, per=BucketType.channel, wait=True)
+    @has_permissions(manage_messages=True)
+    @bot_has_permissions(manage_messages=True, read_message_history=True)
+    async def contains(self, ctx, *, string: str):
+        if len(string) > 150:
+            return await ctx.send('<a:x_:826577785173704754> Text is too long.')
+        def m_contains(m):
+            return string in m.content
+        with ctx.channel.typing():
+            deleted = await ctx.channel.purge(limit=100, check=m_contains, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            await ctx.send(f'Deleted {(len(deleted))} messages containing **{string}**! `:P`', delete_after=3.0)
+    
+
+    @remove.command(help='Removes messages that were sent by the specified user. Only checks the last 100 messages in the channel.')
+    @commands.max_concurrency(1, per=BucketType.channel, wait=True)
+    @has_permissions(manage_messages=True)
+    @bot_has_permissions(manage_messages=True, read_message_history=True)
+    async def user(self, ctx, user: discord.User):
+        def is_user(m):
+            return m.author == user
+        with ctx.channel.typing():
+            deleted = await ctx.channel.purge(limit=100, check=is_user, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            await ctx.send(f'Deleted {(len(deleted))} messages belonging to {user}! `:P`', delete_after=3.0)
+
 def setup(bot):
     bot.add_cog(Moderation(bot))
