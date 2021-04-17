@@ -369,13 +369,13 @@ class AutoGames(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        guild = message.guild.id
         await self.bot.wait_until_ready()
 
         if not message.guild:
             return
         if message.author.bot:
             return
+        guild = message.guild.id
 
         try:
             lastrun = self.bot.autogames[guild]["lastrun"]
