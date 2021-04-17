@@ -406,7 +406,7 @@ class Moderation(commands.Cog):
     @commands.group(help='Use this command to do specialized cleanup in a channel based on what type of content it is.')
     async def remove(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `bot`, `attachments`, `contains`.') #msg.attachments
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `bot`, `attachments`, `contains`, `user`.') #msg.attachments
 
     @remove.command(help='Removes messages that were sent by a bot. Only checks the last 100 messages in the channel.')
     @commands.max_concurrency(1, per=BucketType.channel, wait=True)
