@@ -1,10 +1,20 @@
+import asyncio
 import aiohttp
 from discord.ext import commands
 import discord
 import json
 from discord.ext.commands.cooldowns import BucketType
 from lxml import etree
+from discord.ext.buttons import Paginator
+from utils.utils import is_wl
 
+class Pag(Paginator):
+    async def teardown(self):
+        try:
+            await asyncio.sleep(0.25)
+            await self.page.clear_reactions()
+        except discord.HTTPException:
+            pass
 
 class CodeBlock:
     missing_error = 'Missing code block. Please use the following markdown\n\\`\\`\\`language\ncode here\n\\`\\`\\`'
@@ -46,7 +56,8 @@ class CodeBlock:
 class Cplusplus(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
-
+    
+    @commands.check(is_wl)
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.command()
@@ -78,17 +89,28 @@ class Cplusplus(commands.Cog, command_attrs=dict(hidden=True)):
 
                     output = await resp.text(encoding='utf-8')
 
-                    if len(output) < 1992:
-                        await ctx.send(f'```\n{output}\n```')
-                        return
+                    # if len(output) < 1980:
+                    #     await ctx.send(f'```\n{output}\n```\n> Run by {ctx.author}')
+                    #     return
 
-                    # output is too big so post it in gist
-                    async with ctx.session.post('http://coliru.stacked-crooked.com/share', data=data) as r:
-                        if r.status != 200:
-                            await ctx.send('Could not create coliru shared link')
-                        else:
-                            shared_id = await r.text()
-                            await ctx.send(f'Output too big. Coliru link: http://coliru.stacked-crooked.com/a/{shared_id}')
+
+                    pager = Pag(
+                    title=f"Code output for {ctx.author}", 
+                    colour=0,
+                    timeout=10,
+                    entries=[output[i: i + 2000] for i in range(0, len(output), 2000)],
+                    length=1,
+                )
+
+                    await pager.start(ctx)
+                    # # output is too big so post it in gist
+                    # async with aiohttp.ClientSession() as cs:
+                    #     async with cs.post('http://coliru.stacked-crooked.com/share', data=data) as r:
+                    #         if r.status != 200:
+                    #             await ctx.send('Could not create coliru shared link')
+                    #         else:
+                    #             shared_id = await r.text()
+                    #             await ctx.send(f'Output too big. Coliru link: http://coliru.stacked-crooked.com/a/{shared_id}')
 
     @run.error
     async def run_error(self, ctx, error):

@@ -218,3 +218,29 @@ async def check_reaction_type(self, bot):
 
         else:
             pass
+########################WHITELIST###########################
+async def is_wl(ctx):
+    guildlist = [
+    741054230370189343,
+    812951618945286185,
+    704554442153787453,
+    783345613860372480,
+    812520226603794432,
+    597965043333726220,
+    796212175693152256,
+    ]
+    #iridescent
+     #alexx support
+      #sniper kingdom
+       #burrow's resource pack
+        #minty
+         #server
+          #math pre cal 1
+    
+    bot = ctx.bot
+    
+    if bot.whitelist[ctx.guild.id] == True:
+        return True
+    else:
+        await ctx.send('<a:x_:826577785173704754> Your guild is not on the whitelist to use this command.')
+        return False

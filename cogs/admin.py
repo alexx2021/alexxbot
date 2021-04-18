@@ -208,7 +208,25 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
             if rows != []:
                 return await ctx.send(f'Guild with id of `{guild}` `was found` in the blacklist.')
 
+    @commands.command()
+    @commands.is_owner()
+    async def whitelist(self, ctx, guild:int):
+        guildID = str(guild)
+        async with aiosqlite.connect('blacklists.db') as c:
+            await c.execute("INSERT INTO whitelist VALUES(?)", (guildID,))
+            await c.commit()
+        self.bot.whitelist.update({guild : True})
+        await ctx.send(f'Guild with id of `{guild}` was whitelisted ✅')
 
+    @commands.command()
+    @commands.is_owner()
+    async def unwhitelist(self, ctx, guild:int):
+        guildID = str(guild)
+        async with aiosqlite.connect('blacklists.db') as c:
+            await c.execute("DELETE FROM whitelist WHERE guild_id = ?",(guildID,))
+            await c.commit()
+            self.bot.whitelist.update({guild : False})
+        await ctx.send(f'Guild with id of `{guild}` was removed from the whitelist ✅')
 
 
     @commands.command(name="eval")

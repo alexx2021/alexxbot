@@ -6,6 +6,7 @@ from discord.ext.commands.core import bot_has_permissions
 import utils.musicUtils
 import datetime
 from discord.ext.buttons import Paginator
+from utils.utils import is_wl
 
 
 class Pag(Paginator):
@@ -18,29 +19,6 @@ class Pag(Paginator):
 
 
 
-async def is_wl(ctx):
-    guildlist = [
-    741054230370189343,
-    812951618945286185,
-    704554442153787453,
-    783345613860372480,
-    812520226603794432,
-    597965043333726220,
-    796212175693152256,
-    ]
-    #iridescent
-     #alexx support
-      #sniper kingdom
-       #burrow's resource pack
-        #minty
-         #server
-          #math pre cal 1
-    guildID = ctx.guild.id
-    if guildID in guildlist:
-        return True 
-    else:
-        await ctx.send('<a:x_:826577785173704754> The music module is under development and therefore currently whitelisted. Contact the bot owner if you are interested in using it.')
-        return False
     
 async def not_pl(ctx):
     await ctx.send('<a:x_:826577785173704754> There is nothing currently playing :(')

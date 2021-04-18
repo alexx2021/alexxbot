@@ -160,6 +160,7 @@ def def_value():
 #cache database stuff
 bot.prefixes = {}
 bot.ubl = defaultdict(def_value)
+bot.whitelist = defaultdict(def_value)
 bot.logcache = {}
 bot.autorolecache = {}
 bot.welcomecache = {}
@@ -190,6 +191,7 @@ bot.xp = loop.run_until_complete(aiosqlite.connect('chatxp.db'))
 async def blacklist_setup():
     await bot.bl.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
     await bot.bl.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
+    await bot.bl.execute("CREATE TABLE IF NOT EXISTS whitelist(guild_id INTERGER)")
 
 async def setup_db(choice):
     if choice == True:
@@ -226,6 +228,11 @@ async def setup_stuff(bot):
     yes = True
     for user in users:
         bot.ubl[user[0]] = yes
+
+    guilds = await bot.bl.execute_fetchall("SELECT * FROM whitelist") #whitelist cache
+    yes = True
+    for guild in guilds:
+        bot.whitelist[guild[0]] = yes
     
 
     logs = await bot.sc.execute_fetchall("SELECT server_id, log_channel FROM logging") #logging ch cache
