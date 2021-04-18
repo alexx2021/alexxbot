@@ -282,6 +282,7 @@ extensions = (
         "utility",
         "welcome",
         "autogames",
+        'cplusplus'
     )
 
 loop.create_task(setup_stuff(bot)) #sets up stuff before cogs load
