@@ -8,3 +8,4 @@ DiscordUtils
 aiosqlite
 statcord.py
 objgraph
+lxml
