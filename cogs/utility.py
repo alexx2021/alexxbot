@@ -299,7 +299,7 @@ class Utility(commands.Cog):
             return message.author == ctx.author and message.channel == ctx.channel
 
         try:
-            await ctx.send(f'{ctx.author.mention}, How long should this giveaway last?", `s|m|h|d` are acceptable time units.')
+            p1 = await ctx.send(f'{ctx.author.mention}, How long should this giveaway last?", `s|m|h|d` are acceptable time units.')
             timemsg = await self.bot.wait_for('message', check=promptCheck, timeout=30)
             
             timeinput = timemsg.content
@@ -328,16 +328,17 @@ class Utility(commands.Cog):
             except ValueError:
                 return await ctx.send('<a:x_:826577785173704754> Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
 
+            await p1.delete()
             
             
-            await ctx.send(f'{ctx.author.mention}, What will be given away?')
+            p2 = await ctx.send(f'{ctx.author.mention}, What will be given away?')
             description = await self.bot.wait_for('message', check=promptCheck, timeout=30)
             prize = description.content
 
             if len(prize) > 201:
                 return await ctx.send(f'<a:x_:826577785173704754> Prize text cannot be longer than 200 chars.')
-
-        
+            
+            await p2.delete()
         except asyncio.exceptions.TimeoutError:
             return await ctx.send(f'Giveaway creation timed out.')
 
@@ -430,9 +431,7 @@ class Utility(commands.Cog):
         await self.bot.rm.commit()
         
 
-        e = discord.Embed(description=f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.", color = 0x7289da)
-        e.timestamp = datetime.datetime.utcnow()
-        await ctx.send(embed=e)
+        await ctx.send(f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.")
 
 
 
