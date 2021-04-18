@@ -182,9 +182,8 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     @commands.is_owner()
     async def addguild(self, ctx, guild:int):
-        guildID = str(guild)
         async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("INSERT INTO guildblacklist VALUES(?)", (guildID,))
+            await c.execute("INSERT INTO guildblacklist VALUES(?)", (guild,))
             await c.commit()
         await ctx.send(f'Guild with id of `{guild}` was blacklisted ✅')
 
