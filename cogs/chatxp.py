@@ -54,6 +54,10 @@ class Chatlevels(commands.Cog):
             return
         if not message.guild:
             return
+        ctx = await self.bot.get_context(message)
+        if ctx.command:
+            return
+        
         try:
             enabled = self.bot.arelvlsenabled[f"{message.guild.id}"]
             if 'TRUE' in enabled:
