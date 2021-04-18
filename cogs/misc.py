@@ -86,6 +86,24 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
         if ch:
             await ch.send(embed=embed)
 
+    @commands.Cog.listener()
+    async def on_member_remove(self, member):
+        try:
+            enabled = self.bot.arelvlsenabled[f"{member.guild.id}"]
+            if 'TRUE' in enabled:
+                pass
+            else:
+                return
+        except KeyError:
+            return
+
+        query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
+        gid = member.guild.id
+        uid = member.id
+        params = (gid, uid)
+        await self.bot.xp.execute_fetchall(query, params)
+        await self.bot.xp.commit()
+
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @commands.cooldown(1, 5, commands.BucketType.channel)
