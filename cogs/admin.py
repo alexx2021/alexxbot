@@ -191,18 +191,16 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     @commands.is_owner()
     async def removeguild(self, ctx, guild:int):
-        guildID = str(guild)
         async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("DELETE FROM guildblacklist WHERE guild_id = ?",(guildID,))
+            await c.execute("DELETE FROM guildblacklist WHERE guild_id = ?",(guild,))
             await c.commit()
         await ctx.send(f'Guild with id of `{guild}` was removed from the blacklist ✅')
 
     @commands.command()
     @commands.is_owner()
     async def checkguild(self, ctx, guild:int):
-        guildID = str(guild)
         async with aiosqlite.connect('blacklists.db') as c:
-            rows = await c.execute_fetchall("SELECT guild_id FROM guildblacklist WHERE guild_id = ?",(guildID,),)
+            rows = await c.execute_fetchall("SELECT guild_id FROM guildblacklist WHERE guild_id = ?",(guild,),)
             if rows == []:
                 return await ctx.send(f'Guild with id of `{guild}` was `NOT` found in the blacklist.')
             if rows != []:
@@ -211,9 +209,8 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     @commands.is_owner()
     async def whitelist(self, ctx, guild:int):
-        guildID = str(guild)
         async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("INSERT INTO whitelist VALUES(?)", (guildID,))
+            await c.execute("INSERT INTO whitelist VALUES(?)", (guild,))
             await c.commit()
         self.bot.whitelist.update({guild : True})
         await ctx.send(f'Guild with id of `{guild}` was whitelisted ✅')
@@ -221,9 +218,8 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     @commands.is_owner()
     async def unwhitelist(self, ctx, guild:int):
-        guildID = str(guild)
         async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("DELETE FROM whitelist WHERE guild_id = ?",(guildID,))
+            await c.execute("DELETE FROM whitelist WHERE guild_id = ?",(guild,))
             await c.commit()
             self.bot.whitelist.update({guild : False})
         await ctx.send(f'Guild with id of `{guild}` was removed from the whitelist ✅')
