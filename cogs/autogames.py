@@ -55,7 +55,7 @@ async def scramble_word():
     'duck', 'fox', 'music', 'word', 'scramble', 'egg', 'potato',
     'tomato','apple', 'lemon', 'carrot', 'cherry', 'pig', 'cow',
     'math', 'coat', 'shirt', 'sad', 'smile', 'turkey', 'ant', 'cookie',
-    'chicken'    
+    'chicken', 'cat', 'melon', 'mango', 'coffee', 'chicken'
     ]
     word = random.choice(words)
     unscram = word
@@ -70,7 +70,7 @@ async def check_word(self, message, data, counter):
         def check(msgcheck):
             return msgcheck.channel == message.channel and not msgcheck.author.bot
         msg = await self.bot.wait_for('message', check=check, timeout=120)
-        if data[1] in msg.content:
+        if data[1] in msg.content.lower():
             if await are_lvls_enabled(self, message.guild):
                 xpAmt = await give_xp(self, message)
                 return await msg.reply(f'🎉 **{msg.author.name}** got the word correct first, and earned **{xpAmt}** xp!')
@@ -385,7 +385,7 @@ class AutoGames(commands.Cog):
                 perms = message.channel.permissions_for(message.guild.me)
                 if perms.send_messages:
                     if (lastrun < (time.time() - 300)) and (ongoing != 1): #change to 300 later
-                        game = randint(1, 7)
+                        game = randint(1, 6)
                         if game == 1:
                             return await send_word(self, message)
                         elif game == 2:
