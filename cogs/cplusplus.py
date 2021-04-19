@@ -93,6 +93,8 @@ class Cplusplus(commands.Cog, command_attrs=dict(hidden=True)):
                     #     await ctx.send(f'```\n{output}\n```\n> Run by {ctx.author}')
                     #     return
 
+                    if len(output) == 0:
+                        return await ctx.send('There is no output for this query.')
 
                     pager = Pag(
                     title=f"Code output for {ctx.author}", 
