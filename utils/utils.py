@@ -242,5 +242,5 @@ async def is_wl(ctx):
     if bot.whitelist[ctx.guild.id] == True:
         return True
     else:
-        await ctx.send('<a:x_:826577785173704754> Your guild is not on the whitelist to use this command.')
+        await ctx.send('<a:x_:826577785173704754> This guild is not whitelisted to use this command.')
         return False
