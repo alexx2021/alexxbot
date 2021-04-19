@@ -199,7 +199,30 @@ class Chatlevels(commands.Cog):
                     await ctx.send('Operation cancelled.')
         except asyncio.exceptions.TimeoutError:
             return await ctx.send('You did not react in time.')
+    
+    @has_permissions(manage_guild=True)
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    @commands.command(help='Sets a user\'s xp amount.')
+    @commands.guild_only()
+    async def setxp(self, ctx, member: discord.Member, xp: int):
+        if xp >= 1000000000:
+            return await ctx.send('https://tenor.com/view/cat-no-nope-breading-gif-7294729')
 
+        query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
+        gid = ctx.guild.id
+        uid = member.id
+        params = (gid, uid)
+        user = await self.bot.xp.execute_fetchall(query, params)
+        if user:
+            query = 'UPDATE xp SET user_xp = ? WHERE guild_id = ? AND user_id = ?'
+            params = (xp, gid, uid)
+            await self.bot.xp.execute(query, params)
+            await self.bot.xp.commit()
+            await ctx.send(f'<a:check:826577847023829032> Updated {member.name}\'s XP! New value: **{xp}**.')
+        else:
+            await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, xp))
+            await self.bot.xp.commit()
+            await ctx.send(f'<a:check:826577847023829032> Set {member.name}\'s XP to **{xp}**!')
     
     
     @commands.cooldown(3, 10, commands.BucketType.user)
@@ -248,17 +271,12 @@ class Chatlevels(commands.Cog):
         await ctx.send(embed=embed)
 
     #@commands.max_concurrency(1, per=BucketType.user, wait=False)
-    #@bot_has_permissions(manage_messages=True)
+    @bot_has_permissions(manage_messages=True)
     @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
     @bot_has_permissions(add_reactions=True)
     @commands.command(aliases=("top","lb"), help = 'View the server leaderboard!')
     async def leaderboard(self, ctx: commands.Context):
-            if not ctx.guild.me.guild_permissions.manage_messages:
-                if ctx.guild.id == 741973094310215692:
-                    pass
-                else:
-                    return await ctx.send('<a:x_:826577785173704754> I need the manage messages permission (to edit reactions) for this commmand!')
             error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
             try:
                 enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
@@ -280,21 +298,21 @@ class Chatlevels(commands.Cog):
                 )
                 return await ctx.send(embed=embed)
             
-            desc =''
+            desc =[]
             for rank, record in enumerate(rankings, start=1):
                 user_id = record[1]
                 user_xp = record[2]
                 level = (int (record[2] ** (1/3.25)))
 
                 e=f"**{rank}**. <@{user_id}> | {user_xp} XP, LVL {level}\n"
-                desc += e
+                desc.append(e)
 
             pager = Pag(
                 title=f"Leaderboard for {ctx.guild}", 
                 colour=discord.Colour.green(),
-                timeout=10,
-                entries=[desc[i: i + 2000] for i in range(0, len(desc), 2000)],
-                length=1,
+                timeout=15,
+                entries=desc,
+                length=10,
             )
 
             await pager.start(ctx)
