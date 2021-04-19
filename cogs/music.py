@@ -221,11 +221,11 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
         if len([song.name for song in player.current_queue()]) > 0:
             embed = discord.Embed(title=(f'Queue'), color=0x7289da)
             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-            desc = ''
+            desc = []
             for rank, song in enumerate(player.current_queue(), start=1):
                 converted_time = await convertT(song.duration)
                 
-                desc +=f'**{rank}.** '+ song.name + f' `{converted_time}`\n'
+                desc.append(f'**{rank}.** '+ song.name + f' `{converted_time}`')
         
             
 
@@ -233,9 +233,8 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
                 title=f"Queue", 
                 colour=0x7289da,
                 timeout=10,
-                entries=[desc[i: i + 2000] for i in range(0, len(desc), 2000)],
-                length=1,
-                suffix=f'\nRequested by {ctx.author}'
+                entries=desc,
+                length=10,
             )
             await pager.start(ctx)
         else:

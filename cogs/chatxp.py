@@ -304,7 +304,7 @@ class Chatlevels(commands.Cog):
                 user_xp = record[2]
                 level = (int (record[2] ** (1/3.25)))
 
-                e=f"**{rank}**. <@{user_id}> | {user_xp} XP, LVL {level}\n"
+                e=f"**{rank}**. <@{user_id}> | {user_xp} XP, LVL {level}"
                 desc.append(e)
 
             pager = Pag(
