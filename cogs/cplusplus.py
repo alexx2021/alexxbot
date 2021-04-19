@@ -100,6 +100,8 @@ class Cplusplus(commands.Cog, command_attrs=dict(hidden=True)):
                     timeout=10,
                     entries=[output[i: i + 2000] for i in range(0, len(output), 2000)],
                     length=1,
+                    prefix="```\n",
+                    suffix="\n```"
                 )
 
                     await pager.start(ctx)
