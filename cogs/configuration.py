@@ -372,20 +372,24 @@ class Configuration(commands.Cog):
                 return message.author == ctx.author and message.channel == ctx.channel
             
             await ctx.send('Please enter the delay you would like between sending the chat games.')
-            msg = await self.bot.wait_for('message', check=check, timeout=30)
-            if msg.content.isnumeric():
-                delayInMinutes = int(msg.content)
+            try:    
+                msg = await self.bot.wait_for('message', check=check, timeout=30)
+                if msg.content.isnumeric():
+                    delayInMinutes = int(msg.content)
 
-                if delayInMinutes < 2:
-                    return await ctx.send('<a:x_:826577785173704754> Delay cannot be less than 2 (minutes)!')
-                elif delayInMinutes >= 121:
-                    return await ctx.send('<a:x_:826577785173704754> Delay cannot be greater than 120 (minutes)')
-                self.bot.autogames.update({ctx.guild.id : {"channel_id": ctx.channel.id, "lastrun": 0, "ongoing": 0, "delay": delayInMinutes}})
-                await self.bot.sc.execute('INSERT INTO autogames VALUES(?,?,?)',(ctx.guild.id, ctx.channel.id, delayInMinutes,))
-                await self.bot.sc.commit()
-                return await ctx.send(f'<a:check:826577847023829032> Enabled auto chatgames for this channel with a delay of {delayInMinutes} minutes.')
-            else:
-                return await ctx.send('<a:x_:826577785173704754> Delay must be a valid number!')
+                    if delayInMinutes < 2:
+                        return await ctx.send('<a:x_:826577785173704754> Delay cannot be less than 2 (minutes)!')
+                    elif delayInMinutes >= 121:
+                        return await ctx.send('<a:x_:826577785173704754> Delay cannot be greater than 120 (minutes)')
+                    self.bot.autogames.update({ctx.guild.id : {"channel_id": ctx.channel.id, "lastrun": 0, "ongoing": 0, "delay": delayInMinutes}})
+                    await self.bot.sc.execute('INSERT INTO autogames VALUES(?,?,?)',(ctx.guild.id, ctx.channel.id, delayInMinutes,))
+                    await self.bot.sc.commit()
+                    return await ctx.send(f'<a:check:826577847023829032> Enabled auto chatgames for this channel with a delay of {delayInMinutes} minutes.')
+                else:
+                    return await ctx.send('<a:x_:826577785173704754> Delay must be a valid number!')
+            except asyncio.exceptions.TimeoutError:
+                return await ctx.send('Operation timed out.')
+
 
 
 def setup(bot):
