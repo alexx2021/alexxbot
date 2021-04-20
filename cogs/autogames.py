@@ -381,10 +381,11 @@ class AutoGames(commands.Cog):
             lastrun = self.bot.autogames[guild]["lastrun"]
             ch_id = self.bot.autogames[guild]["channel_id"]
             ongoing = self.bot.autogames[guild]["ongoing"]
+            delay = self.bot.autogames[guild]["delay"]
             if ch_id == message.channel.id:
                 perms = message.channel.permissions_for(message.guild.me)
                 if perms.send_messages:
-                    if (lastrun < (time.time() - 300)) and (ongoing != 1): #change to 300 later
+                    if (lastrun < (time.time() - (delay * 60)) and (ongoing != 1)):
                         game = randint(1, 6)
                         if game == 1:
                             return await send_word(self, message)

@@ -208,7 +208,10 @@ async def setup_db(choice):
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
-        await bot.sc.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id INTERGER, channel_id INTERGER)")
+        await bot.sc.execute("DROP TABLE autogames")
+        print('dropped')
+        await bot.sc.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id INTERGER, channel_id INTERGER, delay INTERGER)")
+        print('recreated')
 
 
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS levelrewards(guild_id INTERGER, level INTERGER, role_id INTERGER)")
@@ -265,7 +268,8 @@ async def setup_stuff(bot):
         tempDict = {
         "lastrun" : time.time(),
         "channel_id" : row[1],
-        "ongoing" : 0
+        "ongoing" : 0,
+        "delay" : row[2]
         }
         bot.autogames[row[0]] = tempDict
 
