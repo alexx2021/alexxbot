@@ -133,11 +133,16 @@ class Chatlevels(commands.Cog):
                     await ctx.channel.send(
                         f"Nice job {ctx.author.mention}, you leveled up to level **?**!")
 
+    @commands.group(help='Use this to manage xp. (set, reset or import from mee6)')
+    async def xp(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `set`, `reset`, `import`.')
+
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
-    @commands.command(help="Reset a member's XP and level.")
+    @xp.command(help="Reset a member's XP and level.")
     @has_permissions(manage_guild=True)
     @bot_has_permissions(add_reactions=True)
-    async def resetxp(self, ctx, member: discord.User = None):
+    async def reset(self, ctx, member: discord.User = None):
         done = '<a:check:826577847023829032> Done. Reset your XP. '
         warn = discord.Embed(description = 'You are about to reset your own XP and rank. \nAre you sure?', color = discord.Color.red(), title = 'Warning')       
         error = '<a:x_:826577785173704754> This guild does not have xp enabled! There is nothing to reset!'
@@ -202,11 +207,13 @@ class Chatlevels(commands.Cog):
     
     @has_permissions(manage_guild=True)
     @commands.cooldown(3, 10, commands.BucketType.user)
-    @commands.command(help='Sets a user\'s xp amount.')
+    @xp.command(help='Sets a user\'s xp amount.')
     @commands.guild_only()
-    async def setxp(self, ctx, member: discord.Member, xp: int):
+    async def set(self, ctx, member: discord.Member, xp: int):
         if xp >= 1000000000:
             return await ctx.send('https://tenor.com/view/cat-no-nope-breading-gif-7294729')
+        if xp < 0:
+            return await ctx.send('Value must not be less than 0.')
 
         query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
         gid = ctx.guild.id
@@ -223,6 +230,51 @@ class Chatlevels(commands.Cog):
             await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, xp))
             await self.bot.xp.commit()
             await ctx.send(f'<a:check:826577847023829032> Set {member.name}\'s XP to **{xp}**!')
+
+    @commands.max_concurrency(1, per=BucketType.guild, wait=False)
+    @commands.cooldown(2, 15, commands.BucketType.guild)
+    @has_permissions(manage_guild=True)
+    @bot_has_permissions(add_reactions=True)
+    @xp.command(help='Import your xp data directly from mee6!', name='import')
+    async def importmee6(self, ctx):
+        cmd = self.bot.get_command('levels toggle')
+        warn = discord.Embed(description = 'You are about to reset the leveling system for this server.\n__ALL DATA WILL BE LOST__.\nAre you sure?', color = discord.Color.red(), title = 'Warning')
+    
+        try:
+            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            if 'TRUE' in enabled:
+                msg = await ctx.send(embed = warn)
+                await asyncio.sleep(0.25)
+                await msg.add_reaction("✅")
+                await asyncio.sleep(0.25)
+                await msg.add_reaction("❌")
+                reaction, person = await self.bot.wait_for(
+                                "reaction_add",
+                                timeout=60,
+                                check=lambda reaction, user: user == ctx.author
+                                and reaction.message.channel == ctx.channel)
+                
+                if str(reaction.emoji) == "✅":
+                    query = 'DELETE FROM xp WHERE guild_id = ?' 
+                    gid = ctx.guild.id
+                    params = (gid,)
+                    await self.bot.xp.execute(query, params)
+                    await self.bot.xp.commit() # xp is still enabled no need to disable first
+                    if await import_meesix(self, ctx): #insert data here
+                        pass
+                else:
+                    return await ctx.send('Operation cancelled.')
+
+            else:
+                if await import_meesix(self, ctx): #insert data here
+                    await cmd.invoke(ctx) #enable
+
+        except asyncio.exceptions.TimeoutError:
+            return await ctx.send('You did not react in time.')
+        except KeyError:
+            if await import_meesix(self, ctx): #insert data here
+                await cmd.invoke(ctx) #enable
+
     
     
     @commands.cooldown(3, 10, commands.BucketType.user)
@@ -316,51 +368,6 @@ class Chatlevels(commands.Cog):
             )
 
             await pager.start(ctx)
-    
-    @commands.max_concurrency(1, per=BucketType.guild, wait=False)
-    @commands.cooldown(2, 15, commands.BucketType.guild)
-    @has_permissions(manage_guild=True)
-    @bot_has_permissions(add_reactions=True)
-    @commands.command(help='Import your xp data directly from mee6!')
-    async def importdata(self, ctx):
-        cmd = self.bot.get_command('levels toggle')
-        warn = discord.Embed(description = 'You are about to reset the leveling system for this server.\n__ALL DATA WILL BE LOST__.\nAre you sure?', color = discord.Color.red(), title = 'Warning')
-    
-        try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
-            if 'TRUE' in enabled:
-                msg = await ctx.send(embed = warn)
-                await asyncio.sleep(0.25)
-                await msg.add_reaction("✅")
-                await asyncio.sleep(0.25)
-                await msg.add_reaction("❌")
-                reaction, person = await self.bot.wait_for(
-                                "reaction_add",
-                                timeout=60,
-                                check=lambda reaction, user: user == ctx.author
-                                and reaction.message.channel == ctx.channel)
-                
-                if str(reaction.emoji) == "✅":
-                    query = 'DELETE FROM xp WHERE guild_id = ?' 
-                    gid = ctx.guild.id
-                    params = (gid,)
-                    await self.bot.xp.execute(query, params)
-                    await self.bot.xp.commit() # xp is still enabled no need to disable first
-                    if await import_meesix(self, ctx): #insert data here
-                        pass
-                else:
-                    return await ctx.send('Operation cancelled.')
-
-            else:
-                if await import_meesix(self, ctx): #insert data here
-                    await cmd.invoke(ctx) #enable
-
-        except asyncio.exceptions.TimeoutError:
-            return await ctx.send('You did not react in time.')
-        except KeyError:
-            if await import_meesix(self, ctx): #insert data here
-                await cmd.invoke(ctx) #enable
-
 
 
 
