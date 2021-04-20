@@ -34,7 +34,78 @@ class Configuration(commands.Cog):
     @commands.group(help='Use this to manage chat leveling settings.')
     async def levels(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `togglemessages`, `toggle`.')
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `togglemessages`, `toggle`, `ignorechannel`, `unignorechannel`.')
+
+
+
+    @has_permissions(manage_guild=True)
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    @commands.guild_only()
+    @levels.command(help='Disable XP in certain channels.')
+    async def ignorechannel(self, ctx: commands.Context):
+        on = f'<a:check:826577847023829032> XP will no longer be granted in {ctx.channel.mention}!'
+        err = '<a:x_:826577785173704754> This channel is already ignored by the xp system.'
+        
+        try:
+            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            if 'TRUE' in enabled:
+                pass
+            else:
+                return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')
+        except KeyError:
+            return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')  
+
+        try:
+            ignored = self.bot.xpignoredchannels[ctx.guild.id][ctx.channel.id]
+            if ignored:
+                return await ctx.send(err)
+        except KeyError:
+            pass
+
+        try:    
+            self.bot.xpignoredchannels[ctx.guild.id][ctx.channel.id] = ctx.channel.id
+        except KeyError:
+            #print('ke')
+            di = {ctx.channel.id: ctx.channel.id}
+            self.bot.xpignoredchannels[ctx.guild.id] = di
+
+        await self.bot.sc.execute('INSERT INTO ignoredchannels VALUES(?,?)',(ctx.guild.id, ctx.channel.id))
+        await self.bot.sc.commit()
+        return await ctx.send(on)
+
+    @has_permissions(manage_guild=True)
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    @commands.guild_only()
+    @levels.command(help='Re-enable XP in channels that were "ignored"')
+    async def unignorechannel(self, ctx: commands.Context):
+        on = f'<a:check:826577847023829032> XP will now be granted in {ctx.channel.mention}!'
+        err = '<a:x_:826577785173704754> This channel is not ignored by the xp system!'
+        
+        try:
+            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            if 'TRUE' in enabled:
+                pass
+            else:
+                return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')
+        except KeyError:
+            return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')  
+
+        try:    
+            self.bot.xpignoredchannels[ctx.guild.id].pop(ctx.channel.id)
+        except KeyError:
+            return await ctx.send(err)
+
+        query = 'DELETE FROM ignoredchannels WHERE guild_id = ? AND channel_id = ?' 
+        gid = ctx.guild.id
+        cid = ctx.channel.id
+        params = (gid, cid)
+        await self.bot.sc.execute(query, params)
+        await self.bot.sc.commit()
+
+        
+        return await ctx.send(on)
+
+
 
     @has_permissions(manage_guild=True)
     @commands.cooldown(3, 10, commands.BucketType.user)

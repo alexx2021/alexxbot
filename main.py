@@ -165,6 +165,8 @@ bot.logcache = {}
 bot.autorolecache = {}
 bot.welcomecache = {}
 bot.arelvlsenabled = {}
+bot.xpignoredchannels = {}
+bot.xproles = {}
 
 #users who spam get added to a dict, and if they spam 5 times they get auto-blacklisted from the bot
 bot._auto_spam_count = Counter()
@@ -204,11 +206,13 @@ async def setup_db(choice):
         await bot.m.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id INTERGER, user_id INTERGER)")
 
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
-
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
         await bot.sc.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id INTERGER, channel_id INTERGER)")
 
+
+        await bot.sc.execute("CREATE TABLE IF NOT EXISTS levelrewards(guild_id INTERGER, level INTERGER, role_id INTERGER)")
+        await bot.sc.execute("CREATE TABLE IF NOT EXISTS ignoredchannels(guild_id INTERGER, channel_id INTERGER)")
         await bot.xp.execute("CREATE TABLE IF NOT EXISTS chatlvlsenabled(guild_id INTERGER, enabled TEXT)")  #lvls in general       
         await bot.xp.execute("CREATE TABLE IF NOT EXISTS lvlsenabled(guild_id INTERGER, enabled TEXT)") #lvl msgs
         await bot.xp.execute("CREATE TABLE IF NOT EXISTS xp(guild_id INTERGER, user_id INTERGER, user_xp INTERGER)")
@@ -264,6 +268,14 @@ async def setup_stuff(bot):
         "ongoing" : 0
         }
         bot.autogames[row[0]] = tempDict
+
+    guilds = await bot.sc.execute_fetchall("SELECT * FROM ignoredchannels") #ingored channels for chat lvl
+    for channel in guilds:
+        try:    
+            bot.xpignoredchannels[channel[0]][channel[1]] = channel[1]
+        except KeyError:
+            di = {channel[1]: channel[1]}
+            bot.xpignoredchannels[channel[0]] = di
 
     
     print('cache is setup!!')

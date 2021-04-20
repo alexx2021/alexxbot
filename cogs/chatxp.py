@@ -66,6 +66,13 @@ class Chatlevels(commands.Cog):
                 return
         except KeyError:
             return
+
+        try:
+            if self.bot.xpignoredchannels[ctx.guild.id][ctx.channel.id]:
+                return
+        except KeyError:
+            pass
+
         bucket = self.cd_mapping.get_bucket(message)
         retry_after = bucket.update_rate_limit()
         if not retry_after:
@@ -106,7 +113,8 @@ class Chatlevels(commands.Cog):
                     logger.warning(msg=f'Someones xp was doubled so I fixed it and set their xp to {member[0][2]} - user is {message.author} | userid {uid} | guildid {gid}')
             except IndexError:
                 pass
-
+            
+            #print('Got xp!')
 
 
 
