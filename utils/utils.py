@@ -167,7 +167,7 @@ async def check_reaction_type(self, bot):
             if not bot.help_menu_counter[f"{self.context.message.author.id}-1"]:  
                 bot.help_menu_counter[f"{self.context.message.author.id}-1"] += 1
                 
-                await self.context.send_help('Chatlevels')
+                await self.context.send_help('Levels')
                 await check_reaction_type(self,bot)
             else:
                 await check_reaction_type(self,bot)
@@ -192,7 +192,7 @@ async def check_reaction_type(self, bot):
             if not bot.help_menu_counter[f"{self.context.message.author.id}-4"]:
                 bot.help_menu_counter[f"{self.context.message.author.id}-4"] += 1
 
-                await self.context.send_help('Chatgames')
+                await self.context.send_help('Games')
                 await check_reaction_type(self,bot)
             else:
                 await check_reaction_type(self,bot)
