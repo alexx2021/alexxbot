@@ -1,3 +1,4 @@
+from utils.utils import check_if_log
 import discord
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
@@ -8,6 +9,116 @@ class Configuration(commands.Cog):
     """🛠️ Commands to configure the bot's features for your server"""
     def __init__(self, bot):
         self.bot = bot    
+
+    @has_permissions(manage_messages=True)
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    @commands.guild_only()
+    @commands.command(help='View all of the settings for this guild in one place.', aliases=['db', 'dash'])
+    async def dashboard(self, ctx):
+        e = discord.Embed(title=f'Dashboard for {ctx.guild.name}', 
+        color=discord.Color.blurple(),
+            ).set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        async def _log():
+            if await check_if_log(self, ctx.guild):
+                ch = self.bot.logcache[f"{ctx.guild.id}"]
+                return f"<:on1:834549521148411994> <#{int(ch)}>"
+            else:
+                return "<:off:834549474100641812>"
+        async def _autorole():
+            try:
+                r = self.bot.autorolecache[f"{ctx.guild.id}"]
+                return f"<:on1:834549521148411994> <@&{int(r)}>"
+            except KeyError:
+                return "<:off:834549474100641812>"
+        async def _welcomech():
+            try:   
+                data = self.bot.welcomecache[f"{ctx.guild.id}"]
+                logch = data["logch"]
+                return f"<:on1:834549521148411994> <#{int(logch)}>"
+            except KeyError:
+                return "<:off:834549474100641812>"
+        async def _levels():
+            try:
+                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                if 'TRUE' in enabled:
+                    return "<:on1:834549521148411994>"
+                else:
+                    return "<:off:834549474100641812>"
+            except KeyError:
+                return "<:off:834549474100641812>"  
+        async def _levelmessages():
+            try:
+                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                if 'TRUE' in enabled:
+                    pass
+                else:
+                    return "<:off:834549474100641812>"
+            except KeyError:
+                return "<:off:834549474100641812>"  
+
+            try:
+                if 'TRUE' in self.bot.arelvlmsg[ctx.guild.id]:
+                    return "<:on1:834549521148411994>"
+                else:
+                    return "<:off:834549474100641812>"  
+            except KeyError:
+                return "<:off:834549474100641812>" 
+        async def _noxpch():
+            try:
+                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                if 'TRUE' in enabled:
+                    pass
+                else:
+                    return "<:off:834549474100641812>"
+            except KeyError:
+                return "<:off:834549474100641812>"  
+
+            try:
+                l = ''
+                for key in self.bot.xpignoredchannels[ctx.guild.id].items():
+                    l += f'<#{key[0]}>\n'
+                return f"{l}"      
+            except KeyError:
+                return "<:off:834549474100641812>"
+        async def _roleRewards():
+            try:
+                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                if 'TRUE' in enabled:
+                    pass
+                else:
+                    return "<:off:834549474100641812>"
+            except KeyError:
+                return "<:off:834549474100641812>"  
+
+            try:
+                l = ''
+                for key in self.bot.xproles[ctx.guild.id].items():
+                    l += f'Level {key[0]}: <@&{key[1]}>\n'
+                return f"{l}"      
+            except KeyError:
+                return "<:off:834549474100641812>"
+
+
+
+
+
+
+
+
+        e.add_field(name='General settings', 
+        value=f'*Prefix:* \n`{ctx.prefix}`' 
+        + f'\n*Autorole:* \n{await _autorole()}'
+        + f'\n*Log channel:* \n{await _log()}'
+        + f'\n*Welcome/Goodbye channel:* \n{await _welcomech()}'
+            )
+
+        e.add_field(name='Leveling settings', 
+        value=f'*Leveling system:* \n{await _levels()}' 
+        + f'\n*Leveling messages:* \n{await _levelmessages()}'
+        + f'\n*No-XP channels:* \n{await _noxpch()}'
+        + f'\n*Role rewards:* \n{await _roleRewards()}'
+            )
+        await ctx.send(embed=e)
 
     @has_permissions(manage_guild=True)
     @commands.cooldown(2, 10, commands.BucketType.guild)
@@ -122,6 +233,16 @@ class Configuration(commands.Cog):
         except KeyError:
             pass
 
+        try:
+            keys = self.bot.xpignoredchannels[ctx.guild.id]
+            counter = 0
+            for key in keys.items():
+                counter += 1
+            if counter >= 10:
+                return await ctx.send('You have reached the maximum number of ignored channels you can set (10).')
+        except KeyError:
+            pass
+
         try:    
             self.bot.xpignoredchannels[ctx.guild.id][ctx.channel.id] = ctx.channel.id
         except KeyError:
@@ -190,14 +311,17 @@ class Configuration(commands.Cog):
             if guild[0][1] == 'TRUE':
                 await self.bot.xp.execute('UPDATE lvlsenabled SET enabled = ? WHERE guild_id = ?',('FALSE',ctx.guild.id))
                 await self.bot.xp.commit()
+                self.bot.arelvlmsg.update({ctx.guild.id: 'FALSE'})
                 await ctx.send(off)
             else:
                 await self.bot.xp.execute('UPDATE lvlsenabled SET enabled = ? WHERE guild_id = ?',('TRUE',ctx.guild.id))
                 await self.bot.xp.commit()
+                self.bot.arelvlmsg.update({ctx.guild.id: 'TRUE'})
                 await ctx.send(on)
         else:
             await self.bot.xp.execute('INSERT INTO lvlsenabled VALUES(?,?)',(ctx.guild.id,'TRUE'))
             await self.bot.xp.commit()
+            self.bot.arelvlmsg.update({ctx.guild.id: 'TRUE'})
             await ctx.send(on)
 
     @commands.cooldown(2, 10, commands.BucketType.user)

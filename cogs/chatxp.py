@@ -39,6 +39,17 @@ async def import_meesix(self, ctx):
                 return False
     
         
+async def addRoles(self, message, level):
+    if message.guild.me.guild_permissions.manage_roles:
+        try:    
+            r = self.bot.xproles[message.guild.id][level]
+        except KeyError:
+            return
+        role = discord.utils.get(message.guild.roles, id= int(r))
+        if role:
+            if message.guild.me.top_role.position > role.position:
+                await message.author.add_roles(role, reason=f"Role reward for level {level}.")
+
 class Levels(commands.Cog):
     """💬 Commands related to the chat leveling module"""
     def __init__(self, bot):
@@ -122,22 +133,19 @@ class Levels(commands.Cog):
 
     @commands.Cog.listener()
     async def on_level_up(self, level: int, message: discord.Message):
-        guild = await self.bot.xp.execute_fetchall("SELECT * FROM lvlsenabled WHERE guild_id = ?",(message.guild.id,))
-        if guild:
-            if guild[0][1] == 'TRUE':
-                perms = message.channel.permissions_for(message.guild.me)
-                if perms.send_messages: #only send if we can
-                    await message.channel.send(
-                        f"Nice job {message.author.mention}, you are now level **{level}**!")
-                if message.guild.me.guild_permissions.manage_roles:
-                    try:    
-                        r = self.bot.xproles[message.guild.id][level]
-                    except KeyError:
-                        return
-                    role = discord.utils.get(message.guild.roles, id= int(r))
-                    if role:
-                        if message.guild.me.top_role.position > role.position:
-                            await message.author.add_roles(role, reason=f"Role reward for level {level}.")
+        try:
+            if 'TRUE' in self.bot.arelvlmsg[message.guild.id]:
+               await addRoles(self, message, level)
+            else:
+                return await addRoles(self, message, level)
+        except KeyError:
+            return await addRoles(self, message, level)
+        
+        perms = message.channel.permissions_for(message.guild.me)
+        if perms.send_messages: #only send if we can
+            await message.channel.send(
+                f"Nice job {message.author.mention}, you are now level **{level}**!")
+
 
     @commands.command(hidden=True)
     @commands.is_owner()

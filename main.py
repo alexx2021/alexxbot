@@ -165,6 +165,7 @@ bot.logcache = {}
 bot.autorolecache = {}
 bot.welcomecache = {}
 bot.arelvlsenabled = {}
+bot.arelvlmsg = {}
 bot.xpignoredchannels = {}
 bot.xproles = {}
 
@@ -239,10 +240,10 @@ async def setup_stuff(bot):
     for user in users:
         bot.ubl[user[0]] = yes
 
-    guilds = await bot.bl.execute_fetchall("SELECT * FROM whitelist") #whitelist cache
+    servers = await bot.bl.execute_fetchall("SELECT * FROM whitelist") #whitelist cache
     yes = True
-    for guild in guilds:
-        bot.whitelist[guild[0]] = yes
+    for server in servers:
+        bot.whitelist[server[0]] = yes
     
 
     logs = await bot.sc.execute_fetchall("SELECT server_id, log_channel FROM logging") #logging ch cache
@@ -266,6 +267,10 @@ async def setup_stuff(bot):
     for enabled in xp:
         bot.arelvlsenabled[f"{enabled[0]}"] = f"{enabled[1]}"
 
+    xpmsg = await bot.xp.execute_fetchall("SELECT * FROM lvlsenabled") #chat lvl enabled
+    for enabled2 in xpmsg:
+        bot.arelvlmsg[enabled2[0]] = enabled2[1]
+
     autogameguilds = await bot.sc.execute_fetchall("SELECT * FROM autogames") #auto games channel
     for row in autogameguilds:
         tempDict = {
@@ -276,21 +281,21 @@ async def setup_stuff(bot):
         }
         bot.autogames[row[0]] = tempDict
 
-    guilds = await bot.sc.execute_fetchall("SELECT * FROM ignoredchannels") #ingored channels for chat lvl
-    for channel in guilds:
+    xpguilds = await bot.sc.execute_fetchall("SELECT * FROM ignoredchannels") #ingored channels for chat lvl
+    for channel in xpguilds:
         try:    
             bot.xpignoredchannels[channel[0]][channel[1]] = channel[1]
         except KeyError:
             di = {channel[1]: channel[1]}
             bot.xpignoredchannels[channel[0]] = di
 
-    guilds = await bot.sc.execute_fetchall("SELECT * FROM levelrewards") #role rewards
-    for role in guilds:
+    xproleguilds = await bot.sc.execute_fetchall("SELECT * FROM levelrewards") #role rewards
+    for xprole in xproleguilds:
         try:    
-            bot.xproles[role[0]][role[1]] = role[2]
+            bot.xproles[xprole[0]][xprole[1]] = xprole[2]
         except KeyError:
-            di = {role[1]: role[2]}
-            bot.xproles[role[0]] = di
+            di = {xprole[1]: xprole[2]}
+            bot.xproles[xprole[0]] = di
 
     
     print('cache is setup!!')
