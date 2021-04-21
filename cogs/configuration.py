@@ -44,6 +44,8 @@ class Configuration(commands.Cog):
     async def role(self, ctx, level: int, role: discord.Role):
         if level >= 0 or not (level.isnumeric()):
             return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
+        if ctx.guild.me.top_role.position > role.position:
+            return await ctx.send('<a:x_:826577785173704754> Role is above my highest role!')
         self.bot.xproles[ctx.guild.id].update({level: role.id})
 
         query = 'SELECT * FROM levelrewards WHERE guild_id = ? AND level = ?' 
