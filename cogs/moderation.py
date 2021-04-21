@@ -438,7 +438,7 @@ class Moderation(commands.Cog):
         if len(string) > 150:
             return await ctx.send('<a:x_:826577785173704754> Text is too long.')
         def m_contains(m):
-            return string in m.content
+            return string.lower() in m.content.lower()
         with ctx.channel.typing():
             deleted = await ctx.channel.purge(limit=100, check=m_contains, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
             await ctx.send(f'Deleted {(len(deleted))} messages containing **{string}**! `:P`', delete_after=3.0)
