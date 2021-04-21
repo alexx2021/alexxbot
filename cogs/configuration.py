@@ -37,7 +37,7 @@ class Configuration(commands.Cog):
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `toggle`, `togglemessages`, `addrole`, `delrole`, `ignorechannel`, `unignorechannel`.')
 
 
-    @levels.command(help='Set certain roles to be given when a user gets to a certain chat level.')
+    @levels.command(help='Set certain roles to be given when a user gets to a certain level.')
     @commands.cooldown(3, 10, commands.BucketType.user)
     @has_permissions(manage_guild=True)
     @commands.guild_only()
@@ -410,7 +410,7 @@ class Configuration(commands.Cog):
             e = '<a:x_:826577785173704754> There is no autorole currently set up in this server.'
             await ctx.send(e)
 
-    @commands.command(help='Enable/disable chat games that are automatically sent to the channel you use this command with a delay of your choice!')
+    @commands.command(help='Enable/disable chat games that are automatically sent to the channel you use this command in!')
     @commands.cooldown(3, 10, commands.BucketType.user)
     @has_permissions(manage_guild=True)
     @commands.guild_only()
