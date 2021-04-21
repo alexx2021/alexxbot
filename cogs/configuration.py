@@ -34,7 +34,57 @@ class Configuration(commands.Cog):
     @commands.group(help='Use this to manage chat leveling settings.')
     async def levels(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `togglemessages`, `toggle`, `ignorechannel`, `unignorechannel`.')
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `toggle`, `togglemessages`, `role`, `delrole`, `ignorechannel`, `unignorechannel`.')
+
+
+    @levels.command(help='Set certain roles to be given when a user gets to a certain chat level.')
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    @has_permissions(manage_guild=True)
+    @commands.guild_only()
+    async def role(self, ctx, level: int, role: discord.Role):
+        if level >= 0 or not (level.isnumeric()):
+            return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
+        self.bot.xproles[ctx.guild.id].update({level: role.id})
+
+        query = 'SELECT * FROM levelrewards WHERE guild_id = ? AND level = ?' 
+        gid = ctx.guild.id
+        params = (gid, level)
+        guild = await self.bot.sc.execute_fetchall(query, params)
+        try:
+            if guild[9]:
+                return await ctx.send('<a:x_:826577785173704754> You are only allowed to create 10 role rewards per guild.')
+        except IndexError:
+            pass
+        if guild:
+            query = 'UPDATE levelrewards SET role_id = ? WHERE guild_id = ? AND level = ?'
+            params = (role.id, gid, level)
+            await self.bot.sc.execute(query, params)
+            await self.bot.sc.commit()
+            await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
+        else:
+            await self.bot.sc.execute('INSERT INTO levelrewards VALUES(?,?,?)',(gid, level, role.id))
+            await self.bot.sc.commit()
+            await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
+
+    @levels.command(help='Delete role reward settings')
+    @commands.cooldown(3, 10, commands.BucketType.user)
+    @has_permissions(manage_guild=True)
+    @commands.guild_only()
+    async def delrole(self, ctx, level: int):
+        if level >= 0 or not (level.isnumeric()):
+            return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
+        try:
+            self.bot.xproles[ctx.guild.id].pop(level)
+        except KeyError:
+            return await ctx.send('<a:x_:826577785173704754> There is no role reward assigned to this level.')
+
+        query = 'DELETE FROM levelrewards WHERE guild_id = ? AND level = ?' 
+        gid = ctx.guild.id
+        params = (gid, level)
+        await self.bot.sc.execute(query, params)
+        await ctx.send(f'<a:check:826577847023829032> The role reward assigned to level {level} was deleted.')
+    
+        
 
 
 

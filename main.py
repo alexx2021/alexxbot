@@ -279,6 +279,14 @@ async def setup_stuff(bot):
             di = {channel[1]: channel[1]}
             bot.xpignoredchannels[channel[0]] = di
 
+    guilds = await bot.sc.execute_fetchall("SELECT * FROM levelrewards") #role rewards
+    for role in guilds:
+        try:    
+            bot.xproles[role[0]][role[1]] = role[2]
+        except KeyError:
+            di = {role[1]: role[2]}
+            bot.xproles[role[0]] = di
+
     
     print('cache is setup!!')
     print(f'blacklist - {bot.ubl}')
