@@ -63,6 +63,8 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
         await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(server,))
         await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server,))
         await self.bot.sc.execute("DELETE FROM autogames WHERE guild_id = ?",(server,))
+        await self.bot.sc.execute("DELETE FROM ignoredchannels WHERE guild_id = ?",(server,))
+        await self.bot.sc.execute("DELETE FROM levelrewards WHERE guild_id = ?",(server,))
         await self.bot.sc.commit()
 
         await asyncio.sleep(0.25)
