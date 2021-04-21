@@ -352,7 +352,7 @@ class Configuration(commands.Cog):
             e = '<a:x_:826577785173704754> There is no autorole currently set up in this server.'
             await ctx.send(e)
 
-    @commands.command(help='Enable/disable chat games that are automatically sent to the channel you use this command in every 5-10 minutes!')
+    @commands.command(help='Enable/disable chat games that are automatically sent to the channel you use this command with a delay of your choice!')
     @commands.cooldown(3, 10, commands.BucketType.user)
     @has_permissions(manage_guild=True)
     @commands.guild_only()
