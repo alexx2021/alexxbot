@@ -351,6 +351,40 @@ async def send_react(self, message):
     await check_reaction(self, message, data, theEmbed, reactedBefore, antireactspam)
     self.bot.autogames[message.guild.id].update({"ongoing": 0})
 
+async def active_users_pop(self, msg):
+    try:
+        self.bot.autogames[msg.guild.id].pop(1)
+    except KeyError:
+        pass
+    try:
+        self.bot.autogames[msg.guild.id].pop(2)
+    except KeyError:
+        pass
+    try:
+        self.bot.autogames[msg.guild.id].pop(3)
+    except KeyError:
+        pass
+    #print('popped')
+
+async def check_1(self, msg):
+        try:
+            if self.bot.autogames[msg.guild.id][1]:
+                return True
+        except KeyError:
+            return False
+async def check_2(self, msg):
+        try:
+            if self.bot.autogames[msg.guild.id][2]:
+                return True
+        except KeyError:
+            return False
+async def check_3(self, msg):
+        try:
+            if self.bot.autogames[msg.guild.id][3]:
+                return True
+        except KeyError:
+            return False
+
 class AutoGames(commands.Cog):
     """WIP"""
     def __init__(self, bot):
@@ -383,20 +417,43 @@ class AutoGames(commands.Cog):
             ongoing = self.bot.autogames[guild]["ongoing"]
             delay = self.bot.autogames[guild]["delay"]
             if ch_id == message.channel.id:
+                if not await check_1(self, message):
+                    self.bot.autogames[guild][1] = message.author.id
+                    #print('1')
+                elif not await check_2(self, message):
+                    if self.bot.autogames[guild][1] == message.author.id:
+                        pass
+                    else:
+                        self.bot.autogames[guild][2] = message.author.id
+                        #print('2')
+                elif not await check_3(self, message):
+                    if self.bot.autogames[guild][1] == message.author.id:
+                        pass
+                    elif self.bot.autogames[guild][2] == message.author.id:
+                        pass
+                    else:
+                        self.bot.autogames[guild][3] = message.author.id
+                        #print('3')
+
                 perms = message.channel.permissions_for(message.guild.me)
                 if perms.send_messages:
-                    if (lastrun < (time.time() - (delay * 60)) and (ongoing != 1)):
-                        game = randint(1, 6)
+                    if (lastrun < (time.time() - (delay * 60)) and (ongoing != 1)) and (await check_1(self, message)) and (await check_2(self, message) and (await check_3(self, message))):
+                        game = randint(1, 7)
                         if game == 1:
+                            await active_users_pop(self, message)
                             return await send_word(self, message)
                         elif game == 2:
+                            await active_users_pop(self, message)
                             return await send_number(self, message)
                         elif game == 3:
+                            await active_users_pop(self, message)
                             return await send_backwards_number(self, message)
                         elif game == 4:
+                            await active_users_pop(self, message)
                             return await send_math(self, message)
                         elif game == 5:
                             if perms.add_reactions:
+                                await active_users_pop(self, message)
                                 return await send_react(self, message)
                         else:
                             pass
