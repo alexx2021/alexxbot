@@ -56,6 +56,7 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        await self.bot.wait_until_ready()
         try:
             if self.bot.sp["enabled"] == True:
                 print(f'{message.guild.name}({message.guild.id}) | {message.author}({message.author.id}) - {message.clean_content}')
