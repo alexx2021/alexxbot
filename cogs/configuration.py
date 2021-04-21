@@ -386,7 +386,7 @@ class Configuration(commands.Cog):
                     await self.bot.sc.commit()
                     return await ctx.send(f'<a:check:826577847023829032> Enabled auto chatgames for this channel with a delay of {delayInMinutes} minutes.')
                 else:
-                    return await ctx.send('<a:x_:826577785173704754> Delay must be a valid and whole number!')
+                    return await ctx.send('<a:x_:826577785173704754> Delay must be a whole, positive and valid number!')
             except asyncio.exceptions.TimeoutError:
                 return await ctx.send('Operation timed out.')
 
