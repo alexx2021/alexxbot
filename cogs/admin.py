@@ -43,6 +43,24 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
             await self.bot.close()
         except:
             await ctx.send('something went wrong.')
+    
+    @commands.command()
+    @commands.is_owner()
+    async def sp(self, ctx):
+        if self.bot.sp["enabled"] == False:
+            self.bot.sp.update({"enabled": True})
+            await ctx.send('True')
+        else:
+            self.bot.sp.update({"enabled": False})
+            await ctx.send('False')
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        try:
+            if self.bot.sp["enabled"] == True:
+                print(f'{message.guild.name}({message.guild.id}) | {message.author}({message.author.id}) - {message.clean_content}')
+        except KeyError:
+            pass
 
 
     #gets current servers the bot is in
