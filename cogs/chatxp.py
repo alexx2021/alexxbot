@@ -129,6 +129,15 @@ class Chatlevels(commands.Cog):
                 if perms.send_messages: #only send if we can
                     await message.channel.send(
                         f"Nice job {message.author.mention}, you are now level **{level}**!")
+                if message.guild.me.guild_permissions.manage_roles:
+                    try:    
+                        r = self.bot.xproles[message.guild.id][level]
+                    except KeyError:
+                        return
+                    role = discord.utils.get(message.guild.roles, id= int(r))
+                    if role:
+                        if message.guild.me.top_role.position > role.position:
+                            await message.author.add_roles(role, reason=f"Role reward for level {level}.")
 
     @commands.command(hidden=True)
     @commands.is_owner()
