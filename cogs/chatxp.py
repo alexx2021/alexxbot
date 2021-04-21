@@ -39,7 +39,7 @@ async def import_meesix(self, ctx):
                 return False
     
         
-class Chatlevels(commands.Cog):
+class Levels(commands.Cog):
     """💬 Commands related to the chat leveling module"""
     def __init__(self, bot):
         self.bot = bot    
@@ -423,4 +423,4 @@ class Chatlevels(commands.Cog):
         print('-----------dump-----------')
 
 def setup(bot):
-    bot.add_cog(Chatlevels(bot))
+    bot.add_cog(Levels(bot))
