@@ -44,8 +44,10 @@ class Configuration(commands.Cog):
     async def addrole(self, ctx, level: int, role: discord.Role):
         if level <= 0 or not (str(level).isnumeric()):
             return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
+        if ctx.author.top_role.position <= role.position:
+            return await ctx.send('<a:x_:826577785173704754> The role you chose is above your highest role.')
         if ctx.guild.me.top_role.position <= role.position:
-            return await ctx.send('<a:x_:826577785173704754> Role is above my highest role!')
+            return await ctx.send('<a:x_:826577785173704754> The role you chose is above my highest role.')
 
         query = 'SELECT * FROM levelrewards WHERE guild_id = ? AND level = ?' 
         gid = ctx.guild.id
