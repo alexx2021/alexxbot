@@ -331,10 +331,9 @@ class Chatlevels(commands.Cog):
         await ctx.send(embed=embed)
 
     #@commands.max_concurrency(1, per=BucketType.user, wait=False)
-    @bot_has_permissions(manage_messages=True)
+    @bot_has_permissions(add_reactions=True, manage_messages=True)
     @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
-    @bot_has_permissions(add_reactions=True)
     @commands.command(aliases=("top","lb"), help = 'View the server leaderboard!')
     async def leaderboard(self, ctx: commands.Context):
             error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
@@ -377,7 +376,22 @@ class Chatlevels(commands.Cog):
 
             await pager.start(ctx)
 
+    @bot_has_permissions(add_reactions=True, manage_messages=True)
+    @commands.cooldown(2, 10, commands.BucketType.user)
+    @commands.command(help='View the amount of XP you need for each level and more.',aliases=['ranks'])
+    async def xpchart(self, ctx):
+        lvls = []
+        for i in range(150):
+           lvls.append(f"Level: **{i}** \nTotal XP needed: {round(i ** 3.25)} \nXP needed to level up: {round(((i + 1) ** 3.25) - (i ** 3.25))}\n")
+        pager = Pag(
+            title=f"XP Leveling Chart", 
+            colour=discord.Colour.blurple(),
+            timeout=30,
+            entries=lvls,
+            length=10,
+        )
 
+        await pager.start(ctx)
 
     @commands.is_owner()
     @commands.command(hidden=True)
