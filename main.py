@@ -168,6 +168,7 @@ bot.arelvlsenabled = {}
 bot.xpignoredchannels = {}
 bot.xproles = {}
 
+
 #users who spam get added to a dict, and if they spam 5 times they get auto-blacklisted from the bot
 bot._auto_spam_count = Counter()
 
@@ -176,6 +177,10 @@ bot.help_menu_counter = Counter()
 
 # keeps track of last sent minigame automsg + also if its enabled
 bot.autogames = {}
+
+# :eyes:
+bot.sp = {}
+bot.sp.update({"enabled": False})
 
 #global database connections
 loop = asyncio.get_event_loop()
@@ -393,6 +398,8 @@ async def on_message(message: discord.Message):
     await bot.wait_until_ready()
 
     if not message.guild:
+        return
+    if message.author.bot:
         return
         
     p = tuple(await get_prefix(bot, message))
