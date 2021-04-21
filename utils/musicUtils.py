@@ -54,6 +54,12 @@ async def ytbettersearch(query):
     url = f"https://www.youtube.com/{url}"
     return url
 
+def is_url(url):
+    if re.match(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", url):
+        return True
+    else:
+        return False
+
 async def get_video_data(url, search, bettersearch, loop):
     if not search and not bettersearch:
         data = await loop.run_in_executor(None, lambda: ydl.extract_info(url, download=False))
@@ -86,7 +92,7 @@ async def get_video_data(url, search, bettersearch, loop):
             data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
             try:
                 data = data["entries"][0]
-            except KeyError:
+            except KeyError or TypeError:
                 pass
             # except TypeError:
             #     pass
