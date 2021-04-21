@@ -34,19 +34,18 @@ class Configuration(commands.Cog):
     @commands.group(help='Use this to manage chat leveling settings.')
     async def levels(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `toggle`, `togglemessages`, `role`, `delrole`, `ignorechannel`, `unignorechannel`.')
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `toggle`, `togglemessages`, `addrole`, `delrole`, `ignorechannel`, `unignorechannel`.')
 
 
     @levels.command(help='Set certain roles to be given when a user gets to a certain chat level.')
     @commands.cooldown(3, 10, commands.BucketType.user)
     @has_permissions(manage_guild=True)
     @commands.guild_only()
-    async def role(self, ctx, level: int, role: discord.Role):
-        if level >= 0 or not (level.isnumeric()):
+    async def addrole(self, ctx, level: int, role: discord.Role):
+        if level <= 0 or not (str(level).isnumeric()):
             return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
-        if ctx.guild.me.top_role.position > role.position:
+        if ctx.guild.me.top_role.position <= role.position:
             return await ctx.send('<a:x_:826577785173704754> Role is above my highest role!')
-        self.bot.xproles[ctx.guild.id].update({level: role.id})
 
         query = 'SELECT * FROM levelrewards WHERE guild_id = ? AND level = ?' 
         gid = ctx.guild.id
@@ -67,13 +66,19 @@ class Configuration(commands.Cog):
             await self.bot.sc.execute('INSERT INTO levelrewards VALUES(?,?,?)',(gid, level, role.id))
             await self.bot.sc.commit()
             await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
+        try:
+            enabled = self.bot.xproles[ctx.guild.id]
+            if enabled:
+                self.bot.xproles[ctx.guild.id].update({level: role.id})
+        except KeyError:
+            self.bot.xproles.update({ctx.guild.id: {level: role.id}})
 
     @levels.command(help='Delete role reward settings')
     @commands.cooldown(3, 10, commands.BucketType.user)
     @has_permissions(manage_guild=True)
     @commands.guild_only()
     async def delrole(self, ctx, level: int):
-        if level >= 0 or not (level.isnumeric()):
+        if level <= 0 or not (str(level).isnumeric()):
             return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
         try:
             self.bot.xproles[ctx.guild.id].pop(level)
@@ -84,6 +89,7 @@ class Configuration(commands.Cog):
         gid = ctx.guild.id
         params = (gid, level)
         await self.bot.sc.execute(query, params)
+        await self.bot.sc.commit()
         await ctx.send(f'<a:check:826577847023829032> The role reward assigned to level {level} was deleted.')
     
         
