@@ -97,6 +97,14 @@ class Configuration(commands.Cog):
                 return f"{l}"      
             except KeyError:
                 return "<:off:834549474100641812>"
+        async def _autogames():
+            try:   
+                data = self.bot.autogames[ctx.guild.id]
+                ch = data["channel_id"]
+                delay = data['delay']
+                return f"<:on1:834549521148411994> <#{int(ch)}> | Delay: {delay}min" 
+            except KeyError:
+                return "<:off:834549474100641812>"
 
 
 
@@ -110,6 +118,7 @@ class Configuration(commands.Cog):
         + f'\n*Autorole:* \n{await _autorole()}'
         + f'\n*Log channel:* \n{await _log()}'
         + f'\n*Welcome/Goodbye channel:* \n{await _welcomech()}'
+        + f'\n*Autogames:* \n{await _autogames()}'
             )
 
         e.add_field(name='Leveling settings', 
