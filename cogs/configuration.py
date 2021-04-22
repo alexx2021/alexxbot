@@ -162,6 +162,16 @@ class Configuration(commands.Cog):
     @has_permissions(manage_guild=True)
     @commands.guild_only()
     async def addrole(self, ctx, level: int, role: discord.Role):
+
+        try:
+            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            if 'TRUE' in enabled:
+                pass
+            else:
+                return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')
+        except KeyError:
+            return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')  
+
         if level <= 0 or not (str(level).isnumeric()):
             return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
         if ctx.author.top_role.position <= role.position:
@@ -200,6 +210,17 @@ class Configuration(commands.Cog):
     @has_permissions(manage_guild=True)
     @commands.guild_only()
     async def delrole(self, ctx, level: int):
+
+        try:
+            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            if 'TRUE' in enabled:
+                pass
+            else:
+                return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')
+        except KeyError:
+            return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')  
+
+
         if level <= 0 or not (str(level).isnumeric()):
             return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
         try:
