@@ -74,7 +74,7 @@ class Configuration(commands.Cog):
                 return "<:off:834549474100641812>"  
 
             try:
-                l = ''
+                l = '<:on1:834549521148411994>\n'
                 for key in self.bot.xpignoredchannels[ctx.guild.id].items():
                     l += f'<#{key[0]}>\n'
                 return f"{l}"      
@@ -91,7 +91,7 @@ class Configuration(commands.Cog):
                 return "<:off:834549474100641812>"  
 
             try:
-                l = ''
+                l = '<:on1:834549521148411994>\n'
                 for key in self.bot.xproles[ctx.guild.id].items():
                     l += f'Level {key[0]}: <@&{key[1]}>\n'
                 return f"{l}"      
