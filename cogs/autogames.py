@@ -33,7 +33,7 @@ async def give_xp(self, message):
                 new_xp = xp + xpToAdd
         else:
             xpToAdd = randint(15, 25)
-            new_xp = xp + round(((level * xpToAdd) / randint(2,3)))
+            new_xp = xp + round(((level * xpToAdd) / 2))
         
         query = 'UPDATE xp SET user_xp = ? WHERE guild_id = ? AND user_id = ?'
         params = (new_xp, gid, uid)
