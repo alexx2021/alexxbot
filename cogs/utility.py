@@ -381,8 +381,8 @@ class Utility(commands.Cog):
         user_id = int(ctx.author.id)
         channel_id = int(ctx.channel.id)
 
-        await self.bot.rm.execute("INSERT INTO giveaways VALUES(?, ?, ?, ?, ?)", (guild_id, channel_id, message_id, user_id, future))
-        await self.bot.rm.commit()
+        async with self.bot.db.acquire() as connection:
+            await connection.execute("INSERT INTO giveaways VALUES($1, $2, $3, $4, $5)", guild_id, channel_id, message_id, user_id, future)
 
     @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.command(help='Reminds you about something after the time you choose! \n __timeinput__: 1 second --> 1s, 1 minute --> 1m, 1 hour --> 1h, 1 day --> 1d \nChoose ONE time unit in the command.', aliases=["rm","remind"])
