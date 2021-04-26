@@ -219,7 +219,7 @@ async def setup_db(choice):
     await bot.db.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id BIGINT, prefix TEXT)")
 
     await bot.db.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id BIGINT, channel_id BIGINT, message_id BIGINT, user_id BIGINT, future BIGINT)")
-    await bot.db.execute("CREATE TABLE IF NOT EXISTS reminders(id BIGINT, future BIGINT, remindtext TEXT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS reminders(user_id BIGINT, ctx_id BIGINT, future BIGINT, remindtext TEXT)")
 
     await bot.db.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id BIGINT, user_id BIGINT)")
 

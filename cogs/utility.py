@@ -419,16 +419,16 @@ class Utility(commands.Cog):
         remindtext = text
         #await ctx.send(f'{future-seconds} = now, {int(time.time()+seconds)} = future time, {remindtext} = content  ')
 
-        rows3 = await self.bot.rm.execute_fetchall("SELECT OID, id, future, remindtext FROM reminders WHERE id = ?",(id,),)
-        if rows3 != []:
-            try:
-                if rows3[2]:
-                    return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, you cannot have more than 3 reminders at once!')
-            except IndexError:
-                pass
+        async with self.bot.db.acquire() as connection:
+            rows3 = await connection.fetch("SELECT * FROM reminders WHERE user_id = $1",(id))
+            if rows3 != []:
+                try:
+                    if rows3[2]:
+                        return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, you cannot have more than 3 reminders at once!')
+                except IndexError:
+                    pass
 
-        await self.bot.rm.execute("INSERT INTO reminders VALUES(?, ?, ?)", (id, future, remindtext))
-        await self.bot.rm.commit()
+            await connection.execute("INSERT INTO reminders VALUES($1, $2, $3, $4)", id, ctx.message.id, future, remindtext)
         
 
         await ctx.send(f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.")

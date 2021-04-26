@@ -4,8 +4,9 @@ from discord.ext import tasks
 import asyncio
 import time
 import datetime
+import logging
 
-
+logger = logging.getLogger('discord')
 
 
 
@@ -20,7 +21,8 @@ class Reminders(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.is_owner()
     @commands.command()
     async def dumpR(self, ctx):
-        rows = await self.bot.rm.execute_fetchall("SELECT OID, id, future, remindtext FROM reminders")
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetch("SELECT * FROM reminders")
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')
@@ -33,34 +35,40 @@ class Reminders(commands.Cog, command_attrs=dict(hidden=True)):
         x = 0
         while x < 10:
             x = x+1
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.5)
             future = int(time.time()+10)
             id = int(ctx.author.id)
             remindtext = str("test")
-            await self.bot.rm.execute("INSERT INTO reminders VALUES(?, ?, ?)", (id, future, remindtext))
-            await self.bot.rm.commit()
+            msgid = ctx.message.id
+            async with self.bot.db.acquire() as connection:
+                await connection.execute("INSERT INTO reminders VALUES($1, $2, $3, $4)", id, x, future, remindtext)
+            
+                rows2 = await connection.fetch("SELECT * FROM reminders")
+                print(rows2)
             
             await ctx.channel.send('done.')
 
 
 
-    @tasks.loop(seconds=10.0)
+    @tasks.loop(seconds=2.0)
     async def check_reminders(self):
-        current_time1 = f"{int(time.time())}"
-        rows = await self.bot.rm.execute_fetchall("SELECT OID, id, future, remindtext FROM reminders WHERE future <= ?",(current_time1,),)
+        current_time1 = int(time.time())
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetch("SELECT * FROM reminders WHERE future <= $1",(current_time1))
+        
         while rows != []:
             await asyncio.sleep(2)
             
             toprow = rows[0]
-            therowID = toprow[0]
-            theuserID = toprow[1]
-            themessagecontent = toprow[3]
+            theuserID = toprow["user_id"]
+            themessagecontent = toprow["remindtext"]
+            ctx_ = toprow["ctx_id"]
 
             try:
-                user = self.bot.get_user(theuserID)
+                user = self.bot.get_user(int(theuserID))
                 if not user:
-                    user = self.bot.fetch_user(theuserID)
-                    print('fetched user for reminder because get did not work')
+                    user = self.bot.fetch_user(int(theuserID))
+                    logger.warn(msg="Fetched user for reminder.")
                 #await user.send(f'You asked me to remind you about: **{themessagecontent}**')
                 embed = discord.Embed(color=0x7289da)
                 embed.title = f"You asked me to remind you about:" 
@@ -69,13 +77,12 @@ class Reminders(commands.Cog, command_attrs=dict(hidden=True)):
                 await user.send(embed=embed)
             except:
                 pass
-
-            TRID = f'{int(therowID)}'
-            await self.bot.rm.execute("DELETE FROM reminders WHERE OID = ?",(TRID,))
-            await self.bot.rm.commit()
             
-            current_time = f"{int(time.time())}"
-            rows = await self.bot.rm.execute_fetchall("SELECT OID, id, future, remindtext FROM reminders WHERE future <= ?",(current_time,),)
+            async with self.bot.db.acquire() as connection:
+                await connection.execute("DELETE FROM reminders WHERE ctx_id = $1", ctx_)
+                
+                current_time = int(time.time())
+                rows = await connection.fetch("SELECT * FROM reminders WHERE future <= $1",(current_time))
 
     @check_reminders.before_loop
     async def wait(self):
