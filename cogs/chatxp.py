@@ -50,6 +50,20 @@ async def addRoles(self, message, level):
             if message.guild.me.top_role.position > role.position:
                 await message.author.add_roles(role, reason=f"Role reward for level {level}.")
 
+async def on_level_up(self, level: int, message: discord.Message):
+    try:
+        if 'TRUE' in self.bot.arelvlmsg[message.guild.id]:
+            await addRoles(self, message, level)
+        else:
+            return await addRoles(self, message, level)
+    except KeyError:
+        return await addRoles(self, message, level)
+    
+    perms = message.channel.permissions_for(message.guild.me)
+    if perms.send_messages: #only send if we can
+        await message.channel.send(
+            f"Nice job {message.author.mention}, you are now level **{level}**!")
+
 class Levels(commands.Cog):
     """💬 Commands related to the chat leveling module"""
     def __init__(self, bot):
@@ -105,7 +119,7 @@ class Levels(commands.Cog):
                 level = (int (xp ** (1/3.25)))
                 new_level = (int (new_xp **(1/3.25)))
                 if new_level is not None and new_level > level:
-                    self.bot.dispatch("level_up", new_level, message)
+                    await on_level_up(self, new_level, message)
                 
                 query = 'UPDATE xp SET user_xp = ? WHERE guild_id = ? AND user_id = ?'
                 params = (new_xp, gid, uid)
@@ -126,25 +140,6 @@ class Levels(commands.Cog):
                 pass
             
             #print('Got xp!')
-
-
-
-
-
-    @commands.Cog.listener()
-    async def on_level_up(self, level: int, message: discord.Message):
-        try:
-            if 'TRUE' in self.bot.arelvlmsg[message.guild.id]:
-               await addRoles(self, message, level)
-            else:
-                return await addRoles(self, message, level)
-        except KeyError:
-            return await addRoles(self, message, level)
-        
-        perms = message.channel.permissions_for(message.guild.me)
-        if perms.send_messages: #only send if we can
-            await message.channel.send(
-                f"Nice job {message.author.mention}, you are now level **{level}**!")
 
 
     @commands.command(hidden=True)
