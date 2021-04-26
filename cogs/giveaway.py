@@ -19,27 +19,29 @@ class Giveaways(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.is_owner()
     @commands.command()
     async def dumpG(self, ctx):
-        rows = await self.bot.rm.execute_fetchall("SELECT OID, guild_id, channel_id, message_id, user_id, future FROM giveaways")
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetch("SELECT * FROM giveaways")
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')
         
         await ctx.channel.send('done.')
 
-    @tasks.loop(seconds=12.0)
+    @tasks.loop(seconds=2.0)
     async def check_giveaways(self):
-        current_time1 = f"{int(time.time())}"
-        rows = await self.bot.rm.execute_fetchall("SELECT guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time1,),)
+        current_time1 = int(time.time())
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetch("SELECT * FROM giveaways WHERE future <= $1",(current_time1))
+
 
         while rows != []:
             await asyncio.sleep(2)
             
             toprow = rows[0]
 
-            theguildID = toprow[0]
-            thechannelid = toprow[1]
-            themessageid = toprow[2]
-            theuserid = toprow[3]
+            thechannelid = toprow["channel_id"]
+            themessageid = toprow["message_id"]
+            theuserid = toprow["user_id"]
             
             bot = self.bot.get_user(BOT_ID)
             try:
@@ -48,10 +50,10 @@ class Giveaways(commands.Cog, command_attrs=dict(hidden=True)):
                 
                 users = await message.reactions[0].users().flatten()
             except:
-
-                await self.bot.rm.execute("DELETE FROM giveaways WHERE message_id = ?",(themessageid,))
-                await self.bot.rm.commit()
+                async with self.bot.db.acquire() as connection:
+                    await connection.execute("DELETE FROM giveaways WHERE message_id = $1",(themessageid))
                 return
+
             try:
                 users.pop(users.index(bot))
             except ValueError:
@@ -65,11 +67,12 @@ class Giveaways(commands.Cog, command_attrs=dict(hidden=True)):
 
                 await message.channel.send(f"**Congrats {winner.mention}!**\nPlease contact <@{theuserid}> about your prize.")                                       
 
-            await self.bot.rm.execute("DELETE FROM giveaways WHERE message_id = ?",(themessageid,))
-            await self.bot.rm.commit()
+                async with self.bot.db.acquire() as connection:
+                    await connection.execute("DELETE FROM giveaways WHERE message_id = $1",(themessageid))
+
             
-            current_time = f"{int(time.time())}"
-            rows = await self.bot.rm.execute_fetchall("SELECT guild_id, channel_id, message_id, user_id, future FROM giveaways WHERE future <= ?",(current_time,),)
+                    current_time = int(time.time())
+                    rows = await connection.fetch("SELECT * FROM giveaways WHERE future <= $1",(current_time))
     
     @check_giveaways.before_loop
     async def wait(self):
