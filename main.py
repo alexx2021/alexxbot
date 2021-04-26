@@ -218,13 +218,13 @@ async def blacklist_setup():
 async def setup_db(choice):
     await bot.db.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id BIGINT, prefix TEXT)")
 
-    await bot.db.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id BIGINT, channel_id BIGINT, message_id BIGINT, user_id BIGINT, future INTERGER)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id BIGINT, channel_id BIGINT, message_id BIGINT, user_id BIGINT, future BIGINT)")
     await bot.db.execute("CREATE TABLE IF NOT EXISTS reminders(id BIGINT, future BIGINT, remindtext TEXT)")
 
     await bot.db.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id BIGINT, user_id BIGINT)")
 
     await bot.db.execute("CREATE TABLE IF NOT EXISTS welcome(guild_id BIGINT, log_channel BIGINT, wMsg TEXT, bMsg TEXT)")
-    await bot.db.execute("CREATE TABLE IF NOT EXISTS logging(guild_id BIGINT, log_channel BIGINT")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS logging(guild_id BIGINT, log_channel BIGINT)")
     await bot.db.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id BIGINT, role_id BIGINT)")
     await bot.db.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id BIGINT, channel_id BIGINT, delay BIGINT)")
 
