@@ -37,7 +37,7 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
         
         
         try:   
-            data = self.bot.welcomecache[f"{member.guild.id}"]
+            data = self.bot.cache_welcome[f"{member.guild.id}"]
         except KeyError:
             return
 
@@ -54,7 +54,7 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
             except discord.errors.Forbidden:
                 await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
                 await self.bot.sc.commit()
-                self.bot.welcomecache.pop(f"{member.guild.id}")
+                self.bot.cache_welcome.pop(f"{member.guild.id}")
                 logger.info(msg=f'Deleted welc channel b/c the bot did not have perms to speak - {member.guild} ({member.guild.id})')
                 return
 
@@ -69,7 +69,7 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
         
         
         try:   
-            data = self.bot.welcomecache[f"{member.guild.id}"]
+            data = self.bot.cache_welcome[f"{member.guild.id}"]
         except KeyError:
             return
 
@@ -86,7 +86,7 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
             except discord.errors.Forbidden:
                 await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
                 await self.bot.sc.commit()
-                self.bot.welcomecache.pop(f"{member.guild.id}")
+                self.bot.cache_welcome.pop(f"{member.guild.id}")
                 logger.info(msg=f'Deleted welc channel b/c the bot did not have perms to speak - {member.guild} ({member.guild.id})')
                 return 
 

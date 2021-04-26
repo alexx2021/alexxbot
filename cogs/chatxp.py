@@ -42,7 +42,7 @@ async def import_meesix(self, ctx):
 async def addRoles(self, message, level):
     if message.guild.me.guild_permissions.manage_roles:
         try:    
-            r = self.bot.xproles[message.guild.id][level]
+            r = self.bot.cache_xproles[message.guild.id][level]
         except KeyError:
             return
         role = discord.utils.get(message.guild.roles, id= int(r))
@@ -52,7 +52,7 @@ async def addRoles(self, message, level):
 
 async def on_level_up(self, level: int, message: discord.Message):
     try:
-        if 'TRUE' in self.bot.arelvlmsg[message.guild.id]:
+        if 'TRUE' in self.bot.cache_lvlupmsg[message.guild.id]:
             await addRoles(self, message, level)
         else:
             return await addRoles(self, message, level)
@@ -84,7 +84,7 @@ class Levels(commands.Cog):
             return
         
         try:
-            enabled = self.bot.arelvlsenabled[f"{message.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{message.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -93,7 +93,7 @@ class Levels(commands.Cog):
             return
 
         try:
-            if self.bot.xpignoredchannels[ctx.guild.id][ctx.channel.id]:
+            if self.bot.cache_xpignoredchannels[ctx.guild.id][ctx.channel.id]:
                 return
         except KeyError:
             pass
@@ -167,7 +167,7 @@ class Levels(commands.Cog):
         warn = discord.Embed(description = 'You are about to reset your own XP and rank. \nAre you sure?', color = discord.Color.red(), title = 'Warning')       
         error = '<a:x_:826577785173704754> This guild does not have xp enabled! There is nothing to reset!'
         try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -261,7 +261,7 @@ class Levels(commands.Cog):
         warn = discord.Embed(description = 'You are about to reset the leveling system for this server.\n__ALL DATA WILL BE LOST__.\nAre you sure?', color = discord.Color.red(), title = 'Warning')
     
         try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 msg = await ctx.send(embed = warn)
                 await asyncio.sleep(0.25)
@@ -303,7 +303,7 @@ class Levels(commands.Cog):
     async def rank(self, ctx: commands.Context, member: discord.Member = None):
         error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
         try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -350,7 +350,7 @@ class Levels(commands.Cog):
     async def leaderboard(self, ctx: commands.Context):
             error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
             try:
-                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
                 if 'TRUE' in enabled:
                     pass
                 else:
@@ -422,7 +422,7 @@ class Levels(commands.Cog):
         print('-----------dump-----------')
         print(settings)
         print('--------------------------')
-        print(self.bot.arelvlsenabled)
+        print(self.bot.cache_lvlsenabled)
         print('-----------dump-----------')
 
 def setup(bot):

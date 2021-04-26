@@ -18,7 +18,7 @@ class Logging(commands.Cog, command_attrs=dict(hidden=True)):
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')
-        print(self.bot.logcache)
+        print(self.bot.cache_logs)
         print('-----------dump-----------')
         
         await ctx.channel.send('done.')

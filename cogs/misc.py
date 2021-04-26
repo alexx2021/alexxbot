@@ -91,7 +91,7 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         try:
-            enabled = self.bot.arelvlsenabled[f"{member.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{member.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:

@@ -230,7 +230,7 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
         async with aiosqlite.connect('blacklists.db') as c:
             await c.execute("INSERT INTO whitelist VALUES(?)", (guild,))
             await c.commit()
-        self.bot.whitelist.update({guild : True})
+        self.bot.cache_whitelist.update({guild : True})
         await ctx.send(f'Guild with id of `{guild}` was whitelisted ✅')
 
     @commands.command()
@@ -239,7 +239,7 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
         async with aiosqlite.connect('blacklists.db') as c:
             await c.execute("DELETE FROM whitelist WHERE guild_id = ?",(guild,))
             await c.commit()
-            self.bot.whitelist.update({guild : False})
+            self.bot.cache_whitelist.update({guild : False})
         await ctx.send(f'Guild with id of `{guild}` was removed from the whitelist ✅')
 
 

@@ -16,7 +16,7 @@ class aR(commands.Cog, command_attrs=dict(hidden=True)):
         print('-----------dump-----------')
         print(roles)
         print('--------------------------')
-        print(self.bot.autorolecache)
+        print(self.bot.cache_autorole)
         print('-----------dump-----------')
 
 
@@ -27,7 +27,7 @@ class aR(commands.Cog, command_attrs=dict(hidden=True)):
         else:
             if member.guild.me.guild_permissions.manage_roles:
                 try:    
-                    r = self.bot.autorolecache[f"{member.guild.id}"]
+                    r = self.bot.cache_autorole[f"{member.guild.id}"]
                 except KeyError:
                     return
                 role = discord.utils.get(member.guild.roles, id= int(r))
@@ -49,7 +49,7 @@ class aR(commands.Cog, command_attrs=dict(hidden=True)):
             if after.pending is False:
                 if before.guild.me.guild_permissions.manage_roles:
                     try:    
-                        r = self.bot.autorolecache[f"{before.guild.id}"]
+                        r = self.bot.cache_autorole[f"{before.guild.id}"]
                     except KeyError:
                         return
                     role = discord.utils.get(before.guild.roles, id= int(r))

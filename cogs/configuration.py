@@ -20,26 +20,26 @@ class Configuration(commands.Cog):
             ).set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         async def _log():
             if await check_if_log(self, ctx.guild):
-                ch = self.bot.logcache[f"{ctx.guild.id}"]
+                ch = self.bot.cache_logs[f"{ctx.guild.id}"]
                 return f"<:on1:834549521148411994> <#{int(ch)}>"
             else:
                 return "<:off:834549474100641812>"
         async def _autorole():
             try:
-                r = self.bot.autorolecache[f"{ctx.guild.id}"]
+                r = self.bot.cache_autorole[f"{ctx.guild.id}"]
                 return f"<:on1:834549521148411994> <@&{int(r)}>"
             except KeyError:
                 return "<:off:834549474100641812>"
         async def _welcomech():
             try:   
-                data = self.bot.welcomecache[f"{ctx.guild.id}"]
+                data = self.bot.cache_welcome[f"{ctx.guild.id}"]
                 logch = data["logch"]
                 return f"<:on1:834549521148411994> <#{int(logch)}>"
             except KeyError:
                 return "<:off:834549474100641812>"
         async def _levels():
             try:
-                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
                 if 'TRUE' in enabled:
                     return "<:on1:834549521148411994>"
                 else:
@@ -48,7 +48,7 @@ class Configuration(commands.Cog):
                 return "<:off:834549474100641812>"  
         async def _levelmessages():
             try:
-                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
                 if 'TRUE' in enabled:
                     pass
                 else:
@@ -57,7 +57,7 @@ class Configuration(commands.Cog):
                 return "<:off:834549474100641812>"  
 
             try:
-                if 'TRUE' in self.bot.arelvlmsg[ctx.guild.id]:
+                if 'TRUE' in self.bot.cache_lvlupmsg[ctx.guild.id]:
                     return "<:on1:834549521148411994>"
                 else:
                     return "<:off:834549474100641812>"  
@@ -65,7 +65,7 @@ class Configuration(commands.Cog):
                 return "<:off:834549474100641812>" 
         async def _noxpch():
             try:
-                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
                 if 'TRUE' in enabled:
                     pass
                 else:
@@ -75,14 +75,14 @@ class Configuration(commands.Cog):
 
             try:
                 l = '<:on1:834549521148411994>\n'
-                for key in self.bot.xpignoredchannels[ctx.guild.id].items():
+                for key in self.bot.cache_xpignoredchannels[ctx.guild.id].items():
                     l += f'<#{key[0]}>\n'
                 return f"{l}"      
             except KeyError:
                 return "<:off:834549474100641812>"
         async def _roleRewards():
             try:
-                enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+                enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
                 if 'TRUE' in enabled:
                     pass
                 else:
@@ -92,7 +92,7 @@ class Configuration(commands.Cog):
 
             try:
                 l = '<:on1:834549521148411994>\n'
-                for key in self.bot.xproles[ctx.guild.id].items():
+                for key in self.bot.cache_xproles[ctx.guild.id].items():
                     l += f'Level {key[0]}: <@&{key[1]}>\n'
                 return f"{l}"      
             except KeyError:
@@ -142,11 +142,11 @@ class Configuration(commands.Cog):
         if custom:
             await self.bot.pr.execute("UPDATE prefixes SET prefix = ? WHERE guild_id = ?",(prefix, ctx.guild.id,),)
             await self.bot.pr.commit()
-            self.bot.prefixes.update({f"{ctx.guild.id}" : f"{prefix}"})
+            self.bot.cache_prefixes.update({f"{ctx.guild.id}" : f"{prefix}"})
         else:    
             await self.bot.pr.execute("INSERT INTO prefixes VALUES (?, ?)",(ctx.guild.id, prefix),)
             await self.bot.pr.commit()
-            self.bot.prefixes.update({f"{ctx.guild.id}" : f"{prefix}"})
+            self.bot.cache_prefixes.update({f"{ctx.guild.id}" : f"{prefix}"})
             
         e = f'<a:check:826577847023829032> Set prefix to `{prefix}`'
         await ctx.send(e)
@@ -164,7 +164,7 @@ class Configuration(commands.Cog):
     async def addrole(self, ctx, level: int, role: discord.Role):
 
         try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -199,11 +199,11 @@ class Configuration(commands.Cog):
             await self.bot.sc.commit()
             await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
         try:
-            enabled = self.bot.xproles[ctx.guild.id]
+            enabled = self.bot.cache_xproles[ctx.guild.id]
             if enabled:
-                self.bot.xproles[ctx.guild.id].update({level: role.id})
+                self.bot.cache_xproles[ctx.guild.id].update({level: role.id})
         except KeyError:
-            self.bot.xproles.update({ctx.guild.id: {level: role.id}})
+            self.bot.cache_xproles.update({ctx.guild.id: {level: role.id}})
 
     @levels.command(help='Delete role reward settings')
     @commands.cooldown(3, 10, commands.BucketType.user)
@@ -212,7 +212,7 @@ class Configuration(commands.Cog):
     async def delrole(self, ctx, level: int):
 
         try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -224,7 +224,7 @@ class Configuration(commands.Cog):
         if level <= 0 or not (str(level).isnumeric()):
             return await ctx.send('<a:x_:826577785173704754> Level must be greater than zero and a whole number.')
         try:
-            self.bot.xproles[ctx.guild.id].pop(level)
+            self.bot.cache_xproles[ctx.guild.id].pop(level)
         except KeyError:
             return await ctx.send('<a:x_:826577785173704754> There is no role reward assigned to this level.')
 
@@ -248,7 +248,7 @@ class Configuration(commands.Cog):
         err = '<a:x_:826577785173704754> This channel is already ignored by the xp system.'
         
         try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -257,14 +257,14 @@ class Configuration(commands.Cog):
             return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')  
 
         try:
-            ignored = self.bot.xpignoredchannels[ctx.guild.id][ctx.channel.id]
+            ignored = self.bot.cache_xpignoredchannels[ctx.guild.id][ctx.channel.id]
             if ignored:
                 return await ctx.send(err)
         except KeyError:
             pass
 
         try:
-            keys = self.bot.xpignoredchannels[ctx.guild.id]
+            keys = self.bot.cache_xpignoredchannels[ctx.guild.id]
             counter = 0
             for key in keys.items():
                 counter += 1
@@ -274,11 +274,11 @@ class Configuration(commands.Cog):
             pass
 
         try:    
-            self.bot.xpignoredchannels[ctx.guild.id][ctx.channel.id] = ctx.channel.id
+            self.bot.cache_xpignoredchannels[ctx.guild.id][ctx.channel.id] = ctx.channel.id
         except KeyError:
             #print('ke')
             di = {ctx.channel.id: ctx.channel.id}
-            self.bot.xpignoredchannels[ctx.guild.id] = di
+            self.bot.cache_xpignoredchannels[ctx.guild.id] = di
 
         await self.bot.sc.execute('INSERT INTO ignoredchannels VALUES(?,?)',(ctx.guild.id, ctx.channel.id))
         await self.bot.sc.commit()
@@ -293,7 +293,7 @@ class Configuration(commands.Cog):
         err = '<a:x_:826577785173704754> This channel is not ignored by the xp system!'
         
         try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -302,7 +302,7 @@ class Configuration(commands.Cog):
             return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')  
 
         try:    
-            self.bot.xpignoredchannels[ctx.guild.id].pop(ctx.channel.id)
+            self.bot.cache_xpignoredchannels[ctx.guild.id].pop(ctx.channel.id)
         except KeyError:
             return await ctx.send(err)
 
@@ -327,7 +327,7 @@ class Configuration(commands.Cog):
         off = '<a:check:826577847023829032> Disabled leveling messages!'
         
         try:
-            enabled = self.bot.arelvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -341,17 +341,17 @@ class Configuration(commands.Cog):
             if guild[0][1] == 'TRUE':
                 await self.bot.xp.execute('UPDATE lvlsenabled SET enabled = ? WHERE guild_id = ?',('FALSE',ctx.guild.id))
                 await self.bot.xp.commit()
-                self.bot.arelvlmsg.update({ctx.guild.id: 'FALSE'})
+                self.bot.cache_lvlupmsg.update({ctx.guild.id: 'FALSE'})
                 await ctx.send(off)
             else:
                 await self.bot.xp.execute('UPDATE lvlsenabled SET enabled = ? WHERE guild_id = ?',('TRUE',ctx.guild.id))
                 await self.bot.xp.commit()
-                self.bot.arelvlmsg.update({ctx.guild.id: 'TRUE'})
+                self.bot.cache_lvlupmsg.update({ctx.guild.id: 'TRUE'})
                 await ctx.send(on)
         else:
             await self.bot.xp.execute('INSERT INTO lvlsenabled VALUES(?,?)',(ctx.guild.id,'TRUE'))
             await self.bot.xp.commit()
-            self.bot.arelvlmsg.update({ctx.guild.id: 'TRUE'})
+            self.bot.cache_lvlupmsg.update({ctx.guild.id: 'TRUE'})
             await ctx.send(on)
 
     @commands.cooldown(2, 10, commands.BucketType.user)
@@ -386,7 +386,7 @@ class Configuration(commands.Cog):
                         await self.bot.xp.execute(query, params)
                         await self.bot.xp.execute('UPDATE chatlvlsenabled SET enabled = ? WHERE guild_id = ?',('FALSE',ctx.guild.id))
                         await self.bot.xp.commit()
-                        self.bot.arelvlsenabled.update({f"{ctx.guild.id}": f"FALSE"})
+                        self.bot.cache_lvlsenabled.update({f"{ctx.guild.id}": f"FALSE"})
                         
                         await ctx.send(off)
                     else:
@@ -395,13 +395,13 @@ class Configuration(commands.Cog):
                 if guild[0][1] == 'FALSE':
                     await self.bot.xp.execute('UPDATE chatlvlsenabled SET enabled = ? WHERE guild_id = ?',('TRUE',ctx.guild.id))
                     await self.bot.xp.commit()
-                    self.bot.arelvlsenabled.update({f"{ctx.guild.id}": f"TRUE"})
+                    self.bot.cache_lvlsenabled.update({f"{ctx.guild.id}": f"TRUE"})
                     await ctx.send(on)
 
             else:
                 await self.bot.xp.execute('INSERT INTO chatlvlsenabled VALUES(?,?)',(ctx.guild.id,'TRUE'))
                 await self.bot.xp.commit()
-                self.bot.arelvlsenabled.update({f"{ctx.guild.id}": f"TRUE"})
+                self.bot.cache_lvlsenabled.update({f"{ctx.guild.id}": f"TRUE"})
                 await ctx.send(on)
         
         except asyncio.exceptions.TimeoutError:
@@ -424,7 +424,7 @@ class Configuration(commands.Cog):
         rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
         
         if rows == []:
-            self.bot.logcache.update({f"{ctx.guild.id}" : f"{local_log_channel}"})
+            self.bot.cache_logs.update({f"{ctx.guild.id}" : f"{local_log_channel}"})
 
             await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, local_log_channel, null))
             await self.bot.sc.commit()
@@ -434,7 +434,7 @@ class Configuration(commands.Cog):
             rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
             if rows != []:
                 try:
-                    self.bot.logcache.pop(f"{ctx.guild.id}")
+                    self.bot.cache_logs.pop(f"{ctx.guild.id}")
                 except KeyError:
                     pass
                 await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
@@ -497,7 +497,7 @@ class Configuration(commands.Cog):
             "wMsg" : wMsg,
             "bMsg" : bMsg
                     }
-            self.bot.welcomecache.update({f'{ctx.guild.id}': di})                
+            self.bot.cache_welcome.update({f'{ctx.guild.id}': di})                
             await ctx.send(localON)
 
         else:
@@ -507,7 +507,7 @@ class Configuration(commands.Cog):
                 await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server_id,))
                 await self.bot.sc.commit()
                 try:
-                    self.bot.welcomecache.pop(f"{ctx.guild.id}")
+                    self.bot.cache_welcome.pop(f"{ctx.guild.id}")
                 except KeyError:
                     pass
                 await ctx.send(off)
@@ -534,11 +534,11 @@ class Configuration(commands.Cog):
         if auto:
             await self.bot.sc.execute("UPDATE autorole SET role_id = ? WHERE guild_id = ?",(role.id, ctx.guild.id,),)
             await self.bot.sc.commit()
-            self.bot.autorolecache.update({f"{ctx.guild.id}" : f"{role.id}"})
+            self.bot.cache_autorole.update({f"{ctx.guild.id}" : f"{role.id}"})
         else:    
             await self.bot.sc.execute("INSERT INTO autorole VALUES (?, ?)",(ctx.guild.id, role.id),)
             await self.bot.sc.commit()
-            self.bot.autorolecache.update({f"{ctx.guild.id}" : f"{role.id}"})
+            self.bot.cache_autorole.update({f"{ctx.guild.id}" : f"{role.id}"})
             
         e = f'<a:check:826577847023829032> Set the autorole to {role.mention}'
         await ctx.send(e)
@@ -551,7 +551,7 @@ class Configuration(commands.Cog):
         auto = await self.bot.sc.execute_fetchall("SELECT * FROM autorole WHERE guild_id = ?",(ctx.guild.id,),)
         if auto:
             try:
-                self.bot.autorolecache.pop(f"{ctx.guild.id}")
+                self.bot.cache_autorole.pop(f"{ctx.guild.id}")
             except KeyError:
                 pass
             await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(ctx.guild.id,))
@@ -560,7 +560,7 @@ class Configuration(commands.Cog):
             await ctx.send(e)
         else:
             try:
-                self.bot.autorolecache.pop(f"{ctx.guild.id}")
+                self.bot.cache_autorole.pop(f"{ctx.guild.id}")
             except KeyError:
                 pass
             e = '<a:x_:826577785173704754> There is no autorole currently set up in this server.'

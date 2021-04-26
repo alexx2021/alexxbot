@@ -70,7 +70,7 @@ async def get_or_fetch_guild(self, guild_id): #from r danny :)
 ########################LOGGING###########################
 async def sendlog(self, guild, content):
     try:   
-        ch = self.bot.logcache[f"{guild.id}"]
+        ch = self.bot.cache_logs[f"{guild.id}"]
         channel = await get_or_fetch_channel(self, int(ch)) #discord.utils.get(guild.channels, id=int(ch))
         if channel:
             await channel.send(embed=content)
@@ -79,13 +79,13 @@ async def sendlog(self, guild, content):
     except discord.errors.Forbidden:
         await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
         await self.bot.sc.commit()
-        self.bot.logcache.pop(f"{guild.id}")
+        self.bot.cache_logs.pop(f"{guild.id}")
         logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
         return
 
 async def sendlogFile(self, guild, content):
     try:   
-        ch = self.bot.logcache[f"{guild.id}"]
+        ch = self.bot.cache_logs[f"{guild.id}"]
         channel = await get_or_fetch_channel(self, int(ch)) #discord.utils.get(guild.channels, id=int(ch))
         if channel:
             perms = channel.permissions_for(channel.guild.me)
@@ -97,13 +97,13 @@ async def sendlogFile(self, guild, content):
     except discord.errors.Forbidden:
         await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
         await self.bot.sc.commit()
-        self.bot.logcache.pop(f"{guild.id}")
+        self.bot.cache_logs.pop(f"{guild.id}")
         logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
         return
 
 async def check_if_log(self, guild):
     try:
-        check = self.bot.logcache[f"{guild.id}"]
+        check = self.bot.cache_logs[f"{guild.id}"]
         #print('CheckifLog True')
         return True
     except KeyError:
@@ -114,19 +114,19 @@ async def blacklist_user(self, user: discord.User):
     await self.bot.bl.execute("INSERT INTO userblacklist VALUES(?)", (user.id,))
     await self.bot.bl.commit()
     
-    self.bot.ubl.update({user.id : True})
+    self.bot.cache_ubl.update({user.id : True})
 
 async def unblacklist_user(self, user: discord.User):
     await self.bot.bl.execute("DELETE FROM userblacklist WHERE user_id = ?",(user.id,))
     await self.bot.bl.commit()
     
-    self.bot.ubl.update({user.id : False})
+    self.bot.cache_ubl.update({user.id : False})
 
 async def blacklist_user_main(bot, user: discord.User):
     await bot.bl.execute("INSERT INTO userblacklist VALUES(?)", (user.id,))
     await bot.bl.commit()
     
-    bot.ubl.update({user.id : True})
+    bot.cache_ubl.update({user.id : True})
 ########################HELP###########################
 async def help_paginate(self, bot, msg):
     perms = self.context.channel.permissions_for(self.context.guild.me)
@@ -239,7 +239,7 @@ async def is_wl(ctx):
     
     bot = ctx.bot
     
-    if bot.whitelist[ctx.guild.id] == True:
+    if bot.cache_whitelist[ctx.guild.id] == True:
         return True
     else:
         await ctx.send('<a:x_:826577785173704754> This guild is not whitelisted to use this command.')

@@ -8,6 +8,7 @@ from discord.ext import commands
 import os
 import logging
 import aiosqlite
+import asyncpg
 from dotenv import load_dotenv
 from collections import Counter, defaultdict
 from discord import Activity, ActivityType
@@ -36,8 +37,8 @@ async def get_prefix(bot, msg: discord.Message):
         base.append('_')
     else:
         try:   
-            if bot.prefixes[f"{msg.guild.id}"]:
-                base.append(str(bot.prefixes[f"{msg.guild.id}"]))
+            if bot.cache_prefixes[f"{msg.guild.id}"]:
+                base.append(str(bot.cache_prefixes[f"{msg.guild.id}"]))
                 #print('used cache for prefix')
                 return base
         except KeyError:
@@ -47,10 +48,10 @@ async def get_prefix(bot, msg: discord.Message):
         #print('used db for prefix')
         if custom != []:
             base.append(custom[0][1])
-            bot.prefixes.update({f"{msg.guild.id}" : f"{custom[0][1]}"})
+            bot.cache_prefixes.update({f"{msg.guild.id}" : f"{custom[0][1]}"})
         else:
             base.append('_')
-            bot.prefixes.update({f"{msg.guild.id}" : f"_"})
+            bot.cache_prefixes.update({f"{msg.guild.id}" : f"_"})
 
     return base
 
@@ -158,16 +159,16 @@ def def_value():
     return False
 
 #cache database stuff
-bot.prefixes = {}
-bot.ubl = defaultdict(def_value)
-bot.whitelist = defaultdict(def_value)
-bot.logcache = {}
-bot.autorolecache = {}
-bot.welcomecache = {}
-bot.arelvlsenabled = {}
-bot.arelvlmsg = {}
-bot.xpignoredchannels = {}
-bot.xproles = {}
+bot.cache_prefixes = {}
+bot.cache_ubl = defaultdict(def_value)
+bot.cache_whitelist = defaultdict(def_value)
+bot.cache_logs = {}
+bot.cache_autorole = {}
+bot.cache_welcome = {}
+bot.cache_lvlsenabled = {}
+bot.cache_lvlupmsg = {}
+bot.cache_xpignoredchannels = {}
+bot.cache_xproles = {}
 
 
 #users who spam get added to a dict, and if they spam 5 times they get auto-blacklisted from the bot
@@ -183,6 +184,14 @@ bot.autogames = {}
 bot.sp = {}
 bot.sp.update({"enabled": False})
 
+
+
+credentials = {
+    "user": "alexander",
+    "database": "alexander",
+    "host": "127.0.0.1",
+}
+
 #global database connections
 loop = asyncio.get_event_loop()
 bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
@@ -192,16 +201,43 @@ bot.rm = loop.run_until_complete(aiosqlite.connect('reminders.db'))
 bot.m = loop.run_until_complete(aiosqlite.connect('muted.db')) #todo - maybe merge this with another db?
 bot.xp = loop.run_until_complete(aiosqlite.connect('chatxp.db'))
 
-
+bot.db = loop.run_until_complete(asyncpg.create_pool(**credentials))
 
 
 
 async def blacklist_setup():
+
     await bot.bl.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
     await bot.bl.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
     await bot.bl.execute("CREATE TABLE IF NOT EXISTS whitelist(guild_id INTERGER)")
+###########################################################################################
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS whitelist(guild_id BIGINT)")
 
 async def setup_db(choice):
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id BIGINT, prefix TEXT)")
+
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id BIGINT, channel_id BIGINT, message_id BIGINT, user_id BIGINT, future INTERGER)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS reminders(id BIGINT, future BIGINT, remindtext TEXT)")
+
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id BIGINT, user_id BIGINT)")
+
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS welcome(guild_id BIGINT, log_channel BIGINT, wMsg TEXT, bMsg TEXT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS logging(guild_id BIGINT, log_channel BIGINT")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id BIGINT, role_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id BIGINT, channel_id BIGINT, delay BIGINT)")
+
+
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_rewards(guild_id BIGINT, level BIGINT, role_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_ignoredchannels(guild_id BIGINT, channel_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_enabled(guild_id BIGINT, enabled TEXT)")  #lvls in general       
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_lvlup(guild_id BIGINT, enabled TEXT)") #lvl msgs
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp(guild_id BIGINT, user_id BIGINT, user_xp BIGINT)")
+
+###########################################################################################
+
+
     if choice == True:
         print('bop')    
         await bot.pr.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id INTERGER, prefix TEXT)")
@@ -231,27 +267,27 @@ async def setup_stuff(bot):
     
     guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes") # prefix cache
     for guild in guilds:
-        bot.prefixes[f"{guild[0]}"] = f"{guild[1]}"
+        bot.cache_prefixes[f"{guild[0]}"] = f"{guild[1]}"
 
     
     users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist") #blacklist cache
     yes = True
     for user in users:
-        bot.ubl[user[0]] = yes
+        bot.cache_ubl[user[0]] = yes
 
     servers = await bot.bl.execute_fetchall("SELECT * FROM whitelist") #whitelist cache
     yes = True
     for server in servers:
-        bot.whitelist[server[0]] = yes
+        bot.cache_whitelist[server[0]] = yes
     
 
     logs = await bot.sc.execute_fetchall("SELECT server_id, log_channel FROM logging") #logging ch cache
     for log in logs:
-        bot.logcache[f"{log[0]}"] = f"{log[1]}"
+        bot.cache_logs[f"{log[0]}"] = f"{log[1]}"
 
     roles = await bot.sc.execute_fetchall("SELECT * FROM autorole") #autorole id cache
     for role in roles:
-        bot.autorolecache[f"{role[0]}"] = f"{role[1]}"
+        bot.cache_autorole[f"{role[0]}"] = f"{role[1]}"
 
     msgs = await bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome")
     for msg in msgs:
@@ -260,15 +296,15 @@ async def setup_stuff(bot):
         "wMsg" : msg[2],
         "bMsg" : msg[3]
                 }
-        bot.welcomecache[f'{msg[0]}'] = di
+        bot.cache_welcome[f'{msg[0]}'] = di
     
     xp = await bot.xp.execute_fetchall("SELECT * FROM chatlvlsenabled") #chat lvl enabled
     for enabled in xp:
-        bot.arelvlsenabled[f"{enabled[0]}"] = f"{enabled[1]}"
+        bot.cache_lvlsenabled[f"{enabled[0]}"] = f"{enabled[1]}"
 
     xpmsg = await bot.xp.execute_fetchall("SELECT * FROM lvlsenabled") #chat lvl enabled
     for enabled2 in xpmsg:
-        bot.arelvlmsg[enabled2[0]] = enabled2[1]
+        bot.cache_lvlupmsg[enabled2[0]] = enabled2[1]
 
     autogameguilds = await bot.sc.execute_fetchall("SELECT * FROM autogames") #auto games channel
     for row in autogameguilds:
@@ -283,22 +319,22 @@ async def setup_stuff(bot):
     xpguilds = await bot.sc.execute_fetchall("SELECT * FROM ignoredchannels") #ingored channels for chat lvl
     for channel in xpguilds:
         try:    
-            bot.xpignoredchannels[channel[0]][channel[1]] = channel[1]
+            bot.cache_xpignoredchannels[channel[0]][channel[1]] = channel[1]
         except KeyError:
             di = {channel[1]: channel[1]}
-            bot.xpignoredchannels[channel[0]] = di
+            bot.cache_xpignoredchannels[channel[0]] = di
 
     xproleguilds = await bot.sc.execute_fetchall("SELECT * FROM levelrewards") #role rewards
     for xprole in xproleguilds:
         try:    
-            bot.xproles[xprole[0]][xprole[1]] = xprole[2]
+            bot.cache_xproles[xprole[0]][xprole[1]] = xprole[2]
         except KeyError:
             di = {xprole[1]: xprole[2]}
-            bot.xproles[xprole[0]] = di
+            bot.cache_xproles[xprole[0]] = di
 
     
     print('cache is setup!!')
-    print(f'blacklist - {bot.ubl}')
+    print(f'blacklist - {bot.cache_ubl}')
 
 
 extensions = (
@@ -409,7 +445,7 @@ async def on_message(message: discord.Message):
     p = tuple(await get_prefix(bot, message))
 
     if message.content.startswith(p): # only query cache if a command is run
-        if bot.ubl[message.author.id] == True:
+        if bot.cache_ubl[message.author.id] == True:
             return
 
 ######################################################################################################
@@ -417,7 +453,7 @@ async def on_message(message: discord.Message):
     if not message.author.bot: #bots dont trigger this
         if message.content in [f'<@!{bot.user.id}>', f'<@{bot.user.id}>']: #check if msg is a mention
             
-            if bot.ubl[message.author.id] == True:
+            if bot.cache_ubl[message.author.id] == True:
                 return
             else:
                 if message.guild:
@@ -462,7 +498,7 @@ async def dumppr(ctx):
     print('-----------dump-----------')
     print(guilds)
     print('--------------------------')
-    print(bot.prefixes)
+    print(bot.cache_prefixes)
     print('-----------dump-----------')
 
 @commands.is_owner()
@@ -472,7 +508,7 @@ async def dumpbl(ctx):
     print('-----------dump-----------')
     print(users)
     print('--------------------------')
-    print(bot.ubl)
+    print(bot.cache_ubl)
     print('-----------dump-----------')
 
 
