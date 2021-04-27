@@ -1,8 +1,3 @@
-    # @discord.utils.cached_property
-    # def webhook(self):
-    #     hook = Webhook.from_url(os.getenv('SWH'), adapter=AsyncWebhookAdapter(self.bot.session))
-    #     return hook
-
 import discord
 from discord.ext import commands
 import datetime
@@ -32,42 +27,7 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
             return await ctx.send(f'<a:x_:826577785173704754> Command is missing required arguments. Correct usage: `{ctx.command} {ctx.command.signature}`')
         
         elif isinstance(error, commands.CommandOnCooldown):
-            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, That command is on cooldown for another **{round(error.retry_after, 2)}** seconds.')
-            
-            # msg = ctx.message.clean_content
-            # if len(msg) >= 1023:
-            #     channel = self.bot.get_channel(813600852576829470)
-            #     await channel.send(f'**{ctx.author} ({ctx.author.id}) used a command with over 1024 chars. hmmm. blacklist them maybe?** :thinking:')
-            #     return
-
-            # if ctx.message.guild:
-            #     embed = discord.Embed(
-            #     title=f"Command used. (triggered cooldown)",
-            #     colour=0
-            #     )
-            #     embed.add_field(name=f"Where:", value=f"{ctx.guild.name} \n{ctx.guild.id}")
-            #     embed.add_field(name=f"Who:", value=f"{ctx.author} \n{ctx.author.id}")
-            #     embed.add_field(name=f"Command:", value=f"{msg}")
-            #     embed.timestamp = datetime.datetime.utcnow()
-            #     # embed.set_thumbnail(url=ctx.guild.icon_url)
-            #     ch = self.bot.get_channel(813600852576829470)
-            #     if not ch:
-            #         ch = self.bot.fetch_channel(813600852576829470)
-            #     return await ch.send(embed=embed)
-            # else:
-            #     embed = discord.Embed(
-            #     title=f"Command used. (triggered cooldown)",
-            #     colour=0
-            #     )
-            #     embed.add_field(name=f"Where:", value=f"Private message")
-            #     embed.add_field(name=f"Who:", value=f"{ctx.author} \n{ctx.author.id}")
-            #     embed.add_field(name=f"Command:", value=f"{msg}")
-            #     embed.timestamp = datetime.datetime.utcnow()
-            #     #embed.set_thumbnail(url=ctx.guild.icon_url)
-            #     ch = self.bot.get_channel(813600852576829470)
-            #     if not ch:
-            #         ch = self.bot.fetch_channel(813600852576829470)
-            #     return await ch.send(embed=embed)
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, You must wait **{round(error.retry_after, 2)}** seconds before using this command again.')
         
         elif isinstance(error, commands.MissingPermissions):
             return await ctx.send(f"<a:x_:826577785173704754> {ctx.author.mention}, You are missing the following permissions: `{' '.join(error.missing_perms)}`.")
