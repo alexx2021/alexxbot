@@ -8,7 +8,7 @@ import time
 
 async def are_lvls_enabled(self, guild):
     try:
-        enabled = self.bot.cache_lvlsenabled[f"{guild.id}"]
+        enabled = self.bot.cache_lvlsenabled[guild.id]
         if 'TRUE' in enabled:
             return True
         else:

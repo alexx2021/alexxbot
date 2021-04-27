@@ -84,7 +84,7 @@ class Levels(commands.Cog):
             return
         
         try:
-            enabled = self.bot.cache_lvlsenabled[f"{message.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[message.guild.id]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -167,7 +167,7 @@ class Levels(commands.Cog):
         warn = discord.Embed(description = 'You are about to reset your own XP and rank. \nAre you sure?', color = discord.Color.red(), title = 'Warning')       
         error = '<a:x_:826577785173704754> This guild does not have xp enabled! There is nothing to reset!'
         try:
-            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[ctx.guild.id]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -261,7 +261,7 @@ class Levels(commands.Cog):
         warn = discord.Embed(description = 'You are about to reset the leveling system for this server.\n__ALL DATA WILL BE LOST__.\nAre you sure?', color = discord.Color.red(), title = 'Warning')
     
         try:
-            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[ctx.guild.id]
             if 'TRUE' in enabled:
                 msg = await ctx.send(embed = warn)
                 await asyncio.sleep(0.25)
@@ -303,7 +303,7 @@ class Levels(commands.Cog):
     async def rank(self, ctx: commands.Context, member: discord.Member = None):
         error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
         try:
-            enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
+            enabled = self.bot.cache_lvlsenabled[ctx.guild.id]
             if 'TRUE' in enabled:
                 pass
             else:
@@ -350,7 +350,7 @@ class Levels(commands.Cog):
     async def leaderboard(self, ctx: commands.Context):
             error = '<a:x_:826577785173704754> This guild does not have xp enabled! Ask an admin to enable it with the `levels toggle` command!'
             try:
-                enabled = self.bot.cache_lvlsenabled[f"{ctx.guild.id}"]
+                enabled = self.bot.cache_lvlsenabled[ctx.guild.id]
                 if 'TRUE' in enabled:
                     pass
                 else:

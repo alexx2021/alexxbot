@@ -1,11 +1,153 @@
 import asyncio
 import discord
 import logging
+import time
 
 from discord.ext import commands
 
 logger = logging.getLogger('discord')
 
+async def blacklist_setup(bot):
+
+    await bot.bl.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
+    await bot.bl.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
+    await bot.bl.execute("CREATE TABLE IF NOT EXISTS whitelist(guild_id INTERGER)")
+###########################################################################################
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS whitelist(guild_id BIGINT)")
+
+async def setup_db(bot):
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id BIGINT, prefix TEXT)")
+
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id BIGINT, channel_id BIGINT, message_id BIGINT, user_id BIGINT, future BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS reminders(user_id BIGINT, ctx_id BIGINT, future BIGINT, remindtext TEXT)")
+
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id BIGINT, user_id BIGINT)")
+
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS welcome(guild_id BIGINT, log_channel BIGINT, wMsg TEXT, bMsg TEXT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS logging(guild_id BIGINT, log_channel BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id BIGINT, role_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id BIGINT, channel_id BIGINT, delay BIGINT)")
+
+
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_rewards(guild_id BIGINT, level BIGINT, role_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_ignoredchannels(guild_id BIGINT, channel_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_enabled(guild_id BIGINT, enabled TEXT)")  #lvls in general       
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_lvlup(guild_id BIGINT, enabled TEXT)") #lvl msgs
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS xp(guild_id BIGINT, user_id BIGINT, user_xp BIGINT)")
+
+###########################################################################################
+
+
+    print('bop')    
+    await bot.pr.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id INTERGER, prefix TEXT)")
+
+    await bot.rm.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id INTERGER, channel_id INTERGER, message_id INTERGER, user_id INTERGER, future INTERGER)")
+    await bot.rm.execute("CREATE TABLE IF NOT EXISTS reminders(id INTERGER, future INTERGER, remindtext TEXT)")
+
+    await bot.m.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id INTERGER, user_id INTERGER)")
+
+    await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
+    await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
+    await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
+    await bot.sc.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id INTERGER, channel_id INTERGER, delay INTERGER)")
+
+
+    await bot.sc.execute("CREATE TABLE IF NOT EXISTS levelrewards(guild_id INTERGER, level INTERGER, role_id INTERGER)")
+    await bot.sc.execute("CREATE TABLE IF NOT EXISTS ignoredchannels(guild_id INTERGER, channel_id INTERGER)")
+    await bot.xp.execute("CREATE TABLE IF NOT EXISTS chatlvlsenabled(guild_id INTERGER, enabled TEXT)")  #lvls in general       
+    await bot.xp.execute("CREATE TABLE IF NOT EXISTS lvlsenabled(guild_id INTERGER, enabled TEXT)") #lvl msgs
+    await bot.xp.execute("CREATE TABLE IF NOT EXISTS xp(guild_id INTERGER, user_id INTERGER, user_xp INTERGER)")
+
+
+
+async def setup_stuff(bot):
+    await blacklist_setup(bot)
+    await setup_db(bot)
+    async with bot.db.acquire() as connection:
+        guilds = await connection.fetch("SELECT * FROM prefixes") # prefix cache
+        for guild in guilds:
+            prefix = guild["prefix"]
+            bot.cache_prefixes[guild["guild_id"]] = f"{prefix}"
+
+        
+        users = await connection.fetch("SELECT * FROM userblacklist") #blacklist cache
+        yes = True
+        for user in users:
+            bot.cache_ubl[user["user_id"]] = yes
+
+        servers = await connection.fetch("SELECT * FROM whitelist") #whitelist cache
+        yes = True
+        for server in servers:
+            bot.cache_whitelist[server["guild_id"]] = yes
+        
+
+        logs = await connection.fetch("SELECT * FROM logging") #logging ch cache
+        for log in logs:
+            l_CH = log["log_channel"]
+            bot.cache_logs[log["guild_id"]] = f"{l_CH}"
+
+        roles = await connection.fetch("SELECT * FROM autorole") #autorole id cache
+        for role in roles:
+            r_ID = role["role_id"]
+            bot.cache_autorole[role["guild_id"]] = f"{r_ID}"
+
+        msgs = await connection.fetch("SELECT * FROM welcome")
+        for msg in msgs:
+            di = {
+            "logch" : msg["log_channel"], 
+            "wMsg" : msg["wMsg"],
+            "bMsg" : msg["bMsg"]
+                    }
+            bot.cache_welcome[msg["guild_id"]] = di
+        
+        xp = await connection.fetch("SELECT * FROM xp_enabled") #chat lvl enabled
+        for enabled_ in xp:
+            is_e = enabled_["enabled"]
+            bot.cache_lvlsenabled[enabled_["guild_id"]] = f"{is_e}"
+
+        xpmsg = await connection.fetch("SELECT * FROM xp_lvlup") #chat lvl enabled
+        for enabled__ in xpmsg:
+            is_en = enabled__["enabled"]
+            bot.cache_lvlupmsg[enabled__["guild_id"]] = f"{is_en}"
+
+
+        xpguilds = await connection.fetch("SELECT * FROM xp_ignoredchannels") #ingored channels for chat lvl
+        for channel in xpguilds:
+            try:    
+                bot.cache_xpignoredchannels[channel["guild_id"]][channel["channel_id"]] = channel["channel_id"]
+            except KeyError:
+                di = {channel["channel_id"]: channel["channel_id"]}
+                bot.cache_xpignoredchannels[channel["guild_id"]] = di
+
+        xproleguilds = await connection.fetch("SELECT * FROM xp_rewards") #role rewards
+        for xprole in xproleguilds:
+            try:    
+                bot.cache_xproles[xprole["guild_id"]][xprole["level"]] = xprole["role_id"]
+            except KeyError:
+                di = {xprole["level"]: xprole["role_id"]}
+                bot.cache_xproles[xprole["guild_id"]] = di
+
+        autogameguilds = await connection.fetch("SELECT * FROM autogames") #auto games channel
+        for row in autogameguilds:
+            tempDict = {
+            "lastrun" : time.time(),
+            "channel_id" : row["channel_id"],
+            "ongoing" : 0,
+            "delay" : row["delay"]
+            }
+            bot.autogames[row["guild_id"]] = tempDict
+
+    
+    print('cache is setup!!')
+    print(f'blacklist - {bot.cache_ubl}')
+
+
+
+
+
+####################################################################################
 async def get_or_fetch_channel(self, channel_id):
     """Only queries API if the channel is not in cache."""
     await self.bot.wait_until_ready()
@@ -70,7 +212,7 @@ async def get_or_fetch_guild(self, guild_id): #from r danny :)
 ########################LOGGING###########################
 async def sendlog(self, guild, content):
     try:   
-        ch = self.bot.cache_logs[f"{guild.id}"]
+        ch = self.bot.cache_logs[guild.id]
         channel = await get_or_fetch_channel(self, int(ch)) #discord.utils.get(guild.channels, id=int(ch))
         if channel:
             await channel.send(embed=content)
@@ -79,13 +221,13 @@ async def sendlog(self, guild, content):
     except discord.errors.Forbidden:
         await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
         await self.bot.sc.commit()
-        self.bot.cache_logs.pop(f"{guild.id}")
+        self.bot.cache_logs.pop(guild.id)
         logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
         return
 
 async def sendlogFile(self, guild, content):
     try:   
-        ch = self.bot.cache_logs[f"{guild.id}"]
+        ch = self.bot.cache_logs[guild.id]
         channel = await get_or_fetch_channel(self, int(ch)) #discord.utils.get(guild.channels, id=int(ch))
         if channel:
             perms = channel.permissions_for(channel.guild.me)
@@ -97,13 +239,13 @@ async def sendlogFile(self, guild, content):
     except discord.errors.Forbidden:
         await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
         await self.bot.sc.commit()
-        self.bot.cache_logs.pop(f"{guild.id}")
+        self.bot.cache_logs.pop(guild.id)
         logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
         return
 
 async def check_if_log(self, guild):
     try:
-        check = self.bot.cache_logs[f"{guild.id}"]
+        check = self.bot.cache_logs[guild.id]
         #print('CheckifLog True')
         return True
     except KeyError:

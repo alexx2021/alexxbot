@@ -9,26 +9,6 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
         self.bot = bot    
 
 
-    @commands.is_owner()
-    @commands.command()
-    async def dumpW(self, ctx):
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome")
-        print('-----------dump-----------')
-        print(rows)
-        print('-----------dump-----------')
-        
-        await ctx.channel.send('done.')
-
-    @commands.is_owner()
-    @commands.command()
-    async def delwelcome(self, ctx):
-        guild = ctx.guild.id
-        await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(guild,))
-        await self.bot.sc.commit()
-        
-        await ctx.channel.send('done.')
-
-
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -37,7 +17,7 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
         
         
         try:   
-            data = self.bot.cache_welcome[f"{member.guild.id}"]
+            data = self.bot.cache_welcome[member.guild.id]
         except KeyError:
             return
 
@@ -54,7 +34,7 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
             except discord.errors.Forbidden:
                 await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
                 await self.bot.sc.commit()
-                self.bot.cache_welcome.pop(f"{member.guild.id}")
+                self.bot.cache_welcome.pop(member.guild.id)
                 logger.info(msg=f'Deleted welc channel b/c the bot did not have perms to speak - {member.guild} ({member.guild.id})')
                 return
 
@@ -69,7 +49,7 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
         
         
         try:   
-            data = self.bot.cache_welcome[f"{member.guild.id}"]
+            data = self.bot.cache_welcome[member.guild.id]
         except KeyError:
             return
 
@@ -86,7 +66,7 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
             except discord.errors.Forbidden:
                 await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
                 await self.bot.sc.commit()
-                self.bot.cache_welcome.pop(f"{member.guild.id}")
+                self.bot.cache_welcome.pop(member.guild.id)
                 logger.info(msg=f'Deleted welc channel b/c the bot did not have perms to speak - {member.guild} ({member.guild.id})')
                 return 
 
