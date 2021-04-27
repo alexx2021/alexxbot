@@ -44,14 +44,16 @@ async def get_prefix(bot, msg: discord.Message):
         except KeyError:
             pass
         
-        custom = await bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(msg.guild.id,),)
-        #print('used db for prefix')
-        if custom != []:
-            base.append(custom[0][1])
-            bot.cache_prefixes.update({msg.guild.id : f"{custom[0][1]}"})
-        else:
-            base.append('_')
-            bot.cache_prefixes.update({msg.guild.id : f"_"})
+        async with bot.db.acquire() as connection:
+            custom = await connection.fetch("SELECT * FROM prefixes WHERE guild_id = $1", msg.guild.id)
+            #print('used db for prefix')
+            if custom != []:
+                cust_p = custom["prefix"]
+                base.append(custom["prefix"])
+                bot.cache_prefixes.update({msg.guild.id : f"{cust_p}"})
+            else:
+                base.append('_')
+                bot.cache_prefixes.update({msg.guild.id : f"_"})
 
     return base
 
