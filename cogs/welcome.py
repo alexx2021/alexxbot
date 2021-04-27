@@ -32,8 +32,8 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
             except ValueError:
                 await channel.send('One or more of the placeholders you used in the welcome message was incorrect, or not a placeholder. To remove this message, please change it.')
             except discord.errors.Forbidden:
-                await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-                await self.bot.sc.commit()
+                async with self.bot.db.acquire() as connection:
+                    await connection.execute("DELETE FROM welcome WHERE guild_id = $1", server)
                 self.bot.cache_welcome.pop(member.guild.id)
                 logger.info(msg=f'Deleted welc channel b/c the bot did not have perms to speak - {member.guild} ({member.guild.id})')
                 return
@@ -64,8 +64,8 @@ class Welcome(commands.Cog, command_attrs=dict(hidden=True)):
             except ValueError:
                 await channel.send('One or more of the placeholders you used in the goodbye message was incorrect, or not a placeholder. To remove this message, please change it.')
             except discord.errors.Forbidden:
-                await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-                await self.bot.sc.commit()
+                async with self.bot.db.acquire() as connection:
+                    await connection.execute("DELETE FROM welcome WHERE guild_id = $1", server)
                 self.bot.cache_welcome.pop(member.guild.id)
                 logger.info(msg=f'Deleted welc channel b/c the bot did not have perms to speak - {member.guild} ({member.guild.id})')
                 return 
