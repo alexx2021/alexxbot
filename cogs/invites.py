@@ -107,44 +107,45 @@ class Invites(commands.Cog, command_attrs=dict(hidden=True)):
         await asyncio.sleep(0.25)
 
         god = guild.owner.id
-        rows = await self.bot.bl.execute_fetchall("SELECT user_id FROM userblacklist WHERE user_id = ?",(god,),) #checks if a user in BL owns the server
-        if rows != []:
-            await guild.leave()
-            
-            embed = discord.Embed(colour=0xe74c3c)
-            embed.set_author(name=f"Left guild with blacklisted owner")
-            embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
-            "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
-            "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
-            "\n" + "Created at " + str(guild.created_at), inline=False)
-            embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
-            embed.set_thumbnail(url=guild.icon_url)
-            
-            chID = 813600852576829470
-            ch = await get_or_fetch_channel(self, chID)
-            await ch.send(embed=embed)
-            
-            return
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetchrow("SELECT user_id FROM userblacklist WHERE user_id = $1", god) #checks if a user in BL owns the server
+            if rows != []:
+                await guild.leave()
+                
+                embed = discord.Embed(colour=0xe74c3c)
+                embed.set_author(name=f"Left guild with blacklisted owner")
+                embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
+                "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
+                "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
+                "\n" + "Created at " + str(guild.created_at), inline=False)
+                embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
+                embed.set_thumbnail(url=guild.icon_url)
+                
+                chID = 813600852576829470
+                ch = await get_or_fetch_channel(self, chID)
+                await ch.send(embed=embed)
+                
+                return
 
-        
-        rows = await self.bot.bl.execute_fetchall("SELECT guild_id FROM guildblacklist WHERE guild_id = ?",(guild.id,),)#checks if its a guild in the BL 
-        if rows != []:
-            await guild.leave()
-            
-            embed = discord.Embed(colour=0xe74c3c)
-            embed.set_author(name=f"Left blacklisted guild")
-            embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
-            "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
-            "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
-            "\n" + "Created at " + str(guild.created_at), inline=False)
-            embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
-            embed.set_thumbnail(url=guild.icon_url)
-            
-            chID = 813600852576829470
-            ch = await get_or_fetch_channel(self, chID)
-            await ch.send(embed=embed)
-            
-            return
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetchrow("SELECT guild_id FROM guildblacklist WHERE guild_id = $1", guild.id)#checks if its a guild in the BL 
+            if rows != []:
+                await guild.leave()
+                
+                embed = discord.Embed(colour=0xe74c3c)
+                embed.set_author(name=f"Left blacklisted guild")
+                embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
+                "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
+                "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
+                "\n" + "Created at " + str(guild.created_at), inline=False)
+                embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
+                embed.set_thumbnail(url=guild.icon_url)
+                
+                chID = 813600852576829470
+                ch = await get_or_fetch_channel(self, chID)
+                await ch.send(embed=embed)
+                
+                return
         
         await self.tracker.update_guild_cache(guild) #finally does the updating if all is good
 
