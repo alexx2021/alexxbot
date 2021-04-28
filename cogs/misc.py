@@ -7,7 +7,51 @@ from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 
 
+async def pop_all(self, guild):
+    try:
+        self.bot.cache_prefixes.pop(guild.id)
+    except KeyError:
+        pass
+    
+    try:
+        self.bot.cache_whitelist.pop(guild.id)
+    except KeyError:
+        pass
+    
+    try:
+        self.bot.cache_logs.pop(guild.id)
+    except KeyError:
+        pass
+    
+    try:
+        self.bot.cache_autorole.pop(guild.id)
+    except KeyError:
+        pass
+    
+    try:
+        self.bot.cache_welcome.pop(guild.id)
+    except KeyError:
+        pass
 
+    try:
+        self.bot.cache_lvlsenabled.pop(guild.id)
+    except KeyError:
+        pass
+
+    try:
+        self.bot.cache_lvlupmsg.pop(guild.id)
+    except KeyError:
+        pass
+
+    try:
+        self.bot.cache_xpignoredchannels.pop(guild.id)
+    except KeyError:
+        pass
+    
+    try:
+        self.bot.cache_xproles.pop(guild.id)
+    except KeyError:
+        pass
 
 class Events(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
@@ -33,6 +77,8 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     # async def status_wait(self):
     #     await self.bot.wait_until_ready()
 
+
+
 #################################################
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
@@ -49,29 +95,24 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
         await asyncio.sleep(2)
         server = guild.id
 
+        async with self.bot.db.acquire() as connection:
+            await connection.execute("DELETE FROM prefixes WHERE guild_id = $1", server)
 
-        await asyncio.sleep(0.25)
-        await self.bot.pr.execute("DELETE FROM prefixes WHERE guild_id = ?",(server,))
-        await self.bot.pr.commit()
+            await connection.execute("DELETE FROM pmuted_users WHERE guild_id = $1", server)
 
-        await asyncio.sleep(0.25)
-        await self.bot.m.execute("DELETE FROM pmuted_users WHERE guild_id = ?",(server,))
-        await self.bot.m.commit()
+            await connection.execute("DELETE FROM welcome WHERE guild_id = $1", server)
+            await connection.execute("DELETE FROM autorole WHERE guild_id = $1", server)
+            await connection.execute("DELETE FROM logging WHERE guild_id = $1", server)
+            await connection.execute("DELETE FROM autogames WHERE guild_id = $1", server)
+            await connection.execute("DELETE FROM xp_ignoredchannels WHERE guild_id = $1", server)
+            await connection.execute("DELETE FROM xp_rewards WHERE guild_id = $1", server)
 
-        await asyncio.sleep(0.25)
-        await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server,))
-        await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(server,))
-        await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server,))
-        await self.bot.sc.execute("DELETE FROM autogames WHERE guild_id = ?",(server,))
-        await self.bot.sc.execute("DELETE FROM ignoredchannels WHERE guild_id = ?",(server,))
-        await self.bot.sc.execute("DELETE FROM levelrewards WHERE guild_id = ?",(server,))
-        await self.bot.sc.commit()
+            await connection.execute("DELETE FROM xp WHERE guild_id = $1", server)
+            await connection.execute("DELETE FROM xp_enabled WHERE guild_id = $1", server)
+            await connection.execute("DELETE FROM xp_lvlup WHERE guild_id = $1", server)
+        
+        await pop_all(self, guild)
 
-        await asyncio.sleep(0.25)
-        await self.bot.xp.execute("DELETE FROM xp WHERE guild_id = ?",(server,))
-        await self.bot.xp.execute("DELETE FROM lvlsenabled WHERE guild_id = ?",(server,))
-        await self.bot.xp.execute("DELETE FROM chatlvlsenabled WHERE guild_id = ?",(server,))
-        await self.bot.xp.commit()
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -98,13 +139,8 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
                 return
         except KeyError:
             return
-
-        query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
-        gid = member.guild.id
-        uid = member.id
-        params = (gid, uid)
-        await self.bot.xp.execute_fetchall(query, params)
-        await self.bot.xp.commit()
+        async with self.bot.db.acquire() as connection:
+            connection.execute('DELETE FROM xp WHERE guild_id = $1 AND user_id = $2', member.guild.id, member.id)
 
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
@@ -148,7 +184,7 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     async def test(self, ctx):
         perms = ctx.channel.permissions_for(ctx.guild.me)
         if not perms.send_messages:
-            return print('good')
+            return print('uh oh I cant speak!')
         if not perms.embed_links:
             await ctx.send('I am missing permisions to send embeds :(')
         
