@@ -14,14 +14,15 @@ class Logging(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.is_owner()
     @commands.command()
     async def dumpL(self, ctx):
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging")
-        print('-----------dump-----------')
-        print(rows)
-        print('-----------dump-----------')
-        print(self.bot.cache_logs)
-        print('-----------dump-----------')
-        
-        await ctx.channel.send('done.')
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetch("SELECT * FROM logging")
+            print('-----------dump-----------')
+            print(rows)
+            print('-----------dump-----------')
+            print(self.bot.cache_logs)
+            print('-----------dump-----------')
+            
+            await ctx.channel.send('done.')
 
 
 
