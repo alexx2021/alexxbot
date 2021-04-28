@@ -35,12 +35,11 @@ class Moderation(commands.Cog):
             afterR = [r.name for r in after.roles]
             if "alexxmuted" in beforeR:
                 if not "alexxmuted" in afterR:
-                    query = 'DELETE FROM pmuted_users WHERE guild_id = ? AND user_id = ?' # delete data from db only pertaining to the specific user and guild
+                    query = 'DELETE FROM pmuted_users WHERE guild_id = $1 AND user_id = $2' # delete data from db only pertaining to the specific user and guild
                     gid = before.guild.id
                     uid = before.id
-                    params = (gid, uid)
-                    await self.bot.m.execute(query, params)
-                    await self.bot.m.commit()
+                    async with self.bot.db.acquire() as connection:
+                        await connection.execute(query, gid, uid)
 
     #clear command
     @bot_has_permissions(manage_messages=True, read_message_history=True)    
@@ -68,8 +67,8 @@ class Moderation(commands.Cog):
     @has_permissions(manage_messages=True)
     @commands.command(help="Mutes a user until you unmute them.")
     async def mute(self, ctx, member: discord.Member,*, reason=None):
-        guild_id = str(ctx.guild.id)
-        user_id = str(member.id)
+        guild_id = ctx.guild.id
+        user_id = member.id
     
         if ctx.message.author.id == member.id: #checks to see if you are muting yourself
             return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} you cannot mute yourself, silly human! `>.<`')
@@ -114,8 +113,8 @@ class Moderation(commands.Cog):
                     successfulchannels += 1
             await member.add_roles(muted, reason=f"By {ctx.author} for {reason}") # adds newly created muted role
 
-            await self.bot.m.execute("INSERT INTO pmuted_users VALUES(?, ?)", (guild_id, user_id)) #adds user to db
-            await self.bot.m.commit()
+            async with self.bot.db.acquire() as connection:
+                await connection.execute("INSERT INTO pmuted_users VALUES($1, $2)", guild_id, user_id) #adds user to db
 
             await ctx.send(f"{member.mention} has been muted. <a:check:826577847023829032>")
 
@@ -142,8 +141,8 @@ class Moderation(commands.Cog):
         else:
             await member.add_roles(role2, reason=f"By {ctx.author} for {reason}") # adds already existing muted role
 
-            await self.bot.m.execute("INSERT INTO pmuted_users VALUES(?, ?)", (guild_id, user_id)) #adds user to db
-            await self.bot.m.commit()
+            async with self.bot.db.acquire() as connection:
+                await connection.execute("INSERT INTO pmuted_users VALUES($1, $2)", guild_id, user_id) #adds user to db
             
             await ctx.send(f"{member.mention} has been muted. <a:check:826577847023829032>") #0x979c9f
             
@@ -190,13 +189,12 @@ class Moderation(commands.Cog):
             if role in member.roles:
                 await member.remove_roles(discord.utils.get(member.guild.roles, name="alexxmuted")) # removes muted role
 
-                gid = str(ctx.guild.id)
-                uid = str(member.id)
+                # gid = int(ctx.guild.id)
+                # uid = int(member.id)
 
-                query = 'DELETE FROM pmuted_users WHERE guild_id = ? AND user_id = ?' # delete data from db only pertaining to the specific user and guild
-                params = (gid, uid)
-                await self.bot.m.execute(query, params)
-                await self.bot.m.commit()
+                # # delete data from db only pertaining to the specific user and guild
+                # async with self.bot.db.acquire() as connection:
+                #     await connection.execute('DELETE FROM pmuted_users WHERE guild_id = $1 AND user_id = $2', gid, uid)
 
                 await ctx.send(f"{member.mention} has been unmuted. <a:check:826577847023829032>")
 
@@ -221,18 +219,15 @@ class Moderation(commands.Cog):
         await asyncio.sleep(0.25)
         
 
-        gid = str(member.guild.id)
-        uid = str(member.id)
+        gid = int(member.guild.id)
+        uid = int(member.id)
 
-        query = 'SELECT guild_id, user_id FROM pmuted_users WHERE guild_id = ? AND user_id = ?' # delete data from db only pertaining to the specific user and guild
+        query = 'SELECT * FROM pmuted_users WHERE guild_id = $1 AND user_id = $2' # delete data from db only pertaining to the specific user and guild
         params = (gid, uid)
-        rows = await self.bot.m.execute_fetchall(query, params)
+        async with self.bot.db.acquire() as connection:
+            row = await connection.fetchrow(query, params)
 
-        if rows != []:
-            toprow = rows[0]
-            user_id = toprow[1]
-            
-            if member.id == user_id:
+            if row != []:
                 role = discord.utils.get(member.guild.roles, name="alexxmuted") # checks if there is a muted role 
                 if role: # checks if there is muted role
                     if member.guild.me.guild_permissions.manage_roles: # checks if the bot has enough permissions to add the role
