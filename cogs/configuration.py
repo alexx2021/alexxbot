@@ -137,17 +137,15 @@ class Configuration(commands.Cog):
         error = '<a:x_:826577785173704754> Prefix is too long! Please try again with something shorter.'
         if len(prefix) > 8:
             return await ctx.send(error)
-        
-        custom = await self.bot.pr.execute_fetchall("SELECT guild_id, prefix FROM prefixes WHERE guild_id = ?",(ctx.guild.id,),)
-        if custom:
-            await self.bot.pr.execute("UPDATE prefixes SET prefix = ? WHERE guild_id = ?",(prefix, ctx.guild.id,),)
-            await self.bot.pr.commit()
-            self.bot.cache_prefixes.update({ctx.guild.id : f"{prefix}"})
-        else:    
-            await self.bot.pr.execute("INSERT INTO prefixes VALUES (?, ?)",(ctx.guild.id, prefix),)
-            await self.bot.pr.commit()
-            self.bot.cache_prefixes.update({ctx.guild.id : f"{prefix}"})
-            
+        async with self.bot.db.acquire() as connection:
+            custom = await connection.fetchrow("SELECT guild_id, prefix FROM prefixes WHERE guild_id = $1", ctx.guild.id)
+            if custom:
+                await connection.execute("UPDATE prefixes SET prefix = $1 WHERE guild_id = $2", prefix, ctx.guild.id)
+                self.bot.cache_prefixes.update({ctx.guild.id : f"{prefix}"})
+            else:    
+                await connection.execute("INSERT INTO prefixes VALUES ($1, $2)", ctx.guild.id, prefix)
+                self.bot.cache_prefixes.update({ctx.guild.id : f"{prefix}"})
+                
         e = f'<a:check:826577847023829032> Set prefix to `{prefix}`'
         await ctx.send(e)
 
@@ -179,31 +177,25 @@ class Configuration(commands.Cog):
         if ctx.guild.me.top_role.position <= role.position:
             return await ctx.send('<a:x_:826577785173704754> The role you chose is above my highest role.')
 
-        query = 'SELECT * FROM levelrewards WHERE guild_id = ? AND level = ?' 
-        gid = ctx.guild.id
-        params = (gid, level)
-        guild = await self.bot.sc.execute_fetchall(query, params)
-        try:
-            if guild[9]:
-                return await ctx.send('<a:x_:826577785173704754> You are only allowed to create 10 role rewards per guild.')
-        except IndexError:
-            pass
-        if guild:
-            query = 'UPDATE levelrewards SET role_id = ? WHERE guild_id = ? AND level = ?'
-            params = (role.id, gid, level)
-            await self.bot.sc.execute(query, params)
-            await self.bot.sc.commit()
-            await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
-        else:
-            await self.bot.sc.execute('INSERT INTO levelrewards VALUES(?,?,?)',(gid, level, role.id))
-            await self.bot.sc.commit()
-            await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
-        try:
-            enabled = self.bot.cache_xproles[ctx.guild.id]
-            if enabled:
-                self.bot.cache_xproles[ctx.guild.id].update({level: role.id})
-        except KeyError:
-            self.bot.cache_xproles.update({ctx.guild.id: {level: role.id}})
+        async with self.bot.db.acquire() as connection:
+            guild = await connection.fetch('SELECT * FROM xp_rewards WHERE guild_id = $1 AND level = $2', ctx.guild.id, level)
+            try:
+                if guild[9]:
+                    return await ctx.send('<a:x_:826577785173704754> You are only allowed to create 10 role rewards per guild.')
+            except IndexError:
+                pass
+            if guild:
+                await connection.execute('UPDATE xp_rewards SET role_id = $1 WHERE guild_id = $2 AND level = $3', role.id , ctx.guild.id, level)
+                await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
+            else:
+                await connection.execute('INSERT INTO xp_rewards VALUES($1,$2,$3)', ctx.guild.id, level, role.id)
+                await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
+            try:
+                enabled = self.bot.cache_xproles[ctx.guild.id]
+                if enabled:
+                    self.bot.cache_xproles[ctx.guild.id].update({level: role.id})
+            except KeyError:
+                self.bot.cache_xproles.update({ctx.guild.id: {level: role.id}})
 
     @levels.command(help='Delete role reward settings')
     @commands.cooldown(3, 10, commands.BucketType.user)
@@ -227,13 +219,10 @@ class Configuration(commands.Cog):
             self.bot.cache_xproles[ctx.guild.id].pop(level)
         except KeyError:
             return await ctx.send('<a:x_:826577785173704754> There is no role reward assigned to this level.')
-
-        query = 'DELETE FROM levelrewards WHERE guild_id = ? AND level = ?' 
-        gid = ctx.guild.id
-        params = (gid, level)
-        await self.bot.sc.execute(query, params)
-        await self.bot.sc.commit()
-        await ctx.send(f'<a:check:826577847023829032> The role reward assigned to level {level} was deleted.')
+        
+        async with self.bot.db.acquire() as connection:
+            await connection.execute('DELETE FROM xp_rewards WHERE guild_id = $1 AND level = $2', ctx.guild.id, level) 
+            await ctx.send(f'<a:check:826577847023829032> The role reward assigned to level {level} was deleted.')
     
         
 
@@ -280,8 +269,8 @@ class Configuration(commands.Cog):
             di = {ctx.channel.id: ctx.channel.id}
             self.bot.cache_xpignoredchannels[ctx.guild.id] = di
 
-        await self.bot.sc.execute('INSERT INTO ignoredchannels VALUES(?,?)',(ctx.guild.id, ctx.channel.id))
-        await self.bot.sc.commit()
+        async with self.bot.db.acquire() as connection:
+            await connection.execute('INSERT INTO xp_ignoredchannels VALUES($1,$2)', ctx.guild.id, ctx.channel.id)
         return await ctx.send(on)
 
     @has_permissions(manage_guild=True)
@@ -305,15 +294,10 @@ class Configuration(commands.Cog):
             self.bot.cache_xpignoredchannels[ctx.guild.id].pop(ctx.channel.id)
         except KeyError:
             return await ctx.send(err)
-
-        query = 'DELETE FROM ignoredchannels WHERE guild_id = ? AND channel_id = ?' 
-        gid = ctx.guild.id
-        cid = ctx.channel.id
-        params = (gid, cid)
-        await self.bot.sc.execute(query, params)
-        await self.bot.sc.commit()
-
         
+        async with self.bot.db.acquire() as connection:
+            await connection.execute('DELETE FROM xp_ignoredchannels WHERE guild_id = $1 AND channel_id = $2', ctx.guild.id, ctx.channel.id)
+
         return await ctx.send(on)
 
 
@@ -335,24 +319,21 @@ class Configuration(commands.Cog):
         except KeyError:
             return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')  
         
-        
-        guild = await self.bot.xp.execute_fetchall("SELECT * FROM lvlsenabled WHERE guild_id = ?",(ctx.guild.id,))
-        if guild:
-            if guild[0][1] == 'TRUE':
-                await self.bot.xp.execute('UPDATE lvlsenabled SET enabled = ? WHERE guild_id = ?',('FALSE',ctx.guild.id))
-                await self.bot.xp.commit()
-                self.bot.cache_lvlupmsg.update({ctx.guild.id: 'FALSE'})
-                await ctx.send(off)
+        async with self.bot.db.acquire() as connection:
+            guild = await connection.fetchrow("SELECT * FROM xp_lvlup WHERE guild_id = ?", ctx.guild.id)
+            if guild:
+                if 'TRUE' in guild["enabled"]:
+                    await connection.execute('UPDATE xp_lvlup SET enabled = $1 WHERE guild_id = $2', 'FALSE', ctx.guild.id)
+                    self.bot.cache_lvlupmsg.update({ctx.guild.id: 'FALSE'})
+                    await ctx.send(off)
+                else:
+                    await connection.execute('UPDATE xp_lvlup SET enabled = $1 WHERE guild_id = $2', 'TRUE', ctx.guild.id)
+                    self.bot.cache_lvlupmsg.update({ctx.guild.id: 'TRUE'})
+                    await ctx.send(on)
             else:
-                await self.bot.xp.execute('UPDATE lvlsenabled SET enabled = ? WHERE guild_id = ?',('TRUE',ctx.guild.id))
-                await self.bot.xp.commit()
+                await connection.execute('INSERT INTO xp_lvlup VALUES($1,$2)', ctx.guild.id,'TRUE')
                 self.bot.cache_lvlupmsg.update({ctx.guild.id: 'TRUE'})
                 await ctx.send(on)
-        else:
-            await self.bot.xp.execute('INSERT INTO lvlsenabled VALUES(?,?)',(ctx.guild.id,'TRUE'))
-            await self.bot.xp.commit()
-            self.bot.cache_lvlupmsg.update({ctx.guild.id: 'TRUE'})
-            await ctx.send(on)
 
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
@@ -364,45 +345,40 @@ class Configuration(commands.Cog):
         off = '<a:check:826577847023829032> Done. Chat levels for this server are now disabled.'
         warn = discord.Embed(description = 'You are about to disable the leveling system for this server.\n__ALL DATA WILL BE LOST__.\nAre you sure?', color = discord.Color.red(), title = 'Warning')
         
-        try:    
-            guild = await self.bot.xp.execute_fetchall("SELECT * FROM chatlvlsenabled WHERE guild_id = ?",(ctx.guild.id,))
-            if guild:
-                if guild[0][1] == 'TRUE':
-                    msg = await ctx.send(embed = warn)
-                    await asyncio.sleep(0.25)
-                    await msg.add_reaction("✅")
-                    await asyncio.sleep(0.25)
-                    await msg.add_reaction("❌")
-                    reaction, person = await self.bot.wait_for(
-                                    "reaction_add",
-                                    timeout=60,
-                                    check=lambda reaction, user: user == ctx.author
-                                    and reaction.message.channel == ctx.channel)
-                    
-                    if str(reaction.emoji) == "✅":
-                        query = 'DELETE FROM xp WHERE guild_id = ?' 
-                        gid = ctx.guild.id
-                        params = (gid,)
-                        await self.bot.xp.execute(query, params)
-                        await self.bot.xp.execute('UPDATE chatlvlsenabled SET enabled = ? WHERE guild_id = ?',('FALSE',ctx.guild.id))
-                        await self.bot.xp.commit()
-                        self.bot.cache_lvlsenabled.update({ctx.guild.id: f"FALSE"})
+        try: 
+            async with self.bot.db.acquire() as connection:
+                guild = await connection.fetchrow("SELECT * FROM xp_enabled WHERE guild_id = $1", ctx.guild.id)
+                if guild:
+                    if 'TRUE' in guild["enabled"]:
+                        msg = await ctx.send(embed = warn)
+                        await asyncio.sleep(0.25)
+                        await msg.add_reaction("✅")
+                        await asyncio.sleep(0.25)
+                        await msg.add_reaction("❌")
+                        reaction, person = await self.bot.wait_for(
+                                        "reaction_add",
+                                        timeout=60,
+                                        check=lambda reaction, user: user == ctx.author
+                                        and reaction.message.channel == ctx.channel)
                         
-                        await ctx.send(off)
-                    else:
-                        await ctx.send('Operation cancelled.')
-                
-                if guild[0][1] == 'FALSE':
-                    await self.bot.xp.execute('UPDATE chatlvlsenabled SET enabled = ? WHERE guild_id = ?',('TRUE',ctx.guild.id))
-                    await self.bot.xp.commit()
+                        if str(reaction.emoji) == "✅":
+                            await connection.execute('DELETE FROM xp WHERE guild_id = $1', ctx.guild.id)
+                            await connection.execute('UPDATE xp_enabled SET enabled = $1 WHERE guild_id = $2', 'FALSE', ctx.guild.id)
+                            self.bot.cache_lvlsenabled.update({ctx.guild.id: f"FALSE"})
+                            
+                            await ctx.send(off)
+                        else:
+                            await ctx.send('Operation cancelled.')
+                    
+                    if 'FALSE' in guild["enabled"]:
+                        await connection.execute('UPDATE xp_enabled SET enabled = $1 WHERE guild_id = $2', 'TRUE', ctx.guild.id)
+                        self.bot.cache_lvlsenabled.update({ctx.guild.id: f"TRUE"})
+                        await ctx.send(on)
+
+                else:
+                    await connection.execute('INSERT INTO xp_enabled VALUES($1,$2)', ctx.guild.id, 'TRUE' )
                     self.bot.cache_lvlsenabled.update({ctx.guild.id: f"TRUE"})
                     await ctx.send(on)
-
-            else:
-                await self.bot.xp.execute('INSERT INTO chatlvlsenabled VALUES(?,?)',(ctx.guild.id,'TRUE'))
-                await self.bot.xp.commit()
-                self.bot.cache_lvlsenabled.update({ctx.guild.id: f"TRUE"})
-                await ctx.send(on)
         
         except asyncio.exceptions.TimeoutError:
             return await ctx.send('You did not react in time.')
@@ -412,34 +388,30 @@ class Configuration(commands.Cog):
     @commands.cooldown(3, 15, commands.BucketType.guild)
     @commands.command(help='Use this to set your logging channel!', hidden=False)
     async def setlogchannel(self, ctx):
-        server_id = ctx.guild.id
         
         on = f'<a:check:826577847023829032> Logging channel set to {ctx.channel.mention}.'
         
         off = '<a:check:826577847023829032> Logging channel has been reset. Run the command again to set the new channel.'
 
-        
-        local_log_channel = ctx.channel.id
-        null = str('null')
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server_id,),)
-        
-        if rows == []:
-            self.bot.cache_logs.update({ctx.guild.id : f"{local_log_channel}"})
+        async with self.bot.db.acquire() as connection:
+            local_log_channel = ctx.channel.id
+            rows = await connection.fetchrow("SELECT * FROM logging WHERE guild_id = $1", ctx.guild.id)
+            
+            if rows == []:
+                self.bot.cache_logs.update({ctx.guild.id : f"{local_log_channel}"})
 
-            await self.bot.sc.execute("INSERT INTO logging VALUES(?, ?, ?)", (server_id, local_log_channel, null))
-            await self.bot.sc.commit()
-            await ctx.send(on)
+                await connection.execute("INSERT INTO logging VALUES($1, $2)", ctx.guild.id, local_log_channel)
+                await ctx.send(on)
 
-        else:
-            rows = await self.bot.sc.execute_fetchall("SELECT server_id FROM logging WHERE server_id = ?",(server_id,),)
-            if rows != []:
-                try:
-                    self.bot.cache_logs.pop(ctx.guild.id)
-                except KeyError:
-                    pass
-                await self.bot.sc.execute("DELETE FROM logging WHERE server_id = ?",(server_id,))
-                await self.bot.sc.commit()
-                await ctx.send(off)
+            else:
+                rows = await connection.fetchrow("SELECT * FROM logging WHERE guild_id = $1", ctx.guild.id)
+                if rows != []:
+                    try:
+                        self.bot.cache_logs.pop(ctx.guild.id)
+                    except KeyError:
+                        pass
+                    await connection.execute("DELETE FROM logging WHERE guild_id = ?", ctx.guild.id)
+                    await ctx.send(off)
 
     @commands.max_concurrency(1, per=BucketType.guild, wait=False)
     @has_permissions(manage_guild=True)

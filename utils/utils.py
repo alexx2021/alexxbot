@@ -8,11 +8,6 @@ from discord.ext import commands
 logger = logging.getLogger('discord')
 
 async def blacklist_setup(bot):
-
-    await bot.bl.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id INTERGER)")
-    await bot.bl.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id INTERGER)")
-    await bot.bl.execute("CREATE TABLE IF NOT EXISTS whitelist(guild_id INTERGER)")
-###########################################################################################
     await bot.db.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id BIGINT)")
     await bot.db.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id BIGINT)")
     await bot.db.execute("CREATE TABLE IF NOT EXISTS whitelist(guild_id BIGINT)")
@@ -36,29 +31,7 @@ async def setup_db(bot):
     await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_enabled(guild_id BIGINT, enabled TEXT)")  #lvls in general       
     await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_lvlup(guild_id BIGINT, enabled TEXT)") #lvl msgs
     await bot.db.execute("CREATE TABLE IF NOT EXISTS xp(guild_id BIGINT, user_id BIGINT, user_xp BIGINT)")
-
-###########################################################################################
-
-
     print('bop')    
-    await bot.pr.execute("CREATE TABLE IF NOT EXISTS prefixes(guild_id INTERGER, prefix TEXT)")
-
-    await bot.rm.execute("CREATE TABLE IF NOT EXISTS giveaways(guild_id INTERGER, channel_id INTERGER, message_id INTERGER, user_id INTERGER, future INTERGER)")
-    await bot.rm.execute("CREATE TABLE IF NOT EXISTS reminders(id INTERGER, future INTERGER, remindtext TEXT)")
-
-    await bot.m.execute("CREATE TABLE IF NOT EXISTS pmuted_users(guild_id INTERGER, user_id INTERGER)")
-
-    await bot.sc.execute("CREATE TABLE IF NOT EXISTS welcome(server_id INTERGER, log_channel INTERGER, wMsg TEXT, bMsg TEXT)")
-    await bot.sc.execute("CREATE TABLE IF NOT EXISTS logging(server_id INTERGER, log_channel INTERGER, whURL TEXT)")
-    await bot.sc.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id INTERGER, role_id INTERGER)")
-    await bot.sc.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id INTERGER, channel_id INTERGER, delay INTERGER)")
-
-
-    await bot.sc.execute("CREATE TABLE IF NOT EXISTS levelrewards(guild_id INTERGER, level INTERGER, role_id INTERGER)")
-    await bot.sc.execute("CREATE TABLE IF NOT EXISTS ignoredchannels(guild_id INTERGER, channel_id INTERGER)")
-    await bot.xp.execute("CREATE TABLE IF NOT EXISTS chatlvlsenabled(guild_id INTERGER, enabled TEXT)")  #lvls in general       
-    await bot.xp.execute("CREATE TABLE IF NOT EXISTS lvlsenabled(guild_id INTERGER, enabled TEXT)") #lvl msgs
-    await bot.xp.execute("CREATE TABLE IF NOT EXISTS xp(guild_id INTERGER, user_id INTERGER, user_xp INTERGER)")
 
 
 
@@ -219,8 +192,8 @@ async def sendlog(self, guild, content):
     except KeyError:
         return
     except discord.errors.Forbidden:
-        await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
-        await self.bot.sc.commit()
+        async with self.bot.db.acquire() as connection:
+            await connection.execute("DELETE FROM logging WHERE log_channel = $1", int(ch))
         self.bot.cache_logs.pop(guild.id)
         logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
         return
@@ -237,8 +210,8 @@ async def sendlogFile(self, guild, content):
     except KeyError:
         return
     except discord.errors.Forbidden:
-        await self.bot.sc.execute("DELETE FROM logging WHERE log_channel = ?",(ch,))
-        await self.bot.sc.commit()
+        async with self.bot.db.acquire() as connection:
+            await connection.execute("DELETE FROM logging WHERE log_channel = $1", int(ch))
         self.bot.cache_logs.pop(guild.id)
         logger.info(msg=f'Deleted log channel b/c the bot did not have perms to speak - {guild} ({guild.id})')
         return
@@ -253,20 +226,20 @@ async def check_if_log(self, guild):
         return False
 ########################BLACKLIST###########################
 async def blacklist_user(self, user: discord.User):
-    await self.bot.bl.execute("INSERT INTO userblacklist VALUES(?)", (user.id,))
-    await self.bot.bl.commit()
+    async with self.bot.db.acquire() as connection:
+        await connection.execute("INSERT INTO userblacklist VALUES($1)", user.id)
     
     self.bot.cache_ubl.update({user.id : True})
 
 async def unblacklist_user(self, user: discord.User):
-    await self.bot.bl.execute("DELETE FROM userblacklist WHERE user_id = ?",(user.id,))
-    await self.bot.bl.commit()
+    async with self.bot.db.acquire() as connection:
+        await connection.execute("DELETE FROM userblacklist WHERE user_id = $1", user.id)
     
     self.bot.cache_ubl.update({user.id : False})
 
 async def blacklist_user_main(bot, user: discord.User):
-    await bot.bl.execute("INSERT INTO userblacklist VALUES(?)", (user.id,))
-    await bot.bl.commit()
+    async with bot.db.acquire() as connection:
+        await connection.execute("INSERT INTO userblacklist VALUES($1)", user.id)
     
     bot.cache_ubl.update({user.id : True})
 ########################HELP###########################
