@@ -407,8 +407,8 @@ class AutoGames(commands.Cog):
 
         if not message.guild:
             return
-        if message.author.bot:
-            return
+        # if message.author.bot:
+        #     return
         guild = message.guild.id
 
         try:
@@ -437,7 +437,7 @@ class AutoGames(commands.Cog):
 
                 perms = message.channel.permissions_for(message.guild.me)
                 if perms.send_messages:
-                    if (lastrun < (time.time() - (delay * 60)) and (ongoing != 1)) and (await check_1(self, message)) and (await check_2(self, message) and (await check_3(self, message))):
+                    if (lastrun < (time.time() - (delay * 60)) and (ongoing != 1)) and (await check_1(self, message)) and (await check_2(self, message)) and (await check_3(self, message)):
                         game = randint(1, 7)
                         if game == 1:
                             await active_users_pop(self, message)
