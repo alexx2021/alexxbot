@@ -407,8 +407,8 @@ class AutoGames(commands.Cog):
 
         if not message.guild:
             return
-        # if message.author.bot:
-        #     return
+        if message.author.bot:
+            return
         guild = message.guild.id
 
         try:
