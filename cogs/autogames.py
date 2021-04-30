@@ -17,33 +17,26 @@ async def are_lvls_enabled(self, guild):
         return False
 
 async def give_xp(self, message):
-    query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
-    gid = message.guild.id
-    uid = message.author.id
-    params = (gid, uid)
-    member = await self.bot.xp.execute_fetchall(query, params)
-    if member:
-        xp = member[0][2]
-        level = (int (xp ** (1/3.25)))
-        if xp == 0.5:
-            new_xp = xp + 0.5
-        elif xp < 30:
-            if xp >= 1:
-                xpToAdd = randint(2, 5)
-                new_xp = xp + xpToAdd
+    async with self.bot.db.acquire() as connection:
+        member = await connection.fetchrow('SELECT * FROM xp WHERE guild_id = $1 AND user_id = $2', message.guild.id, message.author.id)
+        if member:
+            xp = member["user_xp"]
+            level = (int (xp ** (1/3.25)))
+            if xp == 0.5:
+                new_xp = xp + 0.5
+            elif xp < 30:
+                if xp >= 1:
+                    xpToAdd = randint(2, 5)
+                    new_xp = xp + xpToAdd
+            else:
+                xpToAdd = randint(15, 25)
+                new_xp = xp + round(((level * xpToAdd) / 2))
+            
+            await connection.execute('UPDATE xp SET user_xp = $1 WHERE guild_id = $2 AND user_id = $3', new_xp, message.guild.id, message.author.id)
+            return (new_xp - xp)
         else:
-            xpToAdd = randint(15, 25)
-            new_xp = xp + round(((level * xpToAdd) / 2))
-        
-        query = 'UPDATE xp SET user_xp = ? WHERE guild_id = ? AND user_id = ?'
-        params = (new_xp, gid, uid)
-        await self.bot.xp.execute(query, params)
-        await self.bot.xp.commit()
-        return (new_xp - xp)
-    else:
-        await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, 1))
-        await self.bot.xp.commit()
-        return 1
+            await connection.execute('INSERT INTO xp VALUES($1,$2,$3)',(message.guild.id, message.author.id, 1))
+            return 1
 
 ###########################################################################UNSCRAMBLE
 

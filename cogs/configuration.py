@@ -323,7 +323,7 @@ class Configuration(commands.Cog):
             return await ctx.send('<a:x_:826577785173704754> This guild does not have xp enabled! Enable it with the `levels toggle` command!')  
         
         async with self.bot.db.acquire() as connection:
-            guild = await connection.fetchrow("SELECT * FROM xp_lvlup WHERE guild_id = ?", ctx.guild.id)
+            guild = await connection.fetchrow("SELECT * FROM xp_lvlup WHERE guild_id = $1", ctx.guild.id)
             if guild:
                 if 'TRUE' in guild["enabled"]:
                     await connection.execute('UPDATE xp_lvlup SET enabled = $1 WHERE guild_id = $2', 'FALSE', ctx.guild.id)
@@ -411,7 +411,7 @@ class Configuration(commands.Cog):
                         self.bot.cache_logs.pop(ctx.guild.id)
                     except KeyError:
                         pass
-                    await connection.execute("DELETE FROM logging WHERE guild_id = ?", ctx.guild.id)
+                    await connection.execute("DELETE FROM logging WHERE guild_id = $1", ctx.guild.id)
                     await ctx.send(off)
 
     @commands.max_concurrency(1, per=BucketType.guild, wait=False)
