@@ -45,9 +45,9 @@ async def get_prefix(bot, msg: discord.Message):
             pass
         
         async with bot.db.acquire() as connection:
-            custom = await connection.fetch("SELECT * FROM prefixes WHERE guild_id = $1", msg.guild.id)
+            custom = await connection.fetchrow("SELECT * FROM prefixes WHERE guild_id = $1", msg.guild.id)
             #print('used db for prefix')
-            if custom != []:
+            if custom:
                 cust_p = custom["prefix"]
                 base.append(custom["prefix"])
                 bot.cache_prefixes.update({msg.guild.id : f"{cust_p}"})

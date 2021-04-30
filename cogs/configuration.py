@@ -398,7 +398,7 @@ class Configuration(commands.Cog):
             local_log_channel = ctx.channel.id
             rows = await connection.fetchrow("SELECT * FROM logging WHERE guild_id = $1", ctx.guild.id)
             
-            if rows == []:
+            if not rows:
                 self.bot.cache_logs.update({ctx.guild.id : f"{local_log_channel}"})
 
                 await connection.execute("INSERT INTO logging VALUES($1, $2)", ctx.guild.id, local_log_channel)
@@ -406,7 +406,7 @@ class Configuration(commands.Cog):
 
             else:
                 rows = await connection.fetchrow("SELECT * FROM logging WHERE guild_id = $1", ctx.guild.id)
-                if rows != []:
+                if rows:
                     try:
                         self.bot.cache_logs.pop(ctx.guild.id)
                     except KeyError:
@@ -435,7 +435,7 @@ class Configuration(commands.Cog):
         async with self.bot.db.acquire() as connection:
             rows = await connection.fetchrow("SELECT * FROM welcome WHERE guild_id = $1", server_id)
         
-        if rows == []:
+        if not rows:
             
             try:
                 embed=discord.Embed(title="Please enter your desired WELCOME message.", color=0x7289da)
@@ -475,7 +475,7 @@ class Configuration(commands.Cog):
         else:
             async with self.bot.db.acquire() as connection:
                 rows2 = await connection.fetchrow("SELECT * FROM welcome WHERE guild_id = $1", server_id)
-                if rows2 != []:
+                if rows2:
 
                     await connection.execute("DELETE FROM welcome WHERE guild_id = $1", server_id)
                     try:

@@ -56,7 +56,7 @@ class Reminders(commands.Cog, command_attrs=dict(hidden=True)):
         async with self.bot.db.acquire() as connection:
             rows = await connection.fetch("SELECT * FROM reminders WHERE future <= $1",(current_time1))
         
-        while rows != []:
+        while rows:
             await asyncio.sleep(2)
             
             toprow = rows[0]

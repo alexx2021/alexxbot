@@ -34,7 +34,7 @@ class Giveaways(commands.Cog, command_attrs=dict(hidden=True)):
             rows = await connection.fetch("SELECT * FROM giveaways WHERE future <= $1",(current_time1))
 
 
-        while rows != []:
+        while rows:
             await asyncio.sleep(2)
             
             toprow = rows[0]

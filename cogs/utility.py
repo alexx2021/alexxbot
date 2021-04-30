@@ -421,7 +421,7 @@ class Utility(commands.Cog):
 
         async with self.bot.db.acquire() as connection:
             rows3 = await connection.fetch("SELECT * FROM reminders WHERE user_id = $1",(id))
-            if rows3 != []:
+            if rows3:
                 try:
                     if rows3[2]:
                         return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, you cannot have more than 3 reminders at once!')

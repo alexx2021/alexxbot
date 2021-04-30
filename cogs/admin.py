@@ -40,10 +40,10 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     async def logout(self, ctx):
         await ctx.send('👌')
         try:
-            await self.db.close()
+            await self.bot.db.close()
             await self.bot.close()
-        except:
-            await ctx.send('something went wrong.')
+        except Exception as e:
+            await ctx.send(e)
     
     @commands.command()
     @commands.is_owner()
@@ -102,8 +102,8 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
                 await ctx.send('fetched guild')
             await g.leave()
 
-        except:
-            await ctx.send('An error occured.', delete_after=5.0)
+        except Exception as e:
+            await ctx.send(e)
 
     #owner only command to change the status of the bot
     @commands.command()
@@ -132,8 +132,8 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
             channel = ctx.message.channel
             await channel.edit(name=new_name)
             await ctx.send(f'Changed channel name to **{new_name}** ! ✅ ', delete_after=5.0)
-        except:
-            await ctx.send('An error occured.', delete_after=5.0)
+        except Exception as e:
+            await ctx.send(e)
     
     #deletes a channel
     @commands.command()
@@ -141,24 +141,33 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     async def dc(self, ctx):
         try:
             await ctx.message.channel.delete()
-        except:
-            await ctx.send('An error occured.', delete_after=5.0)
+        except Exception as e:
+            await ctx.send(e)
     
     @commands.command()
     @commands.is_owner()
     async def cc(self, ctx,*, name):
         try:
             await ctx.guild.create_text_channel(name)
-        except:
-            await ctx.send('An error occured.', delete_after=5.0)
+        except Exception as e:
+            await ctx.send(e)
 
     @commands.command()
     @commands.is_owner()
     async def listperms(self, ctx, member: discord.Member = None):
         if not member:
-            member = ctx.message.author
-        perm_list = [perm[0] for perm in member.guild_permissions if perm[1]]
-        await ctx.send(perm_list)
+            member = ctx.guild.me
+        perm_list = ''
+        for perm in member.guild_permissions:
+            if perm[1] is False:
+                perm_list += f'🔴 {perm[0]}\n'
+            if perm[1] is True:
+                perm_list += f'🟢 {perm[0]}\n'
+            
+        
+        e = discord.Embed(description=f'**Permissions for {member}**\n\n{perm_list}', color = discord.Color.blurple())
+            
+        await ctx.send(embed = e)
 
     #bans a user
     @bot_has_permissions(ban_members=True)
@@ -218,9 +227,9 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     async def checkguild(self, ctx, guild:int):
         async with self.bot.db.acquire() as c:
             rows = await c.fetch("SELECT guild_id FROM guildblacklist WHERE guild_id = $1", guild)
-            if rows == []:
+            if rows:
                 return await ctx.send(f'Guild with id of `{guild}` was `NOT` found in the blacklist.')
-            if rows != []:
+            if not rows:
                 return await ctx.send(f'Guild with id of `{guild}` `was found` in the blacklist.')
 
     @commands.command()

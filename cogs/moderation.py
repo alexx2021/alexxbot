@@ -227,7 +227,7 @@ class Moderation(commands.Cog):
         async with self.bot.db.acquire() as connection:
             row = await connection.fetchrow(query, params)
 
-            if row != []:
+            if row:
                 role = discord.utils.get(member.guild.roles, name="alexxmuted") # checks if there is a muted role 
                 if role: # checks if there is muted role
                     if member.guild.me.guild_permissions.manage_roles: # checks if the bot has enough permissions to add the role

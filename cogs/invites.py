@@ -109,7 +109,7 @@ class Invites(commands.Cog, command_attrs=dict(hidden=True)):
         god = guild.owner.id
         async with self.bot.db.acquire() as connection:
             rows = await connection.fetchrow("SELECT user_id FROM userblacklist WHERE user_id = $1", god) #checks if a user in BL owns the server
-            if rows != []:
+            if rows:
                 await guild.leave()
                 
                 embed = discord.Embed(colour=0xe74c3c)
@@ -129,7 +129,7 @@ class Invites(commands.Cog, command_attrs=dict(hidden=True)):
 
         async with self.bot.db.acquire() as connection:
             rows = await connection.fetchrow("SELECT guild_id FROM guildblacklist WHERE guild_id = $1", guild.id)#checks if its a guild in the BL 
-            if rows != []:
+            if rows:
                 await guild.leave()
                 
                 embed = discord.Embed(colour=0xe74c3c)
