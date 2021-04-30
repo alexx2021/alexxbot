@@ -35,7 +35,7 @@ async def give_xp(self, message):
             await connection.execute('UPDATE xp SET user_xp = $1 WHERE guild_id = $2 AND user_id = $3', new_xp, message.guild.id, message.author.id)
             return (new_xp - xp)
         else:
-            await connection.execute('INSERT INTO xp VALUES($1,$2,$3)',(message.guild.id, message.author.id, 1))
+            await connection.execute('INSERT INTO xp VALUES($1,$2,$3)', message.guild.id, message.author.id, 1)
             return 1
 
 ###########################################################################UNSCRAMBLE
