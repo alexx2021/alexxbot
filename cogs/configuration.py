@@ -8,10 +8,18 @@ import asyncio
 class Configuration(commands.Cog):
     """🛠️ Commands to configure the bot's features for your server"""
     def __init__(self, bot):
-        self.bot = bot    
+        self.bot = bot
+        self._cd = commands.CooldownMapping.from_cooldown(4.0, 10.0, commands.BucketType.user)
+
+    async def cog_check(self, ctx):
+        bucket = self._cd.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after)
+        else:
+            return True    
 
     @has_permissions(manage_messages=True)
-    @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
     @commands.command(help='View all of the settings for this guild in one place.', aliases=['db', 'dash'])
     async def dashboard(self, ctx):
@@ -156,7 +164,6 @@ class Configuration(commands.Cog):
 
 
     @levels.command(help='Set certain roles to be given when a user gets to a certain level.')
-    @commands.cooldown(3, 10, commands.BucketType.user)
     @has_permissions(manage_guild=True)
     @commands.guild_only()
     async def addrole(self, ctx, level: int, role: discord.Role):
@@ -198,7 +205,6 @@ class Configuration(commands.Cog):
                 self.bot.cache_xproles.update({ctx.guild.id: {level: role.id}})
 
     @levels.command(help='Delete role reward settings')
-    @commands.cooldown(3, 10, commands.BucketType.user)
     @has_permissions(manage_guild=True)
     @commands.guild_only()
     async def delrole(self, ctx, level: int):
@@ -229,7 +235,6 @@ class Configuration(commands.Cog):
 
 
     @has_permissions(manage_guild=True)
-    @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
     @levels.command(help='Disable XP in certain channels.')
     async def ignorechannel(self, ctx: commands.Context):
@@ -274,7 +279,6 @@ class Configuration(commands.Cog):
         return await ctx.send(on)
 
     @has_permissions(manage_guild=True)
-    @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
     @levels.command(help='Re-enable XP in channels that were "ignored"')
     async def unignorechannel(self, ctx: commands.Context):
@@ -303,7 +307,6 @@ class Configuration(commands.Cog):
 
 
     @has_permissions(manage_guild=True)
-    @commands.cooldown(3, 10, commands.BucketType.user)
     @commands.guild_only()
     @levels.command(help='Enable/disable chat level messages.')
     async def togglemessages(self, ctx: commands.Context):
@@ -335,7 +338,6 @@ class Configuration(commands.Cog):
                 self.bot.cache_lvlupmsg.update({ctx.guild.id: 'TRUE'})
                 await ctx.send(on)
 
-    @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
     @levels.command(help="Enable/disable chat levels on your server.")
     @has_permissions(manage_guild=True)
@@ -385,7 +387,6 @@ class Configuration(commands.Cog):
     
     
     @has_permissions(manage_guild=True)
-    @commands.cooldown(3, 15, commands.BucketType.guild)
     @commands.command(help='Use this to set your logging channel!', hidden=False)
     async def setlogchannel(self, ctx):
         
@@ -415,7 +416,6 @@ class Configuration(commands.Cog):
 
     @commands.max_concurrency(1, per=BucketType.guild, wait=False)
     @has_permissions(manage_guild=True)
-    @commands.cooldown(3, 10, commands.BucketType.guild)
     @commands.command(help='Use this to set your welcome/goodbye channel!', hidden=False)
     async def setwelcomechannel(self, ctx):
         def check(message):
@@ -495,7 +495,6 @@ class Configuration(commands.Cog):
 
     @bot_has_permissions(manage_roles=True)
     @has_permissions(manage_roles=True)    
-    @commands.cooldown(2, 10, commands.BucketType.guild)
     @autorole.command(aliases=["autorole"],help='Sets the role that new users get on join. Respects the discord rule verification menu.')
     async def set(self, ctx, role: discord.Role):
         if ctx.author.top_role.position <= role.position:
@@ -517,7 +516,6 @@ class Configuration(commands.Cog):
 
     @bot_has_permissions(manage_roles=True)
     @has_permissions(manage_roles=True)    
-    @commands.cooldown(2, 10, commands.BucketType.guild)
     @autorole.command(help='Deletes the currently set autorole.')
     async def remove(self, ctx):
         async with self.bot.db.acquire() as connection:
@@ -540,7 +538,6 @@ class Configuration(commands.Cog):
             await ctx.send(e)
 
     @commands.command(help='Enable/disable chat games that are automatically sent to the channel you use this command in!')
-    @commands.cooldown(3, 10, commands.BucketType.user)
     @has_permissions(manage_guild=True)
     @commands.guild_only()
     async def autochatgames(self, ctx):
