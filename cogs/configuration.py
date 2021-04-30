@@ -431,8 +431,9 @@ class Configuration(commands.Cog):
         
         server_id = ctx.guild.id
         local_log_channel = ctx.channel.id
-        
-        rows = await self.bot.sc.execute_fetchall("SELECT server_id, log_channel, wMsg, bMsg FROM welcome WHERE server_id = ?",(server_id,),)
+
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetchrow("SELECT * FROM welcome WHERE guild_id = $1", server_id)
         
         if rows == []:
             
@@ -461,9 +462,8 @@ class Configuration(commands.Cog):
                 return await ctx.send(f'Message creation timed out. Please try again.')
             
             
-            
-            await self.bot.sc.execute("INSERT INTO welcome VALUES(?, ?, ?, ?)", (server_id, local_log_channel, wMsg, bMsg))
-            await self.bot.sc.commit()
+            async with self.bot.db.acquire() as connection:
+                await connection.execute("INSERT INTO welcome VALUES($1, $2, $3, $4)", server_id, local_log_channel, wMsg, bMsg)
             di = {
             "logch" : local_log_channel, 
             "wMsg" : wMsg,
@@ -473,16 +473,16 @@ class Configuration(commands.Cog):
             await ctx.send(localON)
 
         else:
-            rows2 = await self.bot.sc.execute_fetchall("SELECT server_id FROM welcome WHERE server_id = ?",(server_id,),)
-            if rows2 != []:
+            async with self.bot.db.acquire() as connection:
+                rows2 = await connection.fetchrow("SELECT * FROM welcome WHERE guild_id = $1", server_id)
+                if rows2 != []:
 
-                await self.bot.sc.execute("DELETE FROM welcome WHERE server_id = ?",(server_id,))
-                await self.bot.sc.commit()
-                try:
-                    self.bot.cache_welcome.pop(ctx.guild.id)
-                except KeyError:
-                    pass
-                await ctx.send(off)
+                    await connection.execute("DELETE FROM welcome WHERE guild_id = $1", server_id)
+                    try:
+                        self.bot.cache_welcome.pop(ctx.guild.id)
+                    except KeyError:
+                        pass
+                    await ctx.send(off)
 
 
 
@@ -502,15 +502,15 @@ class Configuration(commands.Cog):
             return await ctx.send('<a:x_:826577785173704754> The role you chose is above your highest role.')
         if ctx.guild.me.top_role.position <= role.position:
             return await ctx.send('<a:x_:826577785173704754> The role you chose is above my highest role.')
-        auto = await self.bot.sc.execute_fetchall("SELECT * FROM autorole WHERE guild_id = ?",(ctx.guild.id,),)
-        if auto:
-            await self.bot.sc.execute("UPDATE autorole SET role_id = ? WHERE guild_id = ?",(role.id, ctx.guild.id,),)
-            await self.bot.sc.commit()
-            self.bot.cache_autorole.update({ctx.guild.id : f"{role.id}"})
-        else:    
-            await self.bot.sc.execute("INSERT INTO autorole VALUES (?, ?)",(ctx.guild.id, role.id),)
-            await self.bot.sc.commit()
-            self.bot.cache_autorole.update({ctx.guild.id : f"{role.id}"})
+       
+        async with self.bot.db.acquire() as connection:
+            auto = await connection.fetchrow("SELECT * FROM autorole WHERE guild_id = $1", ctx.guild.id)
+            if auto:
+                await connection.execute("UPDATE autorole SET role_id = $1 WHERE guild_id = $2", role.id, ctx.guild.id)
+                self.bot.cache_autorole.update({ctx.guild.id : f"{role.id}"})
+            else:    
+                await connection.execute("INSERT INTO autorole VALUES ($1, $2)", ctx.guild.id, role.id)
+                self.bot.cache_autorole.update({ctx.guild.id : f"{role.id}"})
             
         e = f'<a:check:826577847023829032> Set the autorole to {role.mention}'
         await ctx.send(e)
@@ -520,14 +520,15 @@ class Configuration(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.guild)
     @autorole.command(help='Deletes the currently set autorole.')
     async def remove(self, ctx):
-        auto = await self.bot.sc.execute_fetchall("SELECT * FROM autorole WHERE guild_id = ?",(ctx.guild.id,),)
+        async with self.bot.db.acquire() as connection:
+            auto = await connection.fetchrow("SELECT * FROM autorole WHERE guild_id = $1", ctx.guild.id)
         if auto:
             try:
                 self.bot.cache_autorole.pop(ctx.guild.id)
             except KeyError:
                 pass
-            await self.bot.sc.execute("DELETE FROM autorole WHERE guild_id = ?",(ctx.guild.id,))
-            await self.bot.sc.commit()
+            async with self.bot.db.acquire() as connection:
+                await connection.execute("DELETE FROM autorole WHERE guild_id = $1", ctx.guild.id)
             e = '<a:check:826577847023829032> Autorole disabled.'
             await ctx.send(e)
         else:
@@ -547,8 +548,8 @@ class Configuration(commands.Cog):
             if self.bot.autogames[ctx.guild.id]:
                 if self.bot.autogames[ctx.guild.id]["ongoing"] == 0:
                     self.bot.autogames.pop(ctx.guild.id)
-                    await self.bot.sc.execute('DELETE FROM autogames WHERE guild_id = ?',(ctx.guild.id,))
-                    await self.bot.sc.commit()
+                    async with self.bot.db.acquire() as connection:
+                        await connection.execute('DELETE FROM autogames WHERE guild_id = $1', ctx.guild.id)
                     return await ctx.send('<a:check:826577847023829032> Disabled auto chatgames.')
                 else:
                     return await ctx.send('<a:x_:826577785173704754> You cannot disable this feature while there is an ongoing game')
@@ -568,8 +569,8 @@ class Configuration(commands.Cog):
                     elif delayInMinutes >= 121:
                         return await ctx.send('<a:x_:826577785173704754> Delay cannot be greater than 120 (minutes)')
                     self.bot.autogames.update({ctx.guild.id : {"channel_id": ctx.channel.id, "lastrun": 0, "ongoing": 0, "delay": delayInMinutes}})
-                    await self.bot.sc.execute('INSERT INTO autogames VALUES(?,?,?)',(ctx.guild.id, ctx.channel.id, delayInMinutes,))
-                    await self.bot.sc.commit()
+                    async with self.bot.db.acquire() as connection:
+                        await connection.execute('INSERT INTO autogames VALUES($1,$2,$3)', ctx.guild.id, ctx.channel.id, delayInMinutes )
                     return await ctx.send(f'<a:check:826577847023829032> Enabled auto chatgames for this channel with a delay of {delayInMinutes} minutes.')
                 else:
                     return await ctx.send('<a:x_:826577785173704754> Delay must be a whole, positive and valid number!')
