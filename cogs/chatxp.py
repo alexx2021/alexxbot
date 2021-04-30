@@ -26,12 +26,12 @@ async def import_meesix(self, ctx):
                 msg = await ctx.send('<a:loading:828842034630492231> Importing data from mee6...')
                 if data["players"]:
                     users = data["players"]
-                    for user in users:
-                        userid = user["id"]
-                        userxp = user["xp"]
-                        await self.bot.xp.execute('INSERT INTO XP VALUES (?,?,?)', (ctx.guild.id, userid, userxp,))
-                    await self.bot.xp.commit()
-                    await asyncio.sleep(0.5)
+                    async with self.bot.db.acquire() as connection:
+                        for user in users:
+                            userid = user["id"]
+                            userxp = user["xp"]
+                            await connection.execute('INSERT INTO xp VALUES ($1,$2,$3)', ctx.guild.id, userid, userxp)
+                    await asyncio.sleep(1)
                     await msg.edit(content='<a:check:826577847023829032> Done importing data from mee6.')
                     return True
             else:
@@ -101,53 +101,45 @@ class Levels(commands.Cog):
         bucket = self.cd_mapping.get_bucket(message)
         retry_after = bucket.update_rate_limit()
         if not retry_after:
-            query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
-            gid = message.guild.id
-            uid = message.author.id
-            params = (gid, uid)
-            member = await self.bot.xp.execute_fetchall(query, params)
-            if member:
-                xp = member[0][2]
-                if xp == 0.5:
-                    new_xp = xp + 0.5
-                elif xp < 30:
-                    if xp >= 1:
-                        new_xp = xp + randint(1, 2)
-                else:
-                    new_xp = xp + randint(15, 25)
+            async with self.bot.db.acquire() as connection:
+                member = await connection.fetchrow('SELECT * FROM xp WHERE guild_id = $1 AND user_id = $2', message.guild.id, message.author.id)
 
-                level = (int (xp ** (1/3.25)))
-                new_level = (int (new_xp **(1/3.25)))
-                if new_level is not None and new_level > level:
-                    await on_level_up(self, new_level, message)
+                if member:
+                    xp = member["user_xp"]
+                    if xp == 0.5:
+                        new_xp = xp + 0.5
+                    elif xp < 30:
+                        if xp >= 1:
+                            new_xp = xp + randint(1, 2)
+                    else:
+                        new_xp = xp + randint(15, 25)
+
+                    level = (int (xp ** (1/3.25)))
+                    new_level = (int (new_xp **(1/3.25)))
+                    if new_level is not None and new_level > level:
+                        await on_level_up(self, new_level, message)
+                    
+                    await connection.execute('UPDATE xp SET user_xp = $1 WHERE guild_id = $2 AND user_id = $3', new_xp, message.guild.id, message.author.id)
+                else:
+                    await connection.execute('INSERT INTO xp VALUES($1,$2,$3)', message.guild.id, message.author.id, 0.5)
+                # try:
+                #     if member[1]:
+                #         await connection.execute('DELETE FROM xp WHERE guild_id = ? AND user_id = ?', message.guild.id, message.author.id)
+                #         await connection.execute('INSERT INTO xp VALUES($1,$2,$3)',(message.guild.id, message.author.id, member["user_xp"]))
+                #         logger.warning(msg=f'Someones xp was doubled so I fixed it and set their xp to {member[0][2]} - user is {message.author} | userid {uid} | guildid {gid}')
+                # except IndexError:
+                #     pass
                 
-                query = 'UPDATE xp SET user_xp = ? WHERE guild_id = ? AND user_id = ?'
-                params = (new_xp, gid, uid)
-                await self.bot.xp.execute(query, params)
-                await self.bot.xp.commit()
-            else:
-                await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, 0.5))
-                await self.bot.xp.commit()
-            try:
-                if member[1]:
-                    query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
-                    params = (gid, uid)
-                    await self.bot.xp.execute_fetchall(query, params)
-                    await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, member[0][2]))
-                    await self.bot.xp.commit()
-                    logger.warning(msg=f'Someones xp was doubled so I fixed it and set their xp to {member[0][2]} - user is {message.author} | userid {uid} | guildid {gid}')
-            except IndexError:
-                pass
-            
-            #print('Got xp!')
+                #print('Got xp!')
 
 
     @commands.command(hidden=True)
     @commands.is_owner()
     async def testlvl(self, ctx):
-        guild = await self.bot.xp.execute_fetchall("SELECT * FROM lvlsenabled WHERE guild_id = ?",(ctx.guild.id,))
+        async with self.bot.db.acquire() as connection:
+            guild = await connection.fetchrow("SELECT * FROM xp_enabled WHERE guild_id = $1", ctx.guild.id)
         if guild:
-            if guild[0][1] == 'TRUE':
+            if 'TRUE' in guild["enabled"]:
                 perms = ctx.channel.permissions_for(ctx.guild.me)
                 if perms.send_messages: #only send if we can
                     await ctx.channel.send(
@@ -188,12 +180,8 @@ class Levels(commands.Cog):
                                 and reaction.message.channel == ctx.channel)
                 
                 if str(reaction.emoji) == "✅":
-                    query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
-                    gid = ctx.guild.id
-                    uid = ctx.author.id
-                    params = (gid, uid)
-                    await self.bot.xp.execute_fetchall(query, params)
-                    await self.bot.xp.commit()
+                    async with self.bot.db.acquire() as connection:
+                        await connection.execute('DELETE FROM xp WHERE guild_id = $1 AND user_id = $2', ctx.guild.id, ctx.author.id)
                     await ctx.send(done)
                 else:
                     await ctx.send('Operation cancelled.')
@@ -213,12 +201,8 @@ class Levels(commands.Cog):
                                 and reaction.message.channel == ctx.channel)
                 
                 if str(reaction.emoji) == "✅":
-                    query = 'DELETE FROM xp WHERE guild_id = ? AND user_id = ?' 
-                    gid = ctx.guild.id
-                    uid = member.id
-                    params = (gid, uid)
-                    await self.bot.xp.execute_fetchall(query, params)
-                    await self.bot.xp.commit()
+                    async with self.bot.db.acquire() as connection:
+                        await connection.execute('DELETE FROM xp WHERE guild_id = $1 AND user_id = $2', ctx.guild.id, member.id)
                     await ctx.send(done1)
                 else:
                     await ctx.send('Operation cancelled.')
@@ -235,21 +219,14 @@ class Levels(commands.Cog):
         if xp < 0:
             return await ctx.send('Value must not be less than 0.')
 
-        query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
-        gid = ctx.guild.id
-        uid = member.id
-        params = (gid, uid)
-        user = await self.bot.xp.execute_fetchall(query, params)
-        if user:
-            query = 'UPDATE xp SET user_xp = ? WHERE guild_id = ? AND user_id = ?'
-            params = (xp, gid, uid)
-            await self.bot.xp.execute(query, params)
-            await self.bot.xp.commit()
-            await ctx.send(f'<a:check:826577847023829032> Updated {member.name}\'s XP! New value: **{xp}**.')
-        else:
-            await self.bot.xp.execute('INSERT INTO xp VALUES(?,?,?)',(gid, uid, xp))
-            await self.bot.xp.commit()
-            await ctx.send(f'<a:check:826577847023829032> Set {member.name}\'s XP to **{xp}**!')
+        async with self.bot.db.acquire() as connection:
+            user = await connection.fetchrow('SELECT * FROM xp WHERE guild_id = $1 AND user_id = $2', ctx.guild.id, member.id) 
+            if user:
+                await connection.execute('UPDATE xp SET user_xp = $1 WHERE guild_id = $2 AND user_id = $3', xp, ctx.guild.id, member.id)
+                await ctx.send(f'<a:check:826577847023829032> Updated {member.name}\'s XP! New value: **{xp}**.')
+            else:
+                await connection.execute('INSERT INTO xp VALUES($1,$2,$3)', ctx.guild.id, member.id, xp)
+                await ctx.send(f'<a:check:826577847023829032> Set {member.name}\'s XP to **{xp}**!')
 
     @commands.max_concurrency(1, per=BucketType.guild, wait=False)
     @commands.cooldown(2, 15, commands.BucketType.guild)
@@ -275,11 +252,8 @@ class Levels(commands.Cog):
                                 and reaction.message.channel == ctx.channel)
                 
                 if str(reaction.emoji) == "✅":
-                    query = 'DELETE FROM xp WHERE guild_id = ?' 
-                    gid = ctx.guild.id
-                    params = (gid,)
-                    await self.bot.xp.execute(query, params)
-                    await self.bot.xp.commit() # xp is still enabled no need to disable first
+                    async with self.bot.db.acquire() as connection:
+                        await connection.execute('DELETE FROM xp WHERE guild_id = $1', ctx.guild.id)
                     if await import_meesix(self, ctx): #insert data here
                         pass
                 else:
@@ -314,10 +288,9 @@ class Levels(commands.Cog):
         member = member or ctx.author
         if member.bot:
             return await ctx.send("<a:x_:826577785173704754> Bots don't have levels!")
-        query = 'SELECT * FROM xp WHERE guild_id = ? AND user_id = ?' 
-        gid = ctx.guild.id
-        params = (gid, member.id)
-        db_member = await self.bot.xp.execute_fetchall(query, params)
+        
+        async with self.bot.db.acquire() as connection:
+            db_member = await connection.fetchrow('SELECT * FROM xp WHERE guild_id = $1 AND user_id = $2', ctx.guild.id, member.id)
         
         
         if not db_member:
@@ -328,15 +301,15 @@ class Levels(commands.Cog):
             )
             return await ctx.send(embed=embed)
         
-        query = 'SELECT * FROM xp WHERE guild_id = ? ORDER BY user_xp DESC' 
-        params = (gid,)
-        rows = await self.bot.xp.execute_fetchall(query, params)
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.execute('SELECT * FROM xp WHERE guild_id = $1 ORDER BY user_xp DESC', ctx.guild.id)
 
-        rank = rows.index(db_member[0]) + 1
-        level = (int (db_member[0][2] ** (1/3.25)))
+        rank = rows.index(db_member) + 1
+        level = (int (db_member["user_xp"] ** (1/3.25)))
+        db_member_xp = db_member["user_xp"]
         embed = discord.Embed(
             title=f"**Rank:** #{rank}",
-            description=f"**Level: **{level}\n**Total XP:** {db_member[0][2]}\n**XP to next level:** {db_member[0][2] - round((level ** 3.25))} / {round(((level+ 1) ** 3.25) - (level ** 3.25))}",
+            description=f"**Level: **{level}\n**Total XP:** {db_member_xp}\n**XP to next level:** {db_member_xp - round((level ** 3.25))} / {round(((level+ 1) ** 3.25) - (level ** 3.25))}",
             colour=discord.Colour.green(),
         )
         embed.set_author(name=f"{member}", icon_url=member.avatar_url)
@@ -358,9 +331,9 @@ class Levels(commands.Cog):
             except KeyError:
                 return await ctx.send(error)   
             
-            query = 'SELECT * FROM xp WHERE guild_id = ? ORDER BY user_xp DESC' 
-            params = (ctx.guild.id,)
-            rankings = await self.bot.xp.execute_fetchall(query, params)
+            async with self.bot.db.acquire() as connection:
+                rankings = connection.fetch('SELECT * FROM xp WHERE guild_id = $1 ORDER BY user_xp DESC', ctx.guild.id)
+
             if not rankings:
                 embed = discord.Embed(
                 title="<a:x_:826577785173704754> Error",
@@ -371,9 +344,9 @@ class Levels(commands.Cog):
             
             desc =[]
             for rank, record in enumerate(rankings, start=1):
-                user_id = record[1]
-                user_xp = record[2]
-                level = (int (record[2] ** (1/3.25)))
+                user_id = record["user_id"]
+                user_xp = record["user_xp"]
+                level = (int (record["user_xp"] ** (1/3.25)))
 
                 e=f"**{rank}**. <@{user_id}> | {user_xp} XP, LVL {level}"
                 desc.append(e)
@@ -408,7 +381,8 @@ class Levels(commands.Cog):
     @commands.is_owner()
     @commands.command(hidden=True)
     async def dumpxp(self, ctx):
-        rows = await self.bot.xp.execute_fetchall("SELECT * FROM xp")
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetch("SELECT * FROM xp")
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')
@@ -418,7 +392,8 @@ class Levels(commands.Cog):
     @commands.is_owner()
     @commands.command(hidden=True)
     async def dumpxpe(self, ctx):
-        settings = await self.bot.xp.execute_fetchall("SELECT * FROM chatlvlsenabled")
+        async with self.bot.db.acquire() as connection:
+            settings = await connection.fetch("SELECT * FROM xp_enabled")
         print('-----------dump-----------')
         print(settings)
         print('--------------------------')
