@@ -40,6 +40,7 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     async def logout(self, ctx):
         await ctx.send('👌')
         try:
+            await self.db.close()
             await self.bot.close()
         except:
             await ctx.send('something went wrong.')
@@ -201,24 +202,22 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     @commands.is_owner()
     async def addguild(self, ctx, guild:int):
-        async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("INSERT INTO guildblacklist VALUES(?)", (guild,))
-            await c.commit()
+        async with self.bot.db.acquire() as c:
+            await c.execute("INSERT INTO guildblacklist VALUES($1)", guild)
         await ctx.send(f'Guild with id of `{guild}` was blacklisted ✅')
 
     @commands.command()
     @commands.is_owner()
     async def removeguild(self, ctx, guild:int):
-        async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("DELETE FROM guildblacklist WHERE guild_id = ?",(guild,))
-            await c.commit()
+        async with self.bot.db.acquire() as c:
+            await c.execute("DELETE FROM guildblacklist WHERE guild_id = $1", guild)
         await ctx.send(f'Guild with id of `{guild}` was removed from the blacklist ✅')
 
     @commands.command()
     @commands.is_owner()
     async def checkguild(self, ctx, guild:int):
-        async with aiosqlite.connect('blacklists.db') as c:
-            rows = await c.execute_fetchall("SELECT guild_id FROM guildblacklist WHERE guild_id = ?",(guild,),)
+        async with self.bot.db.acquire() as c:
+            rows = await c.fetch("SELECT guild_id FROM guildblacklist WHERE guild_id = $1", guild)
             if rows == []:
                 return await ctx.send(f'Guild with id of `{guild}` was `NOT` found in the blacklist.')
             if rows != []:
@@ -227,18 +226,16 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.command()
     @commands.is_owner()
     async def whitelist(self, ctx, guild:int):
-        async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("INSERT INTO whitelist VALUES(?)", (guild,))
-            await c.commit()
+        async with self.bot.db.acquire() as c:
+            await c.execute("INSERT INTO whitelist VALUES($1)", guild)
         self.bot.cache_whitelist.update({guild : True})
         await ctx.send(f'Guild with id of `{guild}` was whitelisted ✅')
 
     @commands.command()
     @commands.is_owner()
     async def unwhitelist(self, ctx, guild:int):
-        async with aiosqlite.connect('blacklists.db') as c:
-            await c.execute("DELETE FROM whitelist WHERE guild_id = ?",(guild,))
-            await c.commit()
+        async with self.bot.db.acquire() as c:
+            await c.execute("DELETE FROM whitelist WHERE guild_id = $1", guild)
             self.bot.cache_whitelist.update({guild : False})
         await ctx.send(f'Guild with id of `{guild}` was removed from the whitelist ✅')
 
