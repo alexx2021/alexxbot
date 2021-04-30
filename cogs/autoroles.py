@@ -12,7 +12,8 @@ class aR(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.is_owner()
     @commands.command()
     async def dumpar(self, ctx):
-        roles = await self.bot.sc.execute_fetchall("SELECT * FROM autorole")
+        async with self.bot.db.acquire() as connection:
+            roles = await connection.fetch("SELECT * FROM autorole")
         print('-----------dump-----------')
         print(roles)
         print('--------------------------')
