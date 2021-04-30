@@ -22,10 +22,10 @@ async def give_xp(self, message):
         if member:
             xp = member["user_xp"]
             level = (int (xp ** (1/3.25)))
-            if xp == 0.5:
-                new_xp = xp + 0.5
+            if xp == 1 or xp <= 1:
+                new_xp = xp + 1
             elif xp < 30:
-                if xp >= 1:
+                if xp >= 2:
                     xpToAdd = randint(2, 5)
                     new_xp = xp + xpToAdd
             else:

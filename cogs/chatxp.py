@@ -106,22 +106,22 @@ class Levels(commands.Cog):
 
                 if member:
                     xp = member["user_xp"]
-                    if xp == 0.5:
-                        new_xp = xp + 0.5
+                    if xp == 1 or xp <= 1:
+                        new_xp = xp + 1
                     elif xp < 30:
-                        if xp >= 1:
+                        if xp >= 2:
                             new_xp = xp + randint(1, 2)
                     else:
                         new_xp = xp + randint(15, 25)
+                    
+                    await connection.execute('UPDATE xp SET user_xp = $1 WHERE guild_id = $2 AND user_id = $3', new_xp, message.guild.id, message.author.id)
 
                     level = (int (xp ** (1/3.25)))
                     new_level = (int (new_xp **(1/3.25)))
                     if new_level is not None and new_level > level:
                         await on_level_up(self, new_level, message)
-                    
-                    await connection.execute('UPDATE xp SET user_xp = $1 WHERE guild_id = $2 AND user_id = $3', new_xp, message.guild.id, message.author.id)
                 else:
-                    await connection.execute('INSERT INTO xp VALUES($1,$2,$3)', message.guild.id, message.author.id, 0.5)
+                    await connection.execute('INSERT INTO xp VALUES($1,$2,$3)', message.guild.id, message.author.id, 1)
                 # try:
                 #     if member[1]:
                 #         await connection.execute('DELETE FROM xp WHERE guild_id = ? AND user_id = ?', message.guild.id, message.author.id)
@@ -302,7 +302,7 @@ class Levels(commands.Cog):
             return await ctx.send(embed=embed)
         
         async with self.bot.db.acquire() as connection:
-            rows = await connection.execute('SELECT * FROM xp WHERE guild_id = $1 ORDER BY user_xp DESC', ctx.guild.id)
+            rows = await connection.fetch('SELECT * FROM xp WHERE guild_id = $1 ORDER BY user_xp DESC', ctx.guild.id)
 
         rank = rows.index(db_member) + 1
         level = (int (db_member["user_xp"] ** (1/3.25)))
@@ -332,7 +332,7 @@ class Levels(commands.Cog):
                 return await ctx.send(error)   
             
             async with self.bot.db.acquire() as connection:
-                rankings = connection.fetch('SELECT * FROM xp WHERE guild_id = $1 ORDER BY user_xp DESC', ctx.guild.id)
+                rankings = await connection.fetch('SELECT * FROM xp WHERE guild_id = $1 ORDER BY user_xp DESC', ctx.guild.id)
 
             if not rankings:
                 embed = discord.Embed(
