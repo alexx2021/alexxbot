@@ -196,11 +196,7 @@ credentials = {
 
 #global database connections
 loop = asyncio.get_event_loop()
-bot.bl = loop.run_until_complete(aiosqlite.connect('blacklists.db'))
-bot.pr = loop.run_until_complete(aiosqlite.connect('prefix.db'))
 bot.sc = loop.run_until_complete(aiosqlite.connect('serverconfigs.db'))
-bot.rm = loop.run_until_complete(aiosqlite.connect('reminders.db'))
-bot.m = loop.run_until_complete(aiosqlite.connect('muted.db')) #todo - maybe merge this with another db?
 bot.xp = loop.run_until_complete(aiosqlite.connect('chatxp.db'))
 
 bot.db = loop.run_until_complete(asyncpg.create_pool(**credentials))
@@ -225,7 +221,8 @@ extensions = (
         "utility",
         "welcome",
         "autogames",
-        'cplusplus'
+        'cplusplus',
+        'migrate'
     )
 
 loop.create_task(setup_stuff(bot)) #sets up stuff before cogs load
