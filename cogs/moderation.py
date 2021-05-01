@@ -16,7 +16,7 @@ class Moderation(commands.Cog):
     """🚨 Commands to help you keep your server safe"""
     def __init__(self, bot):
         self.bot = bot
-        self._cd = commands.CooldownMapping.from_cooldown(5.0, 10.0, commands.BucketType.user)
+        self._cd = commands.CooldownMapping.from_cooldown(6.0, 10.0, commands.BucketType.user)
 
     async def cog_check(self, ctx):
         bucket = self._cd.get_bucket(ctx.message)
