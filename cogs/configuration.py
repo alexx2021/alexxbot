@@ -9,7 +9,7 @@ class Configuration(commands.Cog):
     """🛠️ Commands to configure the bot's features for your server"""
     def __init__(self, bot):
         self.bot = bot
-        self._cd = commands.CooldownMapping.from_cooldown(4.0, 10.0, commands.BucketType.user)
+        self._cd = commands.CooldownMapping.from_cooldown(5.0, 10.0, commands.BucketType.user)
 
     async def cog_check(self, ctx):
         bucket = self._cd.get_bucket(ctx.message)
