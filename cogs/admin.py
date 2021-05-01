@@ -227,9 +227,9 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     async def checkguild(self, ctx, guild:int):
         async with self.bot.db.acquire() as c:
             rows = await c.fetch("SELECT guild_id FROM guildblacklist WHERE guild_id = $1", guild)
-            if rows:
-                return await ctx.send(f'Guild with id of `{guild}` was `NOT` found in the blacklist.')
             if not rows:
+                return await ctx.send(f'Guild with id of `{guild}` was `NOT` found in the blacklist.')
+            if rows:
                 return await ctx.send(f'Guild with id of `{guild}` `was found` in the blacklist.')
 
     @commands.command()
