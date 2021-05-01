@@ -28,8 +28,8 @@ async def import_meesix(self, ctx):
                     users = data["players"]
                     async with self.bot.db.acquire() as connection:
                         for user in users:
-                            userid = user["id"]
-                            userxp = user["xp"]
+                            userid = int(user["id"])
+                            userxp = int(user["xp"])
                             await connection.execute('INSERT INTO xp VALUES ($1,$2,$3)', ctx.guild.id, userid, userxp)
                     await asyncio.sleep(1)
                     await msg.edit(content='<a:check:826577847023829032> Done importing data from mee6.')

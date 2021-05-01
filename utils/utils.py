@@ -70,8 +70,8 @@ async def setup_stuff(bot):
         for msg in msgs:
             di = {
             "logch" : msg["log_channel"], 
-            "wMsg" : msg["wMsg"],
-            "bMsg" : msg["bMsg"]
+            "wMsg" : msg["wmsg"],
+            "bMsg" : msg["bmsg"]
                     }
             bot.cache_welcome[msg["guild_id"]] = di
         

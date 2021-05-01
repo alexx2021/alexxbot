@@ -140,7 +140,7 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
         except KeyError:
             return
         async with self.bot.db.acquire() as connection:
-            connection.execute('DELETE FROM xp WHERE guild_id = $1 AND user_id = $2', member.guild.id, member.id)
+            await connection.execute('DELETE FROM xp WHERE guild_id = $1 AND user_id = $2', member.guild.id, member.id)
 
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)

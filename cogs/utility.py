@@ -342,8 +342,8 @@ class Utility(commands.Cog):
         except asyncio.exceptions.TimeoutError:
             return await ctx.send(f'Giveaway creation timed out.')
 
-        e = discord.Embed(color=0x7289da, title=f'`{prize}` will be given away in {counter}', description= '**Is this correct?**')
-        m = await ctx.send(embed=e)
+        e = f'`{prize}` will be given away in {counter}. \n**Is this correct?**'
+        m = await ctx.send(e)
         try:
             await m.add_reaction("✅")
             await asyncio.sleep(0.25)

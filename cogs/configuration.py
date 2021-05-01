@@ -100,8 +100,14 @@ class Configuration(commands.Cog):
 
             try:
                 l = '<:on1:834549521148411994>\n'
+                counter = 0
                 for key in self.bot.cache_xproles[ctx.guild.id].items():
                     l += f'Level {key[0]}: <@&{key[1]}>\n'
+                    counter += 1
+
+                if counter == 0:
+                    return "<:off:834549474100641812>"
+
                 return f"{l}"      
             except KeyError:
                 return "<:off:834549474100641812>"
@@ -185,10 +191,11 @@ class Configuration(commands.Cog):
             return await ctx.send('<a:x_:826577785173704754> The role you chose is above my highest role.')
 
         async with self.bot.db.acquire() as connection:
-            guild = await connection.fetch('SELECT * FROM xp_rewards WHERE guild_id = $1 AND level = $2', ctx.guild.id, level)
+            guild = await connection.fetchrow('SELECT * FROM xp_rewards WHERE guild_id = $1 AND level = $2', ctx.guild.id, level)
+            currentNumberSet = await connection.fetch('SELECT * FROM xp_rewards WHERE guild_id = $1', ctx.guild.id)
             try:
-                if guild[9]:
-                    return await ctx.send('<a:x_:826577785173704754> You are only allowed to create 10 role rewards per guild.')
+                if currentNumberSet[14]:
+                    return await ctx.send('<a:x_:826577785173704754> You are only allowed to create 15 role rewards per guild.')
             except IndexError:
                 pass
             if guild:
@@ -199,8 +206,7 @@ class Configuration(commands.Cog):
                 await ctx.send(f'<a:check:826577847023829032> The {role.mention} role will now be given to people who obtain level {level}!')
             try:
                 enabled = self.bot.cache_xproles[ctx.guild.id]
-                if enabled:
-                    self.bot.cache_xproles[ctx.guild.id].update({level: role.id})
+                self.bot.cache_xproles[ctx.guild.id].update({level: role.id})
             except KeyError:
                 self.bot.cache_xproles.update({ctx.guild.id: {level: role.id}})
 

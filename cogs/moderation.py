@@ -222,10 +222,9 @@ class Moderation(commands.Cog):
         gid = int(member.guild.id)
         uid = int(member.id)
 
-        query = 'SELECT * FROM pmuted_users WHERE guild_id = $1 AND user_id = $2' # delete data from db only pertaining to the specific user and guild
-        params = (gid, uid)
+         # delete data from db only pertaining to the specific user and guild
         async with self.bot.db.acquire() as connection:
-            row = await connection.fetchrow(query, params)
+            row = await connection.fetchrow('SELECT * FROM pmuted_users WHERE guild_id = $1 AND user_id = $2', gid, uid)
 
             if row:
                 role = discord.utils.get(member.guild.roles, name="alexxmuted") # checks if there is a muted role 
