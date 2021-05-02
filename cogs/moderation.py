@@ -166,7 +166,8 @@ class Moderation(commands.Cog):
     @commands.is_owner()
     @commands.command(hidden=True)
     async def dumpM(self, ctx):
-        rows = await self.bot.m.execute_fetchall("SELECT guild_id, user_id FROM pmuted_users")
+        async with self.bot.db.acquire() as connection:
+            rows = await connection.fetch("SELECT * FROM pmuted_users") #fix
         print('-----------dump-----------')
         print(rows)
         print('-----------dump-----------')

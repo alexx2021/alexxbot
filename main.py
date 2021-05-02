@@ -194,12 +194,21 @@ credentials = {
     "host": "127.0.0.1",
 }
 
+DBPASS = os.getenv("DB_PASS")
+credentialsVPS = {
+    "user": "alexx",
+    "database": "alexx",
+    "host": "127.0.0.1",
+    "password": DBPASS,
+}
+
+
+
 #global database connections
 loop = asyncio.get_event_loop()
-bot.sc = loop.run_until_complete(aiosqlite.connect('serverconfigs.db'))
-bot.xp = loop.run_until_complete(aiosqlite.connect('chatxp.db'))
 
 bot.db = loop.run_until_complete(asyncpg.create_pool(**credentials))
+
 
 
 extensions = (
@@ -221,8 +230,7 @@ extensions = (
         "utility",
         "welcome",
         "autogames",
-        'cplusplus',
-        'migrate'
+        'cplusplus'
     )
 
 loop.create_task(setup_stuff(bot)) #sets up stuff before cogs load
@@ -360,7 +368,8 @@ async def socket(ctx):
 @commands.is_owner()
 @bot.command(hidden=True)
 async def dumppr(ctx):
-    guilds = await bot.pr.execute_fetchall("SELECT * FROM prefixes")
+    async with bot.db.acquire() as connection:
+        guilds = await connection.fetch("SELECT * FROM prefixes")
     print('-----------dump-----------')
     print(guilds)
     print('--------------------------')
@@ -370,7 +379,8 @@ async def dumppr(ctx):
 @commands.is_owner()
 @bot.command(hidden=True)
 async def dumpbl(ctx):
-    users = await bot.bl.execute_fetchall("SELECT * FROM userblacklist")
+    async with bot.db.acquire() as connection:
+        users = await connection.fetch("SELECT * FROM userblacklist")
     print('-----------dump-----------')
     print(users)
     print('--------------------------')
