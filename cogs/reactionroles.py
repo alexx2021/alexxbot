@@ -81,7 +81,32 @@ class rr(commands.Cog, command_attrs=dict(hidden=True)):
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `set`, `remove`, `clear`.')
 
     @has_permissions(manage_guild=True)
-    @bot_has_permissions(add_reactions=True, manage_roles=True)
+    @bot_has_permissions(manage_messages=True, manage_roles=True)
+    @rr.command(help='Clears all reactions and associated role settings for a message.')
+    async def clear(self, ctx, channelMention: discord.TextChannel, msgID: int):
+        if channelMention.guild == ctx.guild:
+            pass
+        else:
+            return await ctx.send('<a:x_:826577785173704754> Channel is not in this guild.')
+
+        p_msg = channelMention.get_partial_message(int(msgID))
+        try:
+            await p_msg.clear_reactions()
+        except:
+            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message \n2. Permissions are missing to remove reactions from the message \n3. The message ID you provided is not valid')
+        
+        try:
+            self.bot.cache_reactionroles[ctx.guild.id].pop(msgID)
+        except KeyError:
+            async with self.bot.db.acquire() as connection:
+                await connection.execute('DELETE FROM reactionroles WHERE guild_id = $1 AND message_id = $2', ctx.guild.id, msgID)
+            return await ctx.send('<a:x_:826577785173704754> You cannot clear this message because there are no reactions/roles associated with it in the first place.')
+
+        async with self.bot.db.acquire() as connection:
+            await connection.execute('DELETE FROM reactionroles WHERE guild_id = $1 AND message_id = $2', ctx.guild.id, msgID)
+
+    @has_permissions(manage_guild=True)
+    @bot_has_permissions(manage_messages=True, manage_roles=True)
     @rr.command(help='Remove an emoji from your reaction role message.')
     async def remove(self, ctx, channelMention: discord.TextChannel, msgID: int, emoji: str):
         if await is_def_emoji(self, ctx, emoji) == []:
