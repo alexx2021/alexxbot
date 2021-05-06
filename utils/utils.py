@@ -141,6 +141,7 @@ async def get_or_fetch_channel(self, channel_id):
     ch = self.bot.get_channel(int(channel_id))
     if ch:
         #print('get_channel')
+        self.bot.gech['Get'] += 1
         return ch
 
     try:
@@ -149,6 +150,7 @@ async def get_or_fetch_channel(self, channel_id):
         return None
     else:
         #print('fetch_channel')
+        self.bot.gech['Fetch'] += 1
         return ch
 
 async def gech_main(bot, channel_id):
@@ -157,6 +159,7 @@ async def gech_main(bot, channel_id):
     ch = bot.get_channel(int(channel_id))
     if ch:
         #print('get_channel')
+        bot.gech['Get'] += 1
         return ch
 
     try:
@@ -165,6 +168,7 @@ async def gech_main(bot, channel_id):
         return None
     else:
         #print('fetch_channel')
+        bot.gech['Fetch'] += 1
         return ch
 
 async def get_or_fetch_member(self, guild, member_id): #from r danny :)
@@ -172,6 +176,7 @@ async def get_or_fetch_member(self, guild, member_id): #from r danny :)
     member = guild.get_member(int(member_id))
     if member is not None:
         #print('get_member')
+        self.bot.gech['Get'] += 1
         return member
 
     try:
@@ -180,6 +185,7 @@ async def get_or_fetch_member(self, guild, member_id): #from r danny :)
         return None
     else:
         #print('fetch_member')
+        self.bot.gech['Fetch'] += 1
         return member
 
 async def get_or_fetch_guild(self, guild_id): #from r danny :)
@@ -187,6 +193,7 @@ async def get_or_fetch_guild(self, guild_id): #from r danny :)
     guild = self.bot.get_guild(int(guild_id))
     if guild is not None:
         # print('get_guild')
+        self.bot.gech['Get'] += 1
         return guild
 
     try:
@@ -195,6 +202,7 @@ async def get_or_fetch_guild(self, guild_id): #from r danny :)
         return None
     else:
         # print('fetch_guild')
+        self.bot.gech['Fetch'] += 1
         return guild
 ########################LOGGING###########################
 async def sendlog(self, guild, content):
@@ -232,7 +240,7 @@ async def sendlogFile(self, guild, content):
 
 async def check_if_log(self, guild):
     try:
-        check = self.bot.cache_logs[guild.id]
+        self.bot.cache_logs[guild.id]
         #print('CheckifLog True')
         return True
     except KeyError:

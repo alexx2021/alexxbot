@@ -188,6 +188,8 @@ bot.autogames = {}
 bot.sp = {}
 bot.sp.update({"enabled": False})
 
+#track fetches/gets for the session
+bot.gech = Counter()
 
 
 credentials = {
@@ -364,6 +366,7 @@ async def socket(ctx):
         if not item == None:
             content += f"{item} {bot.socketStats[item]}\n"
     await ctx.send(content)
+    await ctx.send(bot.gech)
 
 
 
