@@ -12,10 +12,18 @@ class Games(commands.Cog):
     """🎮 Games to play with your friends"""
     def __init__(self, bot):
         self.bot = bot
+        self._cd = commands.CooldownMapping.from_cooldown(6.0, 10.0, commands.BucketType.user)
+
+    async def cog_check(self, ctx):
+        bucket = self._cd.get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after)
+        else:
+            return True    
     
     
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
-    @commands.cooldown(1, 5, commands.BucketType.user)
     @bot_has_permissions(embed_links=True, manage_messages=True, add_reactions=True)
     @commands.command(help='Battle a user of your choice in this interactive game!')
     async def deathbattle(self, ctx, user: discord.Member):
@@ -249,7 +257,6 @@ class Games(commands.Cog):
     #minesweeper owo
     @commands.guild_only()
     @commands.command(help=('Randomly generated minesweeper game!'))
-    @commands.cooldown(1, 3, commands.BucketType.user)
     async def tacosweeper(self, ctx, columns = None, rows = None, tacos = None):
         if columns is None or rows is None and tacos is None:
             if columns is not None or rows is not None or tacos is not None:

@@ -268,12 +268,18 @@ class Utility(commands.Cog):
     #about command
     @commands.command(aliases=["info", "about"],help="Gives you information about the bot.")
     async def stats(self, ctx):
+        delta_uptime = datetime.datetime.utcnow() - self.bot.launch_time
+        hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        days, hours = divmod(hours, 24)
+
         embed = discord.Embed(color=0x7289da)
         embed.title = "About the Bot"
         embed.description = ('A multi-purpose discord bot written in python by `Alexx#7687` that is straightforward and easy to use. \nOh, and how could I forget? Cats. Lots of cats. 🐱')
         embed.add_field(name='Total servers', value=f' {len(self.bot.guilds)}', inline = True)
         embed.add_field(name='Total users', value = f'{len(set(self.bot.get_all_members()))}', inline = True)
-        # embed.add_field(name='Ping', value=f'{round(self.bot.latency * 1000)}ms', inline = True)
+        #embed.add_field(name='Ping', value=f'{round(self.bot.latency * 1000)}ms', inline = True)
+        embed.add_field(name='Uptime', value=f"{days}d, {hours}h, {minutes}m, {seconds}s", inline=True)
         embed.timestamp = datetime.datetime.utcnow()
         embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
         await ctx.send(embed=embed)
