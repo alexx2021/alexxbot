@@ -561,7 +561,7 @@ class Configuration(commands.Cog):
             def check(message):
                 return message.author == ctx.author and message.channel == ctx.channel
             
-            await ctx.send('Please enter the delay you would like between sending the chat games.')
+            await ctx.send('Please send the delay in minutes (as a number) that you would like between sending the chat games.')
             try:    
                 msg = await self.bot.wait_for('message', check=check, timeout=30)
                 if msg.content.isnumeric():

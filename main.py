@@ -67,6 +67,7 @@ intents=intents,
 allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False), 
 activity=discord.Streaming(name=f"_help", url='https://www.twitch.tv/alexxwastakenlol')
 )
+bot.launch_time = datetime.datetime.utcnow()
 
 
 class MyHelp(commands.HelpCommand):
@@ -171,6 +172,7 @@ bot.cache_lvlsenabled = {}
 bot.cache_lvlupmsg = {}
 bot.cache_xpignoredchannels = {}
 bot.cache_xproles = {}
+bot.cache_reactionroles = {}
 
 
 #users who spam get added to a dict, and if they spam 5 times they get auto-blacklisted from the bot
@@ -230,7 +232,8 @@ extensions = (
         "utility",
         "welcome",
         "autogames",
-        'cplusplus'
+        'cplusplus',
+        "reactionroles"
     )
 
 loop.create_task(setup_stuff(bot)) #sets up stuff before cogs load

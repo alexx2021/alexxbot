@@ -53,6 +53,11 @@ async def pop_all(self, guild):
     except KeyError:
         pass
 
+    try:
+        self.bot.cache_reactionroles.pop(guild.id)
+    except KeyError:
+        pass
+
 class Events(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
@@ -106,6 +111,9 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
             await connection.execute("DELETE FROM autogames WHERE guild_id = $1", server)
             await connection.execute("DELETE FROM xp_ignoredchannels WHERE guild_id = $1", server)
             await connection.execute("DELETE FROM xp_rewards WHERE guild_id = $1", server)
+
+            await connection.execute("DELETE FROM reactionroles WHERE guild_id = $1", server)
+
 
             await connection.execute("DELETE FROM xp WHERE guild_id = $1", server)
             await connection.execute("DELETE FROM xp_enabled WHERE guild_id = $1", server)
