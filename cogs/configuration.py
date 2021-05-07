@@ -1,4 +1,5 @@
-from utils.utils import check_if_log, is_def_emoji
+import re
+from utils.utils import check_if_log
 import discord
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
@@ -119,6 +120,18 @@ class Configuration(commands.Cog):
                 return f"<:on1:834549521148411994> <#{int(ch)}> | Delay: {delay}min" 
             except KeyError:
                 return "<:off:834549474100641812>"
+        async def _reactionroles():
+            try:
+                counter = 0
+                for key in self.bot.cache_reactionroles[ctx.guild.id].items():
+                    counter += 1
+
+                if counter == 0:
+                    return "<:off:834549474100641812>"
+                else:
+                    return '<:on1:834549521148411994>'
+            except KeyError:
+                return "<:off:834549474100641812>"  
 
 
 
@@ -133,6 +146,7 @@ class Configuration(commands.Cog):
         + f'\n*Log channel:* \n{await _log()}'
         + f'\n*Welcome/Goodbye channel:* \n{await _welcomech()}'
         + f'\n*Autogames:* \n{await _autogames()}'
+        + f'\n*Reaction roles:* \n{await _reactionroles()}'
             )
 
         e.add_field(name='Leveling settings', 
@@ -616,8 +630,6 @@ class Configuration(commands.Cog):
     @bot_has_permissions(manage_messages=True, manage_roles=True)
     @rr.command(help='Remove an emoji from your reaction role message.')
     async def remove(self, ctx, channelMention: discord.TextChannel, msgID: int, emoji: str):
-        if await is_def_emoji(self, ctx, emoji) == []:
-            return await ctx.send('<a:x_:826577785173704754> Only default discord emojis are allowed to be used.')
 
         if channelMention.guild == ctx.guild:
             pass
@@ -628,8 +640,12 @@ class Configuration(commands.Cog):
         try:
             await p_msg.clear_reaction(emoji)
         except:
-            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message \n2. Permissions are missing to remove reactions from the message \n3. The message ID you provided is not valid')
-        
+            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message or remove reactions (missing perms) \n3. The message ID you provided is not valid\n4. The emoji is not in this server')
+
+        if ":" in emoji:
+            emoji = re.split(":", emoji)[1]
+            #return await ctx.send('<a:x_:826577785173704754> Only default discord emojis can be used.')
+
         try:
             self.bot.cache_reactionroles[ctx.guild.id][msgID].pop(str(emoji))
         except KeyError:
@@ -640,7 +656,7 @@ class Configuration(commands.Cog):
         async with self.bot.db.acquire() as connection:
             await connection.execute('DELETE FROM reactionroles WHERE guild_id = $1 AND message_id = $2 AND reaction = $3', ctx.guild.id, msgID, emoji)
         
-        await ctx.send(content =f'<a:check:826577847023829032> The emoji {str(emoji)} has been removed from the message.')
+        await ctx.send(content =f'<a:check:826577847023829032> The emoji "{str(emoji)}" has been removed from the message.')
 
     @has_permissions(manage_guild=True)
     @bot_has_permissions(add_reactions=True, manage_roles=True)
@@ -654,10 +670,6 @@ class Configuration(commands.Cog):
         except IndexError:
             pass
 
-        if await is_def_emoji(self, ctx, emoji) == []:
-            return await ctx.send('<a:x_:826577785173704754> Only default discord emojis are allowed to be used.')
-        
-        
         if channelMention.guild == ctx.guild:
             pass
         else:
@@ -667,7 +679,11 @@ class Configuration(commands.Cog):
         try:
             await p_msg.add_reaction(emoji)
         except:
-            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message \n2. Permissions are missing to add reactions to the message \n3. The message ID you provided is not valid')
+            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message or add reactions (missing perms) \n3. The message ID you provided is not valid\n4. The emoji is not in this server')
+
+        if ":" in emoji:
+            emoji = re.split(":", emoji)[1]
+            #return await ctx.send('<a:x_:826577785173704754> Only default discord emojis can be used.')
 
         if ctx.author.top_role.position <= role.position:
             return await ctx.send('<a:x_:826577785173704754> The role you chose is above your highest role.')
@@ -693,7 +709,7 @@ class Configuration(commands.Cog):
         e = discord.Embed(description=f'[Jump to message]({p_msg.jump_url})', color= 0)
 
 
-        await ctx.send(content =f'<a:check:826577847023829032> The emoji {str(emoji)} has been associated with the role {role.mention}', embed=e)
+        await ctx.send(content =f'<a:check:826577847023829032> The emoji "{str(emoji)}" has been associated with the role {role.mention}', embed=e)
 
 
 def setup(bot):
