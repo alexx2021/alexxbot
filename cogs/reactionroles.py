@@ -138,6 +138,14 @@ class rr(commands.Cog, command_attrs=dict(hidden=True)):
     @bot_has_permissions(add_reactions=True, manage_roles=True)
     @rr.command(help='Associate a reaction on a message with a role to be given.')
     async def set(self, ctx, channelMention: discord.TextChannel, msgID: int, emoji: str, role: discord.Role):
+        try:
+            async with self.bot.db.acquire() as connection:
+                rows = await connection.fetch('SELECT * FROM reactionroles WHERE guild_id = $1', ctx.guild.id)
+                if rows[25]:
+                    return await ctx.send('<a:x_:826577785173704754> You cannot have more than 25 reaction roles at once.')
+        except IndexError:
+            pass
+
         if await is_def_emoji(self, ctx, emoji) == []:
             return await ctx.send('<a:x_:826577785173704754> Only default discord emojis are allowed to be used.')
         
