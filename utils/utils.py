@@ -127,7 +127,6 @@ async def setup_stuff(bot):
                 bot.cache_reactionroles[rr["guild_id"]][rr["message_id"]] = {rr["reaction"]: rr["role_id"]}
 
 
-    print(bot.cache_reactionroles)
     print('cache is setup!!')
     print(f'blacklist - {bot.cache_ubl}')
 ###################################################################################
