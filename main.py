@@ -74,7 +74,7 @@ class MyHelp(commands.HelpCommand):
     def __init__(self, **options):
         super().__init__(command_attrs={
         'cooldown': commands.Cooldown(1, 5, commands.BucketType.user), 
-        'max_concurrency': commands.MaxConcurrency(1, per=commands.BucketType.user, wait=False)})
+        'max_concurrency': commands.MaxConcurrency(2, per=commands.BucketType.user, wait=False)})
     
     bot.linksString = 'ℹ️ [Support Server](https://discord.gg/zPWMRMXQ7H)\n🎉 [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
     
