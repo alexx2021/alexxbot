@@ -30,13 +30,13 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
             return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, You must wait **{round(error.retry_after, 2)}** seconds before using this command again.')
         
         elif isinstance(error, commands.MissingPermissions):
-            return await ctx.send(f"<a:x_:826577785173704754> {ctx.author.mention}, You are missing the following permissions: `{' '.join(error.missing_perms)}`.")
+            return await ctx.send(f"<a:x_:826577785173704754> {ctx.author.mention}, {error}.")
 
         elif isinstance(error, commands.BotMissingPermissions):
-            return await ctx.send(f" <a:x_:826577785173704754>I am missing the following permissions: `{' '.join(error.missing_perms)}`.")
+            return await ctx.send(f" <a:x_:826577785173704754> {error}.")
 
         elif isinstance(error, commands.BadArgument):
-            return await ctx.send(f'<a:x_:826577785173704754> Command was given bad/invalid arguments.')
+            return await ctx.send(f'<a:x_:826577785173704754> Command was given bad/invalid arguments. `{error}`')
         
         elif isinstance(error, commands.NotOwner): 
             return
@@ -48,7 +48,7 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
             return await ctx.send(f'<a:x_:826577785173704754> This command cannot be run at this time due to concurrency limits.')
             
         elif isinstance(error, commands.errors.NSFWChannelRequired):
-            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention} This command cannot be run in a non-nsfw marked channel...')
+            return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, {error}')
         
         ###################################################
         # the following are for the music portion of the bot
