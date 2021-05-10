@@ -363,7 +363,7 @@ class Configuration(commands.Cog):
     @has_permissions(manage_guild=True)
     @bot_has_permissions(add_reactions=True)
     async def toggle(self, ctx):
-        on = '<a:check:826577847023829032> Enabled chat leveling!'
+        on = '<a:check:826577847023829032> Enabled chat leveling!\n You can enable level-up messages with `levels togglemessages` if you are interested.'
         off = '<a:check:826577847023829032> Done. Chat levels for this server are now disabled.'
         warn = discord.Embed(description = 'You are about to disable the leveling system for this server.\n__ALL DATA WILL BE LOST__.\nAre you sure?', color = discord.Color.red(), title = 'Warning')
         
