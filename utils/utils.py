@@ -251,7 +251,6 @@ async def check_if_important_msg(self, guildID, messageID):
         
         async with self.bot.db.acquire() as connection:
             await connection.execute('DELETE FROM reactionroles WHERE guild_id = $1 AND message_id = $2', guildID, messageID)
-            print('got here')
     except KeyError:
         return
 ########################BLACKLIST###########################
