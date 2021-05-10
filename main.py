@@ -181,6 +181,9 @@ bot._auto_spam_count = Counter()
 #help command dict LOL
 bot.help_menu_counter = Counter()
 
+#reaction role anti spam dict LOL
+bot.reaction_spam = {}
+
 # keeps track of last sent minigame automsg + also if its enabled
 bot.autogames = {}
 

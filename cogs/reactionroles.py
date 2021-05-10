@@ -1,9 +1,9 @@
 import asyncio
 from utils.utils import get_or_fetch_guild, get_or_fetch_member
 import discord
-from discord.ext import commands
-from discord.ext.commands.core import bot_has_permissions, command, has_permissions
+from discord.ext import commands, tasks
 from discord.raw_models import RawReactionActionEvent
+import time
 
 
 async def process_reaction(self, payload: RawReactionActionEvent, action=None): # TODO add spam protection
@@ -25,22 +25,48 @@ async def process_reaction(self, payload: RawReactionActionEvent, action=None): 
                 if action == "add":
                     if user.guild.me.top_role.position > role.position:
                         if user.guild.me.guild_permissions.manage_roles:
-                            await user.add_roles(role, reason='Reactionrole.')
+                            await user.add_roles(role, reason='Reaction role.')
                 if action == "remove":
                     if user.guild.me.top_role.position > role.position:
                         if user.guild.me.guild_permissions.manage_roles:
-                            await user.remove_roles(role, reason='Reactionrole.')
+                            await user.remove_roles(role, reason='Reaction role.')
             except KeyError:
                 return
 
 async def reaction_spam_check(self, payload: RawReactionActionEvent):
+    if payload.guild_id:
+        #check if its a valid msg
+        try:
+            self.bot.cache_reactionroles[payload.guild_id][payload.message_id]
+        except KeyError:
+            return False
+
+        try:
+            if self.bot.reaction_spam[payload.user_id]:
+                if time.time() >= (self.bot.reaction_spam[payload.user_id]["time"] + 5): #remove outdated data
+                    try:
+                        self.bot.reaction_spam.pop(payload.user_id)
+                    except KeyError:
+                        pass
+
+                    self.bot.reaction_spam[payload.user_id] = {"count": 1, "time": time.time()} #recreate entry after popping
+                    return True
+                else:
+                    if self.bot.reaction_spam[payload.user_id]["count"] >= 5: #deny if count >= 5
+                        return False
+                    else:
+                        self.bot.reaction_spam[payload.user_id]["count"] += 1 # else add 1 to count
+                        return True
+        except KeyError:
+            self.bot.reaction_spam[payload.user_id] = {"count": 1, "time": time.time()}
+            return True
+
+    
     return True
 
 class rr(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
-
- 
     
 
     @commands.is_owner()

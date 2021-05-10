@@ -2,7 +2,6 @@ import asyncio
 import discord
 import logging
 import time
-import re
 
 from discord.ext import commands
 
@@ -245,6 +244,16 @@ async def check_if_log(self, guild):
     except KeyError:
         #print('CheckifLog False')
         return False
+
+async def check_if_important_msg(self, guildID, messageID):
+    try:
+        self.bot.cache_reactionroles[guildID].pop(messageID)
+        
+        async with self.bot.db.acquire() as connection:
+            await connection.execute('DELETE FROM reactionroles WHERE guild_id = $1 AND message_id = $2', guildID, messageID)
+            print('got here')
+    except KeyError:
+        return
 ########################BLACKLIST###########################
 async def blacklist_user(self, user: discord.User):
     async with self.bot.db.acquire() as connection:

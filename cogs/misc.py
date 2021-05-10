@@ -2,7 +2,8 @@ import discord
 import datetime
 import asyncio
 from discord import Activity, ActivityType
-from utils.utils import get_or_fetch_channel
+from discord.raw_models import RawMessageDeleteEvent
+from utils.utils import check_if_important_msg, get_or_fetch_channel
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 
@@ -149,6 +150,14 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
             return
         async with self.bot.db.acquire() as connection:
             await connection.execute('DELETE FROM xp WHERE guild_id = $1 AND user_id = $2', member.guild.id, member.id)
+
+
+    @commands.Cog.listener()
+    async def on_raw_message_delete(self, payload: RawMessageDeleteEvent):
+        if payload.guild_id:
+            await check_if_important_msg(self, payload.guild_id, payload.message_id)
+                
+
 
 #################################################SHHHHHHHHHHH!
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)

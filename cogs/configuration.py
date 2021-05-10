@@ -640,7 +640,7 @@ class Configuration(commands.Cog):
         try:
             await p_msg.clear_reaction(emoji)
         except:
-            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message or remove reactions (missing perms) \n3. The message ID you provided is not valid\n4. The emoji is not in this server')
+            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message or remove reactions (missing perms) \n2. The message ID you provided is not valid\n3. The emoji is not in this server')
 
         if ":" in emoji:
             emoji = re.split(":", emoji)[1]
@@ -679,7 +679,7 @@ class Configuration(commands.Cog):
         try:
             await p_msg.add_reaction(emoji)
         except:
-            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message or add reactions (missing perms) \n3. The message ID you provided is not valid\n4. The emoji is not in this server')
+            return await ctx.send('<a:x_:826577785173704754> An error occured.\n\nPossible reasons why this failed: \n1. I was not able to access this message or add reactions (missing perms) \n2. The message ID you provided is not valid\n3. The emoji is not in this server')
 
         if ":" in emoji:
             emoji = re.split(":", emoji)[1]
