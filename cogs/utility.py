@@ -392,7 +392,7 @@ class Utility(commands.Cog):
 
     @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.command(help='Reminds you about something after the time you choose!', aliases=["rm","remind"])
-    async def remindme(self, ctx,  timeinput, text: str):
+    async def remindme(self, ctx,  timeinput, *, text):
         err = f'<a:x_:826577785173704754> An error occurred. Please check the following:\n\n1. The time is not more than 90 days, or less than 10 seconds\n2. The text you input was absurdly long\n3. The formatting for the time might be incorrect. `s|m|h|d` are valid time unit arguments.'
 
         seconds = 0
