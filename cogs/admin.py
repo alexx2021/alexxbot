@@ -5,7 +5,6 @@ from traceback import format_exception
 import asyncio
 from utils.utils import blacklist_user, unblacklist_user
 import discord
-import aiosqlite
 import time
 from discord.ext import commands
 from discord.ext.commands.core import bot_has_permissions
@@ -34,6 +33,31 @@ class Pag(Paginator):
 class Admin(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
+
+
+    @bot_has_permissions(read_message_history=True)
+    @commands.command()
+    @commands.is_owner()
+    async def cleanup(self, ctx, limit: int = 10):
+        async for message in ctx.channel.history(limit=limit):
+            if message.author == self.bot.user:
+                await message.delete()
+                await asyncio.sleep(0.25)
+                
+        await ctx.send('👌', delete_after=3.0)
+
+
+
+    @commands.command()
+    @commands.is_owner()
+    async def debug(self, ctx):
+        cmd = self.bot.get_command('dashboard')
+        await cmd.invoke(ctx)
+        await asyncio.sleep(0.25)
+        cmd = self.bot.get_command('listperms')
+        await cmd.invoke(ctx)
+
+
 
     @commands.command()
     @commands.is_owner()
