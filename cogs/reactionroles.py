@@ -67,6 +67,21 @@ async def reaction_spam_check(self, payload: RawReactionActionEvent):
 class reactionr(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
+        self.purge_old_bucket.start()
+
+
+    @tasks.loop(minutes=10, reconnect=True)
+    async def purge_old_bucket(self):
+        purgeList = []
+        for key in self.bot.reaction_spam.keys():
+            if time.time() > self.bot.reaction_spam[key]["time"] + 6:
+                purgeList.append(key)
+
+        for key in purgeList:
+            try:
+                self.bot.reaction_spam.pop(key)
+            except KeyError:
+                return
     
 
     @commands.is_owner()
