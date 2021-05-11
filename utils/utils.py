@@ -25,6 +25,7 @@ async def setup_db(bot):
     await bot.db.execute("CREATE TABLE IF NOT EXISTS autorole(guild_id BIGINT, role_id BIGINT)")
     await bot.db.execute("CREATE TABLE IF NOT EXISTS autogames(guild_id BIGINT, channel_id BIGINT, delay BIGINT)")
     await bot.db.execute("CREATE TABLE IF NOT EXISTS reactionroles(guild_id BIGINT, message_id BIGINT, reaction TEXT, role_id BIGINT)")
+    await bot.db.execute("CREATE TABLE IF NOT EXISTS mediaonly(guild_id BIGINT, channel_id BIGINT)")
 
 
     await bot.db.execute("CREATE TABLE IF NOT EXISTS xp_rewards(guild_id BIGINT, level BIGINT, role_id BIGINT)")
@@ -124,6 +125,15 @@ async def setup_stuff(bot):
                 bot.cache_reactionroles[rr["guild_id"]][rr["message_id"]][rr["reaction"]] = rr["role_id"]
             except KeyError:
                 bot.cache_reactionroles[rr["guild_id"]][rr["message_id"]] = {rr["reaction"]: rr["role_id"]}
+
+
+        mediaonly = await connection.fetch("SELECT * FROM mediaonly") 
+        for channel in mediaonly:
+            try:    
+                bot.cache_mediaonly[channel["guild_id"]][channel["channel_id"]] = channel["channel_id"]
+            except KeyError:
+                di = {channel["channel_id"]: channel["channel_id"]}
+                bot.cache_mediaonly[channel["guild_id"]] = di
 
 
     print('cache is setup!!')

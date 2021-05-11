@@ -173,6 +173,7 @@ bot.cache_lvlupmsg = {}
 bot.cache_xpignoredchannels = {}
 bot.cache_xproles = {}
 bot.cache_reactionroles = {}
+bot.cache_mediaonly = {}
 
 
 #users who spam get added to a dict, and if they spam 5 times they get auto-blacklisted from the bot
@@ -238,7 +239,8 @@ extensions = (
         "welcome",
         "autogames",
         'cplusplus',
-        "reactionroles"
+        "reactionroles",
+        "mediaonly"
     )
 
 loop.create_task(setup_stuff(bot)) #sets up stuff before cogs load

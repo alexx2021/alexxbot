@@ -82,9 +82,10 @@ class rr(commands.Cog, command_attrs=dict(hidden=True)):
 
 
     @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload: RawReactionActionEvent):
+    async def on_raw_reaction_add(self, payload: RawReactionActionEvent):        
         if await reaction_spam_check(self, payload):
-            await process_reaction(self, payload, "add")
+            if self.bot.cache_ubl[payload.user_id] == False:
+                await process_reaction(self, payload, "add")
 
 
 
@@ -92,7 +93,8 @@ class rr(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload: RawReactionActionEvent):
         if await reaction_spam_check(self, payload):
-            await process_reaction(self, payload, "remove")
+            if self.bot.cache_ubl[payload.user_id] == False:
+                await process_reaction(self, payload, "remove")
 
 
     

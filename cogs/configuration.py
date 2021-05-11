@@ -712,5 +712,45 @@ class Configuration(commands.Cog):
         await ctx.send(content =f'<a:check:826577847023829032> The emoji "{str(emoji)}" has been associated with the role {role.mention}', embed=e)
 
 
+    @commands.group(help='Enable/disable media only mode for a channel.')
+    async def mediaonly(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `enable`, `disable`.')
+
+
+    @has_permissions(manage_guild=True)
+    @bot_has_permissions(manage_messages=True)
+    @mediaonly.command()
+    async def enable(self, ctx, channel: discord.TextChannel):
+        try:
+            self.bot.cache_mediaonly[ctx.guild.id][channel.id]
+            return await ctx.send(f'<a:x_:826577785173704754> {channel.mention} is already a media only channel.')
+        except KeyError:
+            pass
+
+
+        try:    
+            self.bot.cache_mediaonly[ctx.guild.id][channel.id] = channel.id
+        except KeyError:
+            di = {channel.id: channel.id}
+            self.bot.cache_mediaonly[ctx.guild.id] = di
+        
+        async with self.bot.db.acquire() as connection:
+            await connection.execute('INSERT INTO mediaonly VALUES($1,$2)', ctx.guild.id, channel.id)
+        await ctx.send(f'<a:check:826577847023829032> {channel.mention} is now a media only channel.')
+
+    @has_permissions(manage_guild=True)
+    @bot_has_permissions(manage_messages=True)
+    @mediaonly.command()
+    async def disable(self, ctx, channel: discord.TextChannel):
+        try:    
+            self.bot.cache_mediaonly[ctx.guild.id].pop(channel.id)
+            async with self.bot.db.acquire() as connection:
+                await connection.execute('DELETE FROM mediaonly WHERE guild_id = $1 AND channel_id = $2', ctx.guild.id, channel.id)
+            await ctx.send(f'<a:check:826577847023829032> {channel.mention} is no longer a media only channel.')
+        except KeyError:
+            await ctx.send(f'<a:x_:826577785173704754> {channel.mention} is not a media only channel.')
+
+
 def setup(bot):
 	bot.add_cog(Configuration(bot))
