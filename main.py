@@ -1,13 +1,10 @@
 import asyncio
 import datetime
-import time
-from discord.ext.commands.cooldowns import BucketType
 from utils.utils import blacklist_user_main, gech_main, help_paginate, setup_stuff
 import discord
 from discord.ext import commands
 import os
 import logging
-import aiosqlite
 import asyncpg
 from dotenv import load_dotenv
 from collections import Counter, defaultdict
