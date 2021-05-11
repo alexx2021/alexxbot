@@ -398,7 +398,7 @@ class Moderation(commands.Cog):
             await ctx.send(f'Disabled slowmode! <a:check:826577847023829032>')
         await ctx.channel.edit(slowmode_delay=seconds)
 
-    @commands.group(help='Use this command to do specialized cleanup in a channel based on what type of content it is.')
+    @commands.group(help='Commands to do specialized cleanup in a channel based on what type of content it is.')
     async def remove(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `bot`, `attachments`, `contains`, `user`.') #msg.attachments

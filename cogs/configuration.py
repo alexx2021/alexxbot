@@ -175,7 +175,7 @@ class Configuration(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @commands.cooldown(2, 10, commands.BucketType.guild)
-    @commands.command(aliases=["changeprefix", "prefix"],help='Sets the server prefix.')
+    @commands.command(aliases=["changeprefix", "prefix"],help='Change my prefix.')
     async def setprefix(self, ctx, prefix: str):
         await self.bot.wait_until_ready()
         error = '<a:x_:826577785173704754> Prefix is too long! Please try again with something shorter.'
@@ -193,7 +193,7 @@ class Configuration(commands.Cog):
         e = f'<a:check:826577847023829032> Set prefix to `{prefix}`'
         await ctx.send(e)
 
-    @commands.group(help='Use this to manage chat leveling settings.')
+    @commands.group(help='Commands to configure the leveling system.')
     async def levels(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `toggle`, `togglemessages`, `addrole`, `delrole`, `ignorechannel`, `unignorechannel`.')
@@ -423,7 +423,7 @@ class Configuration(commands.Cog):
     
     
     @has_permissions(manage_guild=True)
-    @commands.command(help='Use this to set your logging channel!', hidden=False)
+    @commands.command(help='Set your logging channel!', hidden=False)
     async def setlogchannel(self, ctx):
         
         on = f'<a:check:826577847023829032> Logging channel set to {ctx.channel.mention}.'
@@ -452,7 +452,7 @@ class Configuration(commands.Cog):
 
     @commands.max_concurrency(1, per=BucketType.guild, wait=False)
     @has_permissions(manage_guild=True)
-    @commands.command(help='Use this to set your welcome/goodbye channel!', hidden=False)
+    @commands.command(help='Set your welcome/goodbye channel!', hidden=False)
     async def setwelcomechannel(self, ctx):
         def check(message):
             return message.author == ctx.author and message.channel == ctx.channel
@@ -522,7 +522,7 @@ class Configuration(commands.Cog):
 
 
 
-    @commands.group(help='Use this to manage autorole settings.')
+    @commands.group(help='Commands to manage autorole settings.')
     async def autorole(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `remove`, `set`.')
@@ -573,7 +573,7 @@ class Configuration(commands.Cog):
             e = '<a:x_:826577785173704754> There is no autorole currently set up in this server.'
             await ctx.send(e)
 
-    @commands.command(help='Enable/disable chat games that are automatically sent to the channel you use this command in!')
+    @commands.command(help='Enable/disable automatic chat games!')
     @has_permissions(manage_guild=True)
     @commands.guild_only()
     async def autochatgames(self, ctx):
@@ -610,7 +610,7 @@ class Configuration(commands.Cog):
             except asyncio.exceptions.TimeoutError:
                 return await ctx.send('Operation timed out.')
 
-    @commands.group(help='Use this to manage reaction role settings.')
+    @commands.group(help='Commands to manage reactionrole settings.', aliases=['rr'])
     async def reactionrole(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `set`, `remove`, `clear`.')

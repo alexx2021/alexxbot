@@ -28,7 +28,7 @@ class Utility(commands.Cog):
             return True
 
 
-    @commands.group(help='Use this to create a poll/add reactions to the msg above.')
+    @commands.group(help='Commands to aid you in creating a poll.')
     async def poll(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `create`, `react`, `custom`.')
@@ -92,7 +92,7 @@ class Utility(commands.Cog):
             await poll.add_reaction(emoji)
 
     #ping command
-    @commands.command(help="Shows the latency of the bot & websocket in milliseconds.",)
+    @commands.command(help="🏓",)
     async def ping(self, ctx):
         start = time.perf_counter()
         end = time.perf_counter()
@@ -115,7 +115,7 @@ class Utility(commands.Cog):
     #userinfo command
     @commands.cooldown(3, 6, commands.BucketType.user)
     @commands.guild_only()
-    @commands.command(aliases=["whois"], help='Displays information about a mentioned user.')
+    @commands.command(aliases=["whois"], help='Get information about a user.')
     async def userinfo(self, ctx, user: discord.User=None):
         if user is None:
             user = ctx.author
@@ -162,7 +162,7 @@ class Utility(commands.Cog):
             roles2 = [role.mention for role in roles]
             if roles2 == []:
                 roles2 = ['None']
-            if len(roles2) > 10:
+            if len(roles2) > 13:
                 roles2 = ['Error. User has too many roles.']
 
             embed.add_field(name="Roles:", value="".join(roles2))
@@ -182,7 +182,7 @@ class Utility(commands.Cog):
 
 
 	#server info command
-    @commands.command(help='Displays information about the server.')
+    @commands.command(help='Get information about this server.')
     async def serverinfo(self, ctx):
         embed = discord.Embed(title="Server Information", colour=0x7289da, timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=ctx.guild.icon_url)
@@ -266,7 +266,7 @@ class Utility(commands.Cog):
 
 
     #about command
-    @commands.command(aliases=["info", "about"],help="Gives you information about the bot.")
+    @commands.command(aliases=["info", "about"],help="Bot stats.")
     async def stats(self, ctx):
         delta_uptime = datetime.datetime.utcnow() - self.bot.launch_time
         hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
@@ -299,7 +299,7 @@ class Utility(commands.Cog):
     @bot_has_permissions(manage_messages=True, add_reactions=True)
     @commands.cooldown(2, 10, commands.BucketType.guild) 
     @commands.guild_only()
-    @commands.command(help='Use this to create a giveaway in your server that randomly chooses the winner!')
+    @commands.command(help='Create a giveaway!')
     async def giveaway(self,ctx): #check if giveaway already exists in the server
         def promptCheck(message):
             return message.author == ctx.author and message.channel == ctx.channel
@@ -391,8 +391,10 @@ class Utility(commands.Cog):
             await connection.execute("INSERT INTO giveaways VALUES($1, $2, $3, $4, $5)", guild_id, channel_id, message_id, user_id, future)
 
     @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.command(help='Reminds you about something after the time you choose! \n __timeinput__: 1 second --> 1s, 1 minute --> 1m, 1 hour --> 1h, 1 day --> 1d \nChoose ONE time unit in the command.', aliases=["rm","remind"])
-    async def remindme(self, ctx,  timeinput, *, text):
+    @commands.command(help='Reminds you about something after the time you choose!', aliases=["rm","remind"])
+    async def remindme(self, ctx,  timeinput, text: str):
+        err = f'<a:x_:826577785173704754> An error occurred. Please check the following:\n\n1. The time is not more than 90 days, or less than 10 seconds\n2. The text you input was absurdly long\n3. The formatting for the time might be incorrect. `s|m|h|d` are valid time unit arguments.'
+
         seconds = 0
         try: 
             if timeinput.lower().endswith("d"):
@@ -409,16 +411,16 @@ class Utility(commands.Cog):
                 counter = f"**{seconds} second(s)**"
             
             if seconds < 10:
-                await ctx.send(f"<a:x_:826577785173704754> Time must not be less than 10 seconds.")
+                await ctx.send(err)
                 return
             if seconds > 7776000:
-                await ctx.send(f"<a:x_:826577785173704754> Time must not be more than 90 days")
+                await ctx.send(err)
                 return
             if len(text) > 1900:
-                await ctx.send(f"<a:x_:826577785173704754> The text you provided is too long.")
+                await ctx.send(err)
                 return
         except ValueError:
-            return await ctx.send('<a:x_:826577785173704754> Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
+            return await ctx.send(err)
         
         future = int(time.time()+seconds)
         id = int(ctx.author.id)
