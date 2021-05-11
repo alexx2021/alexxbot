@@ -64,7 +64,7 @@ async def reaction_spam_check(self, payload: RawReactionActionEvent):
     
     return True
 
-class rr(commands.Cog, command_attrs=dict(hidden=True)):
+class reactionr(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
     
@@ -166,4 +166,4 @@ class rr(commands.Cog, command_attrs=dict(hidden=True)):
 
             
 def setup(bot):
-    bot.add_cog(rr(bot))
+    bot.add_cog(reactionr(bot))

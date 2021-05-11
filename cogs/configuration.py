@@ -10,7 +10,7 @@ class Configuration(commands.Cog):
     """🛠️ Commands to configure the bot's features for your server"""
     def __init__(self, bot):
         self.bot = bot
-        self._cd = commands.CooldownMapping.from_cooldown(5.0, 10.0, commands.BucketType.user)
+        self._cd = commands.CooldownMapping.from_cooldown(6.0, 10.0, commands.BucketType.user)
 
     async def cog_check(self, ctx):
         bucket = self._cd.get_bucket(ctx.message)
@@ -132,6 +132,21 @@ class Configuration(commands.Cog):
                     return '<:on1:834549521148411994>'
             except KeyError:
                 return "<:off:834549474100641812>"  
+        async def _mediaonly():
+            counter = 0
+            try:
+                l = '<:on1:834549521148411994>\n'
+                for key in self.bot.cache_mediaonly[ctx.guild.id].items():
+                    l += f'<#{key[0]}>\n'
+                    counter += 1
+
+
+                if counter == 0:
+                    return "<:off:834549474100641812>"
+                else:
+                    return f"{l}"  
+            except KeyError:
+                return "<:off:834549474100641812>"  
 
 
 
@@ -147,6 +162,7 @@ class Configuration(commands.Cog):
         + f'\n*Welcome/Goodbye channel:* \n{await _welcomech()}'
         + f'\n*Autogames:* \n{await _autogames()}'
         + f'\n*Reaction roles:* \n{await _reactionroles()}'
+        + f'\n*Media only channels:* \n{await _mediaonly()}'
             )
 
         e.add_field(name='Leveling settings', 
@@ -595,13 +611,13 @@ class Configuration(commands.Cog):
                 return await ctx.send('Operation timed out.')
 
     @commands.group(help='Use this to manage reaction role settings.')
-    async def rr(self, ctx):
+    async def reactionrole(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `set`, `remove`, `clear`.')
 
     @has_permissions(manage_guild=True)
     @bot_has_permissions(manage_messages=True, manage_roles=True)
-    @rr.command(help='Clears all reactions and associated role settings for a message.')
+    @reactionrole.command(help='Clears all reactions and associated role settings for a message.')
     async def clear(self, ctx, channelMention: discord.TextChannel, msgID: int):
         if channelMention.guild == ctx.guild:
             pass
@@ -628,7 +644,7 @@ class Configuration(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @bot_has_permissions(manage_messages=True, manage_roles=True)
-    @rr.command(help='Remove an emoji from your reaction role message.')
+    @reactionrole.command(help='Remove an emoji from your reaction role message.')
     async def remove(self, ctx, channelMention: discord.TextChannel, msgID: int, emoji: str):
 
         if channelMention.guild == ctx.guild:
@@ -660,7 +676,7 @@ class Configuration(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @bot_has_permissions(add_reactions=True, manage_roles=True)
-    @rr.command(help='Associate a reaction on a message with a role to be given.')
+    @reactionrole.command(help='Associate a reaction on a message with a role to be given.')
     async def set(self, ctx, channelMention: discord.TextChannel, msgID: int, emoji: str, role: discord.Role):
         try:
             async with self.bot.db.acquire() as connection:
@@ -720,7 +736,7 @@ class Configuration(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @bot_has_permissions(manage_messages=True)
-    @mediaonly.command()
+    @mediaonly.command(help='Messages that do not contain attachments will be deleted (in the configured channels)')
     async def enable(self, ctx, channel: discord.TextChannel):
         try:
             self.bot.cache_mediaonly[ctx.guild.id][channel.id]
@@ -741,7 +757,7 @@ class Configuration(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @bot_has_permissions(manage_messages=True)
-    @mediaonly.command()
+    @mediaonly.command(help='Disable media only mode for a given channel.')
     async def disable(self, ctx, channel: discord.TextChannel):
         try:    
             self.bot.cache_mediaonly[ctx.guild.id].pop(channel.id)
