@@ -12,7 +12,7 @@ BOT_ID = int(752585938630082641)
 
 
 #Moderation Category
-class Moderation(commands.Cog):
+class moderation(commands.Cog):
     """🚨 Commands to help you keep your server safe"""
     def __init__(self, bot):
         self.bot = bot
@@ -452,4 +452,4 @@ class Moderation(commands.Cog):
             await ctx.send(f'Deleted {(len(deleted))} messages belonging to {user}! `:P`', delete_after=3.0)
 
 def setup(bot):
-    bot.add_cog(Moderation(bot))
+    bot.add_cog(moderation(bot))

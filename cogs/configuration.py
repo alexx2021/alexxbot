@@ -6,7 +6,7 @@ from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands.core import bot_has_permissions, has_permissions
 import asyncio
     
-class Configuration(commands.Cog):
+class configuration(commands.Cog):
     """🛠️ Commands to configure the bot's features for your server"""
     def __init__(self, bot):
         self.bot = bot
@@ -769,4 +769,4 @@ class Configuration(commands.Cog):
 
 
 def setup(bot):
-	bot.add_cog(Configuration(bot))
+	bot.add_cog(configuration(bot))

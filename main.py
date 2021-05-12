@@ -74,7 +74,6 @@ class MyHelp(commands.HelpCommand):
         'max_concurrency': commands.MaxConcurrency(2, per=commands.BucketType.user, wait=False)})
     
     bot.linksString = 'ℹ️ [Support Server](https://discord.gg/zPWMRMXQ7H)\n🎉 [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
-    
     # help
     async def send_bot_help(self, mapping):
         """ Sends the main help menu """
@@ -94,7 +93,7 @@ class MyHelp(commands.HelpCommand):
                 else:
                     cmdHelp = f'`{self.clean_prefix}help {cog}`\n'
                 cogObj = bot.get_cog(cog)
-                e.add_field(name=cog, value=f'{cmdHelp}{cogObj.description}', inline = False)
+                e.add_field(name=f'{cog[0].upper()}{cog[1:]}', value=f'{cmdHelp}{cogObj.description}', inline = False)
         helpMessage = await self.context.reply(embed=e)
         await help_paginate(self, bot, helpMessage)
        

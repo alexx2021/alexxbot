@@ -12,7 +12,7 @@ logger = logging.getLogger('discord')
 
 
 #Fun Category
-class Fun(commands.Cog):
+class fun(commands.Cog):
     """🙂 Fun commands"""
     def __init__(self, bot):
         self.bot = bot
@@ -319,4 +319,4 @@ class Fun(commands.Cog):
         
 
 def setup(bot):
-    bot.add_cog(Fun(bot))
+    bot.add_cog(fun(bot))

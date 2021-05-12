@@ -64,7 +64,7 @@ async def on_level_up(self, level: int, message: discord.Message):
         await message.channel.send(
             f"Nice job {message.author.mention}, you are now level **{level}**!")
 
-class Levels(commands.Cog):
+class levels(commands.Cog):
     """💬 Commands related to the chat leveling module"""
     def __init__(self, bot):
         self.bot = bot    
@@ -401,4 +401,4 @@ class Levels(commands.Cog):
         print('-----------dump-----------')
 
 def setup(bot):
-    bot.add_cog(Levels(bot))
+    bot.add_cog(levels(bot))
