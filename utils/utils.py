@@ -321,7 +321,7 @@ async def check_reaction_type(self, bot):
             if not bot.help_menu_counter[f"{self.context.message.author.id}-1"]:  
                 bot.help_menu_counter[f"{self.context.message.author.id}-1"] += 1
                 
-                await self.context.send_help('Levels')
+                await self.context.send_help('levels')
                 await check_reaction_type(self,bot)
             else:
                 await check_reaction_type(self,bot)
@@ -329,7 +329,7 @@ async def check_reaction_type(self, bot):
             if not bot.help_menu_counter[f"{self.context.message.author.id}-2"]:  
                 bot.help_menu_counter[f"{self.context.message.author.id}-2"] += 1
                 
-                await self.context.send_help('Configuration')
+                await self.context.send_help('configuration')
                 await check_reaction_type(self,bot)
             else:
                 await check_reaction_type(self,bot)
@@ -337,7 +337,7 @@ async def check_reaction_type(self, bot):
         elif str(reaction.emoji) == "🙂":
             if not bot.help_menu_counter[f"{self.context.message.author.id}-3"]:
                 bot.help_menu_counter[f"{self.context.message.author.id}-3"] += 1
-                await self.context.send_help('Fun')
+                await self.context.send_help('fun')
                 await check_reaction_type(self,bot)
             else:
                 await check_reaction_type(self,bot)
@@ -346,7 +346,7 @@ async def check_reaction_type(self, bot):
             if not bot.help_menu_counter[f"{self.context.message.author.id}-4"]:
                 bot.help_menu_counter[f"{self.context.message.author.id}-4"] += 1
 
-                await self.context.send_help('Games')
+                await self.context.send_help('games')
                 await check_reaction_type(self,bot)
             else:
                 await check_reaction_type(self,bot)
@@ -356,7 +356,7 @@ async def check_reaction_type(self, bot):
             if not bot.help_menu_counter[f"{self.context.message.author.id}-5"]:
                 bot.help_menu_counter[f"{self.context.message.author.id}-5"] += 1
 
-                await self.context.send_help('Moderation')
+                await self.context.send_help('moderation')
                 await check_reaction_type(self,bot)
             else:
                 await check_reaction_type(self,bot)
@@ -365,7 +365,7 @@ async def check_reaction_type(self, bot):
             if not bot.help_menu_counter[f"{self.context.message.author.id}-6"]:
                 bot.help_menu_counter[f"{self.context.message.author.id}-6"] += 1
 
-                await self.context.send_help('Utility')
+                await self.context.send_help('utility')
                 await check_reaction_type(self,bot)
             else:
                 await check_reaction_type(self,bot)
