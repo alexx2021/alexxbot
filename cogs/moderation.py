@@ -102,15 +102,17 @@ class moderation(commands.Cog):
                 channelperms = channel.permissions_for(ctx.guild.me)
                 if channelperms.view_channel is False:
                     failedchannels += 1
-                    pass 
                 elif channelperms.manage_permissions is False:
                     failedchannels += 1
-                    pass 
                 else:
-                    await channel.set_permissions(muted, send_messages=False,
-                                                read_message_history=False,
-                                                read_messages=False)
-                    successfulchannels += 1
+                    try:
+                        await channel.set_permissions(muted, send_messages=False,
+                                                    read_message_history=False,
+                                                    read_messages=False)
+                        successfulchannels += 1
+                    except discord.errors.Forbidden:
+                        failedchannels += 1
+
             await member.add_roles(muted, reason=f"By {ctx.author} for {reason}") # adds newly created muted role
 
             async with self.bot.db.acquire() as connection:
