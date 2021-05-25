@@ -29,27 +29,29 @@ class fun(commands.Cog):
     @commands.guild_only() 
     @commands.command(help='Finds a random meme for you.')
     async def meme(self, ctx):
-        # async with aiohttp.ClientSession() as session:
-        #     async with session.get("https://meme-api.herokuapp.com/gimme") as response:
-        #         data = await response.json()
-        # embed = discord.Embed(title=data["title"], colour=0x7289da)
-        # embed.set_image(url=data["url"])
-        # embed.set_footer(
-        #     text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
-        # )
-        # await ctx.send(embed=embed)        
+        apiChoice = random.randint(1,2)
+        if apiChoice == 1:
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://meme-api.herokuapp.com/gimme") as response:
+                    data = await response.json()
+            embed = discord.Embed(title=data["title"], colour=0x7289da)
+            embed.set_image(url=data["url"])
+            embed.set_footer(
+                text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
+            )
+            await ctx.send(embed=embed)        
         
-        
-        async with aiohttp.ClientSession() as session:
-            url = ['https://evergene.io/api/memes','https://evergene.io/api/dankmemes']
-            async with session.get(random.choice(url)) as response:
-                data = await response.json()
-        embed = discord.Embed(title='Meme', colour=0x7289da)
-        embed.set_image(url=data["url"])
-        embed.set_footer(
-            text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
-        )
-        await ctx.send(embed=embed)
+        else:
+            async with aiohttp.ClientSession() as session:
+                url = ['https://evergene.io/api/memes','https://evergene.io/api/dankmemes']
+                async with session.get(random.choice(url)) as response:
+                    data = await response.json()
+            embed = discord.Embed(title='Meme', colour=0x7289da)
+            embed.set_image(url=data["url"])
+            embed.set_footer(
+                text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
+            )
+            await ctx.send(embed=embed)
 
     #fact command
     @commands.guild_only()
