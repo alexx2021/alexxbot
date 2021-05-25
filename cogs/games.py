@@ -1,11 +1,13 @@
 import asyncio
+import time
 import discord
 from discord.embeds import Embed    
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 import random
-
+import rapidfuzz
 from discord.ext.commands.core import bot_has_permissions
+
 
 
 class games(commands.Cog):
@@ -13,6 +15,24 @@ class games(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._cd = commands.CooldownMapping.from_cooldown(6.0, 10.0, commands.BucketType.user)
+        self.bot.quotes = {
+            'Life is what happens when you are busy making other plans.': 'L i f e   i s   w h a t   h a p p e n s   w h e n   y o u   a r e   b u s y   m a k i n g   o t h e r   p l a n s.',
+            'The greatest glory in living lies not in never falling, but in rising every time we fall.': 'T h e   g r e a t e s t   g l o r y   i n   l i v i n g   l i e s   n o t   i n   n e v e r   f a l l i n g,   b u t   i n   r i s i n g   e v e r y   t i m e   w e   f a l l.',
+            'The way to get started is to quit talking and begin doing.':'T h e   w a y   t o   g e t   s t a r t e d   i s   t o   q u i t   t a l k i n g   a n d   b e g i n   d o i n g.',
+            'When you reach the end of your rope, tie a knot in it and hang on.':'W h e n   y o u   r e a c h   t h e   e n d   o f   y o u r   r o p e,   t i e   a   k n o t   i n   i t   a n d   h a n g   o n.',
+            'Tell me and I forget. Teach me and I remember. Involve me and I learn.':'T e l l   m e   a n d   I   f o r g e t.   T e a c h   m e   a n d   I   r e m e m b e r.   I n v o l v e   m e   a n d   I   l e a r n.',
+            'The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart.': 'T h e   b e s t   a n d   m o s t   b e a u t i f u l   t h i n g s   i n   t h e   w o r l d   c a n n o t   b e   s e e n   o r   e v e n   t o u c h e d   -   t h e y   m u s t   b e   f e l t   w i t h   t h e   h e a r t.',
+            'It is during our darkest moments that we must focus to see the light.':' I t   i s   d u r i n g   o u r   d a r k e s t   m o m e n t s   t h a t   w e   m u s t   f o c u s   t o   s e e   t h e   l i g h t.',
+            'You have brains in your head. You have feet in your shoes. You can steer yourself any direction you choose.':'Y o u   h a v e   b r a i n s   i n   y o u r   h e a d.   Y o u   h a v e   f e e t   i n   y o u r   s h o e s.   Y o u   c a n   s t e e r   y o u r s e l f   a n y   d i r e c t i o n   y o u   c h o o s e.',
+            'Turn your wounds into wisdom.':'T u r n   y o u r   w o u n d s   i n t o   w i s d o m.',
+            'Sing like no one’s listening, love like you’ve never been hurt, dance like nobody’s watching, and live like it’s heaven on earth.':'S i n g   l i k e   n o   o n e ’ s   l i s t e n i n g,   l o v e   l i k e   y o u ’ v e   n e v e r   b e e n   h u r t,   d a n c e   l i k e   n o b o d y ’ s   w a t c h i n g,   a n d   l i v e   l i k e   i t ’ s   h e a v e n   o n   e a r t h.',
+            'The way I see it, if you want the rainbow, you gotta put up with the rain.':'T h e   w a y   I   s e e   i t,   i f   y o u   w a n t   t h e   r a i n b o w,   y o u   g o t t a   p u t   u p   w i t h   t h e   r a i n.',
+            'Don’t settle for what life gives you; make life better and build something.':'D o n ’ t   s e t t l e   f o r   w h a t   l i f e   g i v e s   y o u;   m a k e   l i f e   b e t t e r   a n d   b u i l d   s o m e t h i n g. ',
+        
+        
+        
+        
+        }
 
     async def cog_check(self, ctx):
         bucket = self._cd.get_bucket(ctx.message)
@@ -34,9 +54,11 @@ class games(commands.Cog):
         punchdmg = [1, 1, 1, 1.5, 2, 3]
         praydmg = [-1, -2, -2, 2, 6, -10, 15]
         insultoutcomes = [True, True, False, False, False, False]
-         
+        
+        if user.bot:
+            return await ctx.send(f"<a:x_:826577785173704754> You can't fight bots, {ctx.author.mention}.")
         if user == ctx.author:
-            await ctx.send(f"<a:x_:826577785173704754> You can't fight yourself, {ctx.author.mention}.")
+            return await ctx.send(f"<a:x_:826577785173704754> You can't fight yourself, {ctx.author.mention}.")
         else:
             try:    
                 e = discord.Embed(color=0, title='Deathbattle')
@@ -364,6 +386,39 @@ class games(commands.Cog):
 
         await ctx.send(errortxt)
         return
+
+    @commands.max_concurrency(1, per=BucketType.user, wait=False)
+    @commands.command(help='How fast do you type?')
+    async def typeracer(self, ctx):
+        quotekey = random.choice(list(self.bot.quotes.keys()))
+        await ctx.send(f'{ctx.author.mention}\nQuick! Type this sentence as fast and as accurate as you can! Ignore the extra spaces and copy it normally.\n\n**{self.bot.quotes[quotekey]}**')
+        start = time.time()
+        
+        def check(message: discord.Message):
+            return message.channel == ctx.channel and message.author == ctx.author and (message.content == quotekey or (rapidfuzz.fuzz.ratio(quotekey, message.content) > 90))
+        
+        try:
+            msg = await self.bot.wait_for('message', check=check, timeout=180)
+            end = time.time()
+
+            totalSeconds = round(end - start)
+            totalMinutes = round(totalSeconds / 60, 2)
+            
+            listThing = list(quotekey)
+            counter = 1
+            spaceCounter = 0
+            for l in listThing:
+                if l == ' ':
+                    if spaceCounter == 0:
+                        counter += 1
+                        spaceCounter = 1
+                if l != ' ':
+                    spaceCounter = 0
+                    
+            await ctx.send(f'{ctx.author.mention} **WPM:** {round(counter/totalMinutes , 2)} **Accuracy:** {round(rapidfuzz.fuzz.ratio(quotekey, msg.content), 2)}%')
+        except asyncio.exceptions.TimeoutError:
+            return await ctx.send(f'{ctx.author.mention}, You did not finish or type it correctly in time.')
+
                     
 
 
