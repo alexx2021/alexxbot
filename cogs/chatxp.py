@@ -1,4 +1,5 @@
 import asyncio
+from utils.utils import on_level_up
 import discord
 from discord.ext import commands
 from random import randint
@@ -38,31 +39,6 @@ async def import_meesix(self, ctx):
                 await ctx.send('<a:x_:826577785173704754> There was an error fetching the data from mee6. Make sure that your server has existing mee6 level data before using this command.')
                 return False
     
-        
-async def addRoles(self, message, level):
-    if message.guild.me.guild_permissions.manage_roles:
-        try:    
-            r = self.bot.cache_xproles[message.guild.id][level]
-        except KeyError:
-            return
-        role = discord.utils.get(message.guild.roles, id= int(r))
-        if role:
-            if message.guild.me.top_role.position > role.position:
-                await message.author.add_roles(role, reason=f"Role reward for level {level}.")
-
-async def on_level_up(self, level: int, message: discord.Message):
-    try:
-        if 'TRUE' in self.bot.cache_lvlupmsg[message.guild.id]:
-            await addRoles(self, message, level)
-        else:
-            return await addRoles(self, message, level)
-    except KeyError:
-        return await addRoles(self, message, level)
-    
-    perms = message.channel.permissions_for(message.guild.me)
-    if perms.send_messages: #only send if we can
-        await message.channel.send(
-            f"Nice job {message.author.mention}, you are now level **{level}**!")
 
 class levels(commands.Cog):
     """💬 Commands related to the chat leveling module"""
