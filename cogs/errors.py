@@ -1,3 +1,4 @@
+import logging
 import discord
 from discord.ext import commands
 import datetime
@@ -5,6 +6,7 @@ import utils.musicUtils
 import traceback
 import sys
 from discord.ext.commands.errors import CommandError, MaxConcurrencyReached
+logger = logging.getLogger('discord')
 
 
 class Errors(commands.Cog, command_attrs=dict(hidden=True)):
@@ -68,17 +70,18 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
             return await ctx.send('<a:x_:826577785173704754> The queue is currently empty!')
 
         else:
-            embed = discord.Embed(title=':x: Command Error', colour=0xe74c3c) #Red
-            embed.add_field(name='Error', value=error)
-            embed.add_field(name='Who', value=f'{ctx.author} ({ctx.author.id})')
-            embed.add_field(name=f"Command:", value=f"{ctx.message.clean_content}")
-            embed.description = '```py\n%s\n```' % traceback.format_exc()
-            embed.timestamp = datetime.datetime.utcnow()
-            owner = self.bot.get_user(247932598599417866)
-            if not owner:
-                owner = await self.bot.fetch_user(247932598599417866)
-            await owner.send(embed=embed)
+            # embed = discord.Embed(title=':x: Command Error', colour=0xe74c3c) #Red
+            # embed.add_field(name='Error', value=error)
+            # embed.add_field(name='Who', value=f'{ctx.author} ({ctx.author.id})')
+            # embed.add_field(name=f"Command:", value=f"{ctx.message.clean_content}")
+            # embed.description = '```py\n%s\n```' % traceback.format_exc()
+            # embed.timestamp = datetime.datetime.utcnow()
+            # owner = self.bot.get_user(247932598599417866)
+            # if not owner:
+            #     owner = await self.bot.fetch_user(247932598599417866)
+            # await owner.send(embed=embed)
             
+            logger.warning(msg=f'COMMAND ERROR - {ctx.message.clean_content} - {error} - u.{ctx.author.id} g.{ctx.guild.id}')
             #All unhandled Errors will print their original traceback
             print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
@@ -86,14 +89,18 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
 
     @commands.Cog.listener()
     async def on_error(self, event, *args, **kwargs):
-        embed = discord.Embed(title=':x: Event Error', colour=0xe74c3c) #Red
-        embed.add_field(name='Event', value=event)
-        embed.description = '```py\n%s\n```' % traceback.format_exc()
-        embed.timestamp = datetime.datetime.utcnow()
-        owner = self.bot.get_user(247932598599417866)
-        if not owner:
-            owner = await self.bot.fetch_user(247932598599417866)
-        await owner.send(embed=embed)
+        
+        # embed = discord.Embed(title=':x: Event Error', colour=0xe74c3c) #Red
+        # embed.add_field(name='Event', value=event)
+        # embed.description = '```py\n%s\n```' % traceback.format_exc()
+        # embed.timestamp = datetime.datetime.utcnow()
+        # owner = self.bot.get_user(247932598599417866)
+        # if not owner:
+        #     owner = await self.bot.fetch_user(247932598599417866)
+       
+        # await owner.send(embed=embed)
+        logger.warning(msg=f'EVENT ERROR - {event} - {traceback.format_exc()}')
+        
         print(f'{event}')
         print(f'{traceback.format_exc()}')
 
