@@ -8,3 +8,5 @@ aiosqlite
 statcord.py
 objgraph
 lxml
+rapidfuzz
+jishaku
