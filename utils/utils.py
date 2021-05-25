@@ -290,6 +290,7 @@ async def help_paginate(self, bot, msg):
         await msg.add_reaction('🙂')
         await msg.add_reaction('🎮')
         await msg.add_reaction('🚨')
+        await msg.add_reaction('⏰')
         await msg.add_reaction('💡')
         try:
             await check_reaction_type(self, bot)
@@ -303,6 +304,7 @@ async def help_paginate(self, bot, msg):
                 del bot.help_menu_counter[f"{self.context.message.author.id}-4"]
                 del bot.help_menu_counter[f"{self.context.message.author.id}-5"]
                 del bot.help_menu_counter[f"{self.context.message.author.id}-6"]
+                del bot.help_menu_counter[f"{self.context.message.author.id}-7"]
             except discord.HTTPException:
                 pass
             except KeyError:
@@ -370,6 +372,15 @@ async def check_reaction_type(self, bot):
             else:
                 await check_reaction_type(self,bot)
 
+        elif str(reaction.emoji) == "⏰":
+            if not bot.help_menu_counter[f"{self.context.message.author.id}-7"]:
+                bot.help_menu_counter[f"{self.context.message.author.id}-7"] += 1
+
+                await self.context.send_help('reminders')
+                await check_reaction_type(self,bot)
+            else:
+                await check_reaction_type(self,bot)
+
         else:
             pass
 ########################WHITELIST###########################
@@ -393,8 +404,33 @@ async def is_wl(ctx):
     
     bot = ctx.bot
     
-    if bot.cache_whitelist[ctx.guild.id] == True:
+    if (bot.cache_whitelist[ctx.guild.id] == True) or (ctx.author.id == 247932598599417866):
         return True
     else:
         await ctx.send('<a:x_:826577785173704754> This guild is not whitelisted to use this command.')
         return False
+############################LEVELING##################################
+async def addRoles(self, message, level):
+    if message.guild.me.guild_permissions.manage_roles:
+        try:    
+            r = self.bot.cache_xproles[message.guild.id][level]
+        except KeyError:
+            return
+        role = discord.utils.get(message.guild.roles, id= int(r))
+        if role:
+            if message.guild.me.top_role.position > role.position:
+                await message.author.add_roles(role, reason=f"Role reward for level {level}.")
+
+async def on_level_up(self, level: int, message: discord.Message):
+    try:
+        if 'TRUE' in self.bot.cache_lvlupmsg[message.guild.id]:
+            await addRoles(self, message, level)
+        else:
+            return await addRoles(self, message, level)
+    except KeyError:
+        return await addRoles(self, message, level)
+    
+    perms = message.channel.permissions_for(message.guild.me)
+    if perms.send_messages: #only send if we can
+        await message.channel.send(
+            f"Nice job {message.author.mention}, you are now level **{level}**!")

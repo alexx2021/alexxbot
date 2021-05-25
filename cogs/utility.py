@@ -94,13 +94,14 @@ class utility(commands.Cog):
     #ping command
     @commands.command(help="🏓",)
     async def ping(self, ctx):
-        start = time.perf_counter()
-        end = time.perf_counter()
-        embed = discord.Embed(color = discord.Colour.random())
-        embed.title = "Pong! 🏓"
-        embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 5)}ms\n**Websocket Latency:** {round(self.bot.latency*1000)}ms')
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-        await ctx.send(embed=embed)
+        await ctx.send(f'Pong! 🏓 {round(self.bot.latency*1000)}ms')
+        # start = time.perf_counter()
+        # end = time.perf_counter()
+        # embed = discord.Embed(color = discord.Colour.random())
+        # embed.title = "Pong! 🏓"
+        # embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 5)}ms\n**Websocket Latency:** {round(self.bot.latency*1000)}ms')
+        # embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        # await ctx.send(embed=embed)
 
     #profile picture getter command
     @commands.guild_only()
@@ -390,56 +391,6 @@ class utility(commands.Cog):
         async with self.bot.db.acquire() as connection:
             await connection.execute("INSERT INTO giveaways VALUES($1, $2, $3, $4, $5)", guild_id, channel_id, message_id, user_id, future)
 
-    @commands.cooldown(2, 5, commands.BucketType.user)
-    @commands.command(help='Reminds you about something after the time you choose!', aliases=["rm","remind"])
-    async def remindme(self, ctx,  timeinput, *, text):
-        err = f'<a:x_:826577785173704754> An error occurred. Please check the following:\n\n1. The time cannot be more than 90 days, or less than 10 seconds\n2. The text you input was absurdly long\n3. The formatting for the time might be incorrect. `s|m|h|d` are valid time unit arguments.\n\nExample: `_remindme 1h do the thing`'
-
-        seconds = 0
-        try: 
-            if timeinput.lower().endswith("d"):
-                seconds += int(timeinput[:-1]) * 60 * 60 * 24
-                counter = f"**{seconds // 60 // 60 // 24} day(s)**"
-            if timeinput.lower().endswith("h"):
-                seconds += int(timeinput[:-1]) * 60 * 60
-                counter = f"**{seconds // 60 // 60} hour(s)**"
-            elif timeinput.lower().endswith("m"):
-                seconds += int(timeinput[:-1]) * 60
-                counter = f"**{seconds // 60} minute(s)**"
-            elif timeinput.lower().endswith("s"):
-                seconds += int(timeinput[:-1])
-                counter = f"**{seconds} second(s)**"
-            
-            if seconds < 10:
-                await ctx.send(err)
-                return
-            if seconds > 7776000:
-                await ctx.send(err)
-                return
-            if len(text) > 1900:
-                await ctx.send(err)
-                return
-        except ValueError:
-            return await ctx.send(err)
-        
-        future = int(time.time()+seconds)
-        id = int(ctx.author.id)
-        remindtext = text
-        #await ctx.send(f'{future-seconds} = now, {int(time.time()+seconds)} = future time, {remindtext} = content  ')
-
-        async with self.bot.db.acquire() as connection:
-            rows3 = await connection.fetch("SELECT * FROM reminders WHERE user_id = $1",(id))
-            if rows3:
-                try:
-                    if rows3[2]:
-                        return await ctx.send(f'<a:x_:826577785173704754> {ctx.author.mention}, you cannot have more than 3 reminders at once!')
-                except IndexError:
-                    pass
-
-            await connection.execute("INSERT INTO reminders VALUES($1, $2, $3, $4)", id, ctx.message.id, future, remindtext)
-        
-
-        await ctx.send(f"{ctx.author.mention}, I will remind you of `{text}` in {counter}.")
 
 
 
