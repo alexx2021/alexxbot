@@ -35,7 +35,8 @@ class mediaOnly(commands.Cog, command_attrs=dict(hidden=True)):
                                     async with self.bot.db.acquire() as connection:
                                         await connection.execute('DELETE FROM mediaonly WHERE guild_id = $1 AND channel_id = $2', message.guild.id, message.channel.id)
                                 except KeyError:
-                                    logger.info(msg=f'Deleted mediaonly cfg b/c the bot did not have perms to delete - {message.guild} ({message.guild.id})')
+                                    pass
+                                logger.info(msg=f'Deleted mediaonly cfg b/c the bot did not have perms to delete - {message.guild} ({message.guild.id})')
                                     
                             #await asyncio.sleep(0.25)
                             #await message.channel.send(f'{message.author.mention}, this is a __media only__ channel!', delete_after = 4)
