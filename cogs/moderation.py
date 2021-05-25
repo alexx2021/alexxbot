@@ -52,7 +52,10 @@ class moderation(commands.Cog):
                 return await ctx.send('Please choose a number that is not 0 or negative!')
             if limit >= 501:
                 return await ctx.send('Maximum number is 500 messages!')
-            deleted = await ctx.channel.purge(limit=limit + 1, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            try:
+                deleted = await ctx.channel.purge(limit=limit + 1, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            except discord.errors.NotFound:
+                pass
             if (len(deleted)-1) > 0:
                 await ctx.send(f'Deleted {(len(deleted)) - 1} messages! `:P`', delete_after=2.0)
             if (len(deleted)-1) == 0:
@@ -413,7 +416,10 @@ class moderation(commands.Cog):
         def is_bot(m):
             return m.author.bot
         with ctx.channel.typing():
-            deleted = await ctx.channel.purge(limit=100, check=is_bot, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            try:
+                deleted = await ctx.channel.purge(limit=100, check=is_bot, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            except discord.errors.NotFound:
+                return
             await ctx.send(f'Deleted {(len(deleted))} messages belonging to bots! `:P`', delete_after=3.0)
 
     @remove.command(help='Removes messages that are attachments. Only checks the last 100 messages in the channel.')
@@ -424,7 +430,10 @@ class moderation(commands.Cog):
         def is_att(m):
             return m.attachments
         with ctx.channel.typing():
-            deleted = await ctx.channel.purge(limit=100, check=is_att, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            try:
+                deleted = await ctx.channel.purge(limit=100, check=is_att, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            except discord.errors.NotFound:
+                return
             await ctx.send(f'Deleted {(len(deleted))} messages with attachments! `:P`', delete_after=3.0)
             
     @remove.command(help='Removes messages that contain text you input. Only checks the last 100 messages in the channel.')
@@ -437,7 +446,10 @@ class moderation(commands.Cog):
         def m_contains(m):
             return string.lower() in m.content.lower()
         with ctx.channel.typing():
-            deleted = await ctx.channel.purge(limit=100, check=m_contains, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            try:
+                deleted = await ctx.channel.purge(limit=100, check=m_contains, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            except discord.errors.NotFound:
+                return
             await ctx.send(f'Deleted {(len(deleted))} messages containing **{string}**! `:P`', delete_after=3.0)
     
     #test
@@ -450,7 +462,10 @@ class moderation(commands.Cog):
         def is_user(m):
             return m.author == user
         with ctx.channel.typing():
-            deleted = await ctx.channel.purge(limit=100, check=is_user, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            try:
+                deleted = await ctx.channel.purge(limit=100, check=is_user, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            except discord.errors.NotFound:
+                return
             await ctx.send(f'Deleted {(len(deleted))} messages belonging to {user}! `:P`', delete_after=3.0)
 
 def setup(bot):
