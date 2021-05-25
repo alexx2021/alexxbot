@@ -1,5 +1,6 @@
 import asyncio
 from collections import defaultdict
+from utils.utils import on_level_up
 import discord
 from discord.ext import commands, tasks
 from random import randint, shuffle
@@ -33,6 +34,13 @@ async def give_xp(self, message):
                 new_xp = xp + round(((level * xpToAdd) / 2))
             
             await connection.execute('UPDATE xp SET user_xp = $1 WHERE guild_id = $2 AND user_id = $3', new_xp, message.guild.id, message.author.id)
+            
+            level = (int (xp ** (1/3.25)))
+            new_level = (int (new_xp **(1/3.25)))
+            if new_level is not None and new_level > level:
+                await on_level_up(self, new_level, message)
+
+
             return (new_xp - xp)
         else:
             await connection.execute('INSERT INTO xp VALUES($1,$2,$3)', message.guild.id, message.author.id, 1)
@@ -48,7 +56,9 @@ async def scramble_word():
     'duck', 'fox', 'music', 'word', 'scramble', 'egg', 'potato',
     'tomato','apple', 'lemon', 'carrot', 'cherry', 'pig', 'cow',
     'math', 'coat', 'shirt', 'sad', 'smile', 'turkey', 'ant', 'cookie',
-    'chicken', 'cat', 'melon', 'mango', 'coffee', 'chicken'
+    'chicken', 'cat', 'melon', 'mango', 'coffee', 'chicken',
+    'watermelon', 'wombat', 'parrot', 'minecraft', 'interesting', 'antelope',
+    'cantaloupe','donkey','ribbons','pottery','crackers','pendulum','saucepan'
     ]
     word = random.choice(words)
     unscram = word
@@ -432,23 +442,26 @@ class AutoGames(commands.Cog):
                 if perms.send_messages:
                     if (lastrun < (time.time() - (delay * 60)) and (ongoing != 1)) and (await check_1(self, message)) and (await check_2(self, message)) and (await check_3(self, message)):
                         game = randint(1, 7)
-                        if game == 1:
-                            await active_users_pop(self, message)
-                            return await send_word(self, message)
-                        elif game == 2:
-                            await active_users_pop(self, message)
-                            return await send_number(self, message)
-                        elif game == 3:
-                            await active_users_pop(self, message)
-                            return await send_backwards_number(self, message)
-                        elif game == 4:
-                            await active_users_pop(self, message)
-                            return await send_math(self, message)
-                        elif game == 5:
-                            if perms.add_reactions:
+                        try:
+                            if game == 1:
                                 await active_users_pop(self, message)
-                                return await send_react(self, message)
-                        else:
+                                return await send_word(self, message)
+                            elif game == 2:
+                                await active_users_pop(self, message)
+                                return await send_number(self, message)
+                            elif game == 3:
+                                await active_users_pop(self, message)
+                                return await send_backwards_number(self, message)
+                            elif game == 4:
+                                await active_users_pop(self, message)
+                                return await send_math(self, message)
+                            elif game == 5:
+                                if perms.add_reactions:
+                                    await active_users_pop(self, message)
+                                    return await send_react(self, message)
+                            else:
+                                pass
+                        except discord.errors.NotFound:
                             pass
         except KeyError:
             pass
