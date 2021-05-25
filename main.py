@@ -86,6 +86,10 @@ class MyHelp(commands.HelpCommand):
                     pass
                 else:
                     counter += 1
+            
+            if str(cog).lower() == 'jishaku': #dont show jishaku in help menu
+                counter = 0
+
             if counter != 0:
                 if perms.add_reactions:
                     cmdHelp = ''
@@ -120,6 +124,9 @@ class MyHelp(commands.HelpCommand):
    # help <group>
     async def send_group_help(self, group):
         """ Generates help for groups """
+        if str(group).lower() == 'jsk' or str(group).lower() == 'jishaku':
+            return #stops overflow
+
         e = discord.Embed(title="Alexx-bot Help", color = discord.Color.blurple())
         temp = f"**{str(group)}**\n{group.short_doc}\n\n"
         for command in group.commands:
@@ -246,6 +253,8 @@ for ext in extensions:
     bot.load_extension(f"cogs.{ext}")
     print(f'Loaded {ext}')
     count += 1
+
+bot.load_extension("jishaku")
 
 @bot.event
 async def on_ready():
