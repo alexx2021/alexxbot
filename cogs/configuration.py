@@ -681,8 +681,8 @@ class configuration(commands.Cog):
         try:
             async with self.bot.db.acquire() as connection:
                 rows = await connection.fetch('SELECT * FROM reactionroles WHERE guild_id = $1', ctx.guild.id)
-                if rows[25]:
-                    return await ctx.send('<a:x_:826577785173704754> You cannot have more than 25 reaction roles at once.')
+                if rows[200]:
+                    return await ctx.send('<a:x_:826577785173704754> You cannot have more than 200 reaction roles at once!')
         except IndexError:
             pass
 
