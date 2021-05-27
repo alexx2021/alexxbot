@@ -17,7 +17,8 @@ class Pag(Paginator):
             await asyncio.sleep(0.25)
             await self.page.clear_reactions()
         except discord.HTTPException:
-            logger.warn(msg="HTTP Exception due to paginator in lb")
+            #logger.warn(msg="HTTP Exception due to paginator in chatxpCog")
+            pass
 
 async def import_meesix(self, ctx):
     async with aiohttp.ClientSession() as cs:
@@ -292,8 +293,8 @@ class levels(commands.Cog):
         await ctx.send(embed=embed)
 
     #@commands.max_concurrency(1, per=BucketType.user, wait=False)
-    @bot_has_permissions(add_reactions=True, manage_messages=True)
-    @commands.cooldown(3, 10, commands.BucketType.user)
+    @bot_has_permissions(add_reactions=True)
+    @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.guild_only()
     @commands.command(aliases=("top","lb"), help = 'View the server leaderboard!')
     async def leaderboard(self, ctx: commands.Context):
@@ -337,7 +338,7 @@ class levels(commands.Cog):
 
             await pager.start(ctx)
 
-    @bot_has_permissions(add_reactions=True, manage_messages=True)
+    @bot_has_permissions(add_reactions=True)
     @commands.cooldown(2, 10, commands.BucketType.user)
     @commands.command(help='View the amount of XP you need for each level and more.',aliases=['ranks'])
     async def xpchart(self, ctx):

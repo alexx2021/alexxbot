@@ -296,8 +296,6 @@ async def help_paginate(self, bot, msg):
             await check_reaction_type(self, bot)
         except asyncio.exceptions.TimeoutError:
             try:
-                await asyncio.sleep(0.25)
-                await msg.clear_reactions()
                 del bot.help_menu_counter[f"{self.context.message.author.id}-1"]
                 del bot.help_menu_counter[f"{self.context.message.author.id}-2"]
                 del bot.help_menu_counter[f"{self.context.message.author.id}-3"]
@@ -305,12 +303,23 @@ async def help_paginate(self, bot, msg):
                 del bot.help_menu_counter[f"{self.context.message.author.id}-5"]
                 del bot.help_menu_counter[f"{self.context.message.author.id}-6"]
                 del bot.help_menu_counter[f"{self.context.message.author.id}-7"]
-            except discord.HTTPException:
-                pass
             except KeyError:
                 pass
+            
+            
+            try:
+                await asyncio.sleep(0.25)
+                await msg.clear_reactions()
+            except discord.HTTPException:
+                await msg.remove_reaction('💬', bot.user)
+                await msg.remove_reaction('🛠️', bot.user)
+                await msg.remove_reaction('🙂', bot.user)
+                await msg.remove_reaction('🎮', bot.user)
+                await msg.remove_reaction('🚨', bot.user)
+                await msg.remove_reaction('⏰', bot.user)
+                await msg.remove_reaction('💡', bot.user)
+        
 
-            #TODO - POP ID WITH 1-6
 
 async def check_reaction_type(self, bot):
         reaction, person = await bot.wait_for(

@@ -45,7 +45,9 @@ class utility(commands.Cog):
                 await msg.add_reaction('👍')
                 await msg.add_reaction('👎')
                 await ctx.send('<a:check:826577847023829032> reactions added!', delete_after=2.0)
-        await ctx.message.delete()
+        perms = ctx.channel.permissions_for(ctx.guild.me)
+        if perms.manage_messages:
+            await ctx.message.delete()
     
     @bot_has_permissions(add_reactions=True)
     @has_permissions(manage_messages=True)
@@ -57,7 +59,9 @@ class utility(commands.Cog):
         msg = await ctx.send(embed=e)
         await msg.add_reaction('👍')
         await msg.add_reaction('👎')
-        await ctx.message.delete()
+        perms = ctx.channel.permissions_for(ctx.guild.me)
+        if perms.manage_messages:
+            await ctx.message.delete()
 
 
     @bot_has_permissions(add_reactions=True)
@@ -77,10 +81,9 @@ class utility(commands.Cog):
         question = question_and_choices[0]
         choices = [(to_emoji(e), v) for e, v in enumerate(question_and_choices[1:])]
 
-        try:
+        perms = ctx.channel.permissions_for(ctx.guild.me)
+        if perms.manage_messages:
             await ctx.message.delete()
-        except:
-            pass
 
         body = "\n".join(f"{key}: {c}" for key, c in choices)
 
@@ -215,10 +218,10 @@ class utility(commands.Cog):
 
     @commands.guild_only()
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
-    @bot_has_permissions(embed_links=True, manage_messages=True)
     @commands.command(aliases=["embed",'embedcreator'], help='Creates an embed with your custom text.')
     async def embedmaker(self, ctx):
-    
+        
+        perms = ctx.channel.permissions_for(ctx.guild.me)
         
         def check(message):
             return message.author == ctx.author and message.channel == ctx.channel
@@ -228,11 +231,13 @@ class utility(commands.Cog):
             title = await self.bot.wait_for('message', check=check, timeout=30)
             if len(title.content) >= 256:
                 return await ctx.send(f'<a:x_:826577785173704754> Title was **{len(title.content)}** chars long, but it cannot be longer than 256.')
-            await firstmessage.delete()
+            if perms.manage_messages:
+                await firstmessage.delete()
         
             secondmessage = await ctx.send(f'{ctx.author.mention}, Send the description.')
             desc = await self.bot.wait_for('message', check=check, timeout=120)
-            await secondmessage.delete()
+            if perms.manage_messages:
+                await secondmessage.delete()
 
 
         except asyncio.exceptions.TimeoutError:
@@ -297,11 +302,14 @@ class utility(commands.Cog):
 
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @has_permissions(manage_messages=True)
-    @bot_has_permissions(manage_messages=True, add_reactions=True)
+    @bot_has_permissions(add_reactions=True)
     @commands.cooldown(2, 10, commands.BucketType.guild) 
     @commands.guild_only()
     @commands.command(help='Create a giveaway!')
-    async def giveaway(self,ctx): #check if giveaway already exists in the server
+    async def giveaway(self,ctx):
+
+        perms = ctx.channel.permissions_for(ctx.guild.me)
+
         def promptCheck(message):
             return message.author == ctx.author and message.channel == ctx.channel
 
@@ -335,7 +343,8 @@ class utility(commands.Cog):
             except ValueError:
                 return await ctx.send('<a:x_:826577785173704754> Please check your time formatting and try again. s|m|h|d are valid time unit arguments.')
 
-            await p1.delete()
+            if perms.manage_messages:
+                await p1.delete()
             
             
             p2 = await ctx.send(f'{ctx.author.mention}, What will be given away?')
@@ -345,7 +354,8 @@ class utility(commands.Cog):
             if len(prize) > 201:
                 return await ctx.send(f'<a:x_:826577785173704754> Prize text cannot be longer than 200 chars.')
             
-            await p2.delete()
+            if perms.manage_messages:
+                await p2.delete()
         except asyncio.exceptions.TimeoutError:
             return await ctx.send(f'Giveaway creation timed out.')
 
@@ -374,7 +384,8 @@ class utility(commands.Cog):
             return
         
         await asyncio.sleep(0.5)
-        await m.delete()
+        if perms.manage_messages:
+            await m.delete()
         await asyncio.sleep(0.5)
 
         giveawayEmbed = discord.Embed(title="**Giveaway** 🥳 - react to enter!", description=prize, color=0x7289da)

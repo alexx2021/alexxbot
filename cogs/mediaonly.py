@@ -21,9 +21,9 @@ class mediaOnly(commands.Cog, command_attrs=dict(hidden=True)):
                 if not message.author.bot:
                     if not ((message.author.guild_permissions.manage_guild) or (message.author.guild_permissions.administrator)):
 
-                        #perms = message.channel.permissions_for(message.guild.me)
+                        perms = message.channel.permissions_for(message.guild.me)
 
-                        if message.guild.me.guild_permissions.manage_messages:
+                        if perms.manage_messages:
 
                             try:
                                 await message.delete()

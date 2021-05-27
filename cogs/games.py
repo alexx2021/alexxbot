@@ -44,7 +44,7 @@ class games(commands.Cog):
     
     
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
-    @bot_has_permissions(embed_links=True, manage_messages=True, add_reactions=True)
+    @bot_has_permissions(add_reactions=True)
     @commands.command(help='Battle a user of your choice in this interactive game!')
     async def deathbattle(self, ctx, user: discord.Member):
         turn = 0 #adding a turn variable for turn taking
@@ -54,6 +54,9 @@ class games(commands.Cog):
         punchdmg = [1, 1, 1, 1.5, 2, 3]
         praydmg = [-1, -2, -2, 2, 6, -10, 15]
         insultoutcomes = [True, True, False, False, False, False]
+
+        #do I have manage messages?
+        perms = ctx.channel.permissions_for(ctx.guild.me)
         
         if user.bot:
             return await ctx.send(f"<a:x_:826577785173704754> You can't fight bots, {ctx.author.mention}.")
@@ -90,7 +93,8 @@ class games(commands.Cog):
                         )
                         
                         if str(reaction.emoji) == "👊" and turn == 0:
-                            await gamemsg.remove_reaction("👊", member)
+                            if perms.manage_messages:
+                                await gamemsg.remove_reaction("👊", member)
                             dmgdone = (random.choice(punchdmg))
                             userhealth = (userhealth - dmgdone)
                             c = 0xffa500
@@ -107,7 +111,8 @@ class games(commands.Cog):
                             turn = turn + 1
 
                         if str(reaction.emoji) == "🙏" and turn == 0:
-                            await gamemsg.remove_reaction("🙏", member)
+                            if perms.manage_messages:
+                                await gamemsg.remove_reaction("🙏", member)
                             dmgdone = (random.choice(praydmg))
                             authorhealth = (authorhealth - dmgdone)
                      
@@ -134,7 +139,8 @@ class games(commands.Cog):
                             
                         
                         if str(reaction.emoji) == "😡" and turn == 0:
-                            await gamemsg.remove_reaction("😡", member)
+                            if perms.manage_messages:
+                                await gamemsg.remove_reaction("😡", member)
                             insulted = (random.choice(insultoutcomes))
 
                             if insulted is True:
@@ -163,7 +169,8 @@ class games(commands.Cog):
                             await gamemsg.edit(embed=e)
 
                         if str(reaction.emoji) == "⬜" and turn == 0:
-                            await gamemsg.remove_reaction("⬜", member)
+                            if perms.manage_messages:
+                                await gamemsg.remove_reaction("⬜", member)
                             break
                             
 
@@ -179,7 +186,8 @@ class games(commands.Cog):
                         )
                         
                         if str(reaction.emoji) == "👊" and turn == 1:
-                            await gamemsg.remove_reaction("👊", member)
+                            if perms.manage_messages:
+                                await gamemsg.remove_reaction("👊", member)
                             dmgdone = (random.choice(punchdmg))
                             authorhealth = (authorhealth - dmgdone)
                             c = 0xffa500
@@ -196,7 +204,8 @@ class games(commands.Cog):
                         
 
                         if str(reaction.emoji) == "🙏" and turn == 1:
-                            await gamemsg.remove_reaction("🙏", member)
+                            if perms.manage_messages:
+                                await gamemsg.remove_reaction("🙏", member)
                             dmgdone = (random.choice(praydmg))
                             userhealth = (userhealth - dmgdone)
                      
@@ -224,7 +233,8 @@ class games(commands.Cog):
                             
 
                         if str(reaction.emoji) == "😡" and turn == 1:
-                            await gamemsg.remove_reaction("😡", member)
+                            if perms.manage_messages:
+                                await gamemsg.remove_reaction("😡", member)
                             insulted = (random.choice(insultoutcomes))
 
                             if insulted is True:
@@ -254,7 +264,8 @@ class games(commands.Cog):
 
 
                         if str(reaction.emoji) == "⬜" and turn == 1:
-                            await gamemsg.remove_reaction("⬜", member)
+                            if perms.manage_messages:
+                                await gamemsg.remove_reaction("⬜", member)
                             break
 
                 await asyncio.sleep(1)

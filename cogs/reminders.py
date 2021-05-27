@@ -78,7 +78,7 @@ class reminders(commands.Cog, command_attrs=dict(hidden=False)):
         await ctx.send(f"{ctx.author.mention}, I will remind you of `{text}` in {counter}. Reminder ID: {ctx.message.id}")
 
 
-    @bot_has_permissions(add_reactions=True, manage_messages=True)
+    @bot_has_permissions(add_reactions=True)
     @commands.cooldown(2, 6, commands.BucketType.user)
     @commands.command(help='Lists all active reminders.')
     async def listreminders(self, ctx):
@@ -125,7 +125,7 @@ class reminders(commands.Cog, command_attrs=dict(hidden=False)):
 
                 await pager.start(ctx)
 
-    @commands.cooldown(4, 6, commands.BucketType.user)
+    @commands.cooldown(5, 8, commands.BucketType.user)
     @commands.command(help='Cancel an already existing reminder.')
     async def cancelreminder(self, ctx, reminderID: int):
         async with self.bot.db.acquire() as connection:

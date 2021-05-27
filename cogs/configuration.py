@@ -550,7 +550,6 @@ class configuration(commands.Cog):
         e = f'<a:check:826577847023829032> Set the autorole to {role.mention}'
         await ctx.send(e)
 
-    @bot_has_permissions(manage_roles=True)
     @has_permissions(manage_roles=True)    
     @autorole.command(help='Deletes the currently set autorole.')
     async def remove(self, ctx):
@@ -616,7 +615,7 @@ class configuration(commands.Cog):
             await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `set`, `remove`, `clear`.')
 
     @has_permissions(manage_guild=True)
-    @bot_has_permissions(manage_messages=True, manage_roles=True)
+    @bot_has_permissions(manage_messages=True)
     @reactionrole.command(help='Clears all reactions and associated role settings for a message.')
     async def clear(self, ctx, channelMention: discord.TextChannel, msgID: int):
         if channelMention.guild == ctx.guild:
@@ -643,7 +642,7 @@ class configuration(commands.Cog):
         await ctx.send(content =f'<a:check:826577847023829032> The provided message has been cleared of reactions and will no longer grant users roles.')
 
     @has_permissions(manage_guild=True)
-    @bot_has_permissions(manage_messages=True, manage_roles=True)
+    @bot_has_permissions(manage_messages=True)
     @reactionrole.command(help='Remove an emoji from your reaction role message.')
     async def remove(self, ctx, channelMention: discord.TextChannel, msgID: int, emoji: str):
 
@@ -756,7 +755,6 @@ class configuration(commands.Cog):
         await ctx.send(f'<a:check:826577847023829032> {channel.mention} is now a media only channel.')
 
     @has_permissions(manage_guild=True)
-    @bot_has_permissions(manage_messages=True)
     @mediaonly.command(help='Disable media only mode for a given channel.')
     async def disable(self, ctx, channel: discord.TextChannel):
         try:    

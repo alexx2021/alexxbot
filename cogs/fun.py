@@ -26,32 +26,32 @@ class fun(commands.Cog):
         else:
             return True
 
-    @commands.guild_only() 
-    @commands.command(help='Finds a random meme for you.')
-    async def meme(self, ctx):
-        apiChoice = random.randint(1,2)
-        if apiChoice == 1:
-            async with aiohttp.ClientSession() as session:
-                async with session.get("https://meme-api.herokuapp.com/gimme") as response:
-                    data = await response.json()
-            embed = discord.Embed(title=data["title"], colour=0x7289da)
-            embed.set_image(url=data["url"])
-            embed.set_footer(
-                text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
-            )
-            await ctx.send(embed=embed)        
+    # @commands.guild_only() 
+    # @commands.command(help='Finds a random meme for you.')
+    # async def meme(self, ctx):
+    #     apiChoice = random.randint(1,2)
+    #     if apiChoice == 1:
+    #         async with aiohttp.ClientSession() as session:
+    #             async with session.get("https://meme-api.herokuapp.com/gimme") as response:
+    #                 data = await response.json()
+    #         embed = discord.Embed(title=data["title"], colour=0x7289da)
+    #         embed.set_image(url=data["url"])
+    #         embed.set_footer(
+    #             text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
+    #         )
+    #         await ctx.send(embed=embed)        
         
-        else:
-            async with aiohttp.ClientSession() as session:
-                url = ['https://evergene.io/api/memes','https://evergene.io/api/dankmemes']
-                async with session.get(random.choice(url)) as response:
-                    data = await response.json()
-            embed = discord.Embed(title='Meme', colour=0x7289da)
-            embed.set_image(url=data["url"])
-            embed.set_footer(
-                text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
-            )
-            await ctx.send(embed=embed)
+    #     else:
+    #         async with aiohttp.ClientSession() as session:
+    #             url = ['https://evergene.io/api/memes','https://evergene.io/api/dankmemes']
+    #             async with session.get(random.choice(url)) as response:
+    #                 data = await response.json()
+    #         embed = discord.Embed(title='Meme', colour=0x7289da)
+    #         embed.set_image(url=data["url"])
+    #         embed.set_footer(
+    #             text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
+    #         )
+    #         await ctx.send(embed=embed)
 
     #fact command
     @commands.guild_only()
@@ -67,92 +67,92 @@ class fun(commands.Cog):
                 await ctx.send(embed=embed)
 
     #rickrolls the person mentioned in dms
-    @commands.guild_only()    
-    @commands.command(help="Rickrolls the victim in their dms!",)
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def rickroll(self, ctx, user: discord.User):
-        if ctx.guild.me.guild_permissions.manage_messages:
-            await ctx.message.delete()
-        if user.id == 247932598599417866:
-        	await ctx.send(f'{ctx.author.mention} OOP! You cannot rickroll this user >:)', delete_after=3.0)
-        else:
-            try:
-                await user.send('https://tenor.com/view/bumblebee-17029825')
-                await user.send(f'a lovely surprise, courtesy of `{ctx.author}`')
-                await ctx.send('👍')
-            except:
-                return
-            finally:
-        	    logger.info(msg=f'user rickrolled successfully by {ctx.author} ({ctx.author.id})')
+    # @commands.guild_only()    
+    # @commands.command(help="Rickrolls the victim in their dms!",)
+    # @commands.cooldown(1, 5, commands.BucketType.user)
+    # async def rickroll(self, ctx, user: discord.User):
+    #     if ctx.guild.me.guild_permissions.manage_messages:
+    #         await ctx.message.delete()
+    #     if user.id == 247932598599417866:
+    #     	await ctx.send(f'{ctx.author.mention} OOP! You cannot rickroll this user >:)', delete_after=3.0)
+    #     else:
+    #         try:
+    #             await user.send('https://tenor.com/view/bumblebee-17029825')
+    #             await user.send(f'a lovely surprise, courtesy of `{ctx.author}`')
+    #             await ctx.send('👍')
+    #         except:
+    #             return
+    #         finally:
+    #     	    logger.info(msg=f'user rickrolled successfully by {ctx.author} ({ctx.author.id})')
 
     
-    @commands.guild_only()
-    @commands.command(help=('Hug someone.'))
-    async def hug(self, ctx, member: discord.Member=None):
-        if member is None:
-            async with aiohttp.ClientSession() as cs:
-                async with cs.get('https://nekos.life/api/v2/img/hug') as r: 
-                    data = await r.json()
-                    embed = discord.Embed(color=0x7289da)
-                    embed.title = f"{ctx.author} hugged themselves!" 
-                    embed.set_image(url=(data['url']))
-                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-                    await ctx.send(embed=embed)
-                    return
+    # @commands.guild_only()
+    # @commands.command(help=('Hug someone.'))
+    # async def hug(self, ctx, member: discord.Member=None):
+    #     if member is None:
+    #         async with aiohttp.ClientSession() as cs:
+    #             async with cs.get('https://nekos.life/api/v2/img/hug') as r: 
+    #                 data = await r.json()
+    #                 embed = discord.Embed(color=0x7289da)
+    #                 embed.title = f"{ctx.author} hugged themselves!" 
+    #                 embed.set_image(url=(data['url']))
+    #                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    #                 await ctx.send(embed=embed)
+    #                 return
             
-        async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://nekos.life/api/v2/img/hug') as r: 
-                data = await r.json()
-                embed = discord.Embed(color=0x7289da)
-                embed.title = f"{ctx.author} hugged {member} <3!" 
-                embed.set_image(url=(data['url']))
-                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-                await ctx.send(embed=embed)
+    #     async with aiohttp.ClientSession() as cs:
+    #         async with cs.get('https://nekos.life/api/v2/img/hug') as r: 
+    #             data = await r.json()
+    #             embed = discord.Embed(color=0x7289da)
+    #             embed.title = f"{ctx.author} hugged {member} <3!" 
+    #             embed.set_image(url=(data['url']))
+    #             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    #             await ctx.send(embed=embed)
 
-    @commands.guild_only()
-    @commands.command(help=('Slap someone.'))
-    async def slap(self, ctx, member: discord.Member=None):
-        if member is None:
-            async with aiohttp.ClientSession() as cs:
-                async with cs.get('https://nekos.life/api/v2/img/slap') as r: 
-                    data = await r.json()
-                    embed = discord.Embed(color=0x7289da)
-                    embed.title = f"{ctx.author} slapped themselves!" 
-                    embed.set_image(url=(data['url']))
-                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-                    await ctx.send(embed=embed)
-                    return
+    # @commands.guild_only()
+    # @commands.command(help=('Slap someone.'))
+    # async def slap(self, ctx, member: discord.Member=None):
+    #     if member is None:
+    #         async with aiohttp.ClientSession() as cs:
+    #             async with cs.get('https://nekos.life/api/v2/img/slap') as r: 
+    #                 data = await r.json()
+    #                 embed = discord.Embed(color=0x7289da)
+    #                 embed.title = f"{ctx.author} slapped themselves!" 
+    #                 embed.set_image(url=(data['url']))
+    #                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    #                 await ctx.send(embed=embed)
+    #                 return
             
-        async with aiohttp.ClientSession() as cs:
-            async with cs.get('https://nekos.life/api/v2/img/slap') as r: 
-                data = await r.json()
-                embed = discord.Embed(color=0x7289da)
-                embed.title = f"{ctx.author} slapped {member}!" 
-                embed.set_image(url=(data['url']))
-                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
-                await ctx.send(embed=embed)
+    #     async with aiohttp.ClientSession() as cs:
+    #         async with cs.get('https://nekos.life/api/v2/img/slap') as r: 
+    #             data = await r.json()
+    #             embed = discord.Embed(color=0x7289da)
+    #             embed.title = f"{ctx.author} slapped {member}!" 
+    #             embed.set_image(url=(data['url']))
+    #             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    #             await ctx.send(embed=embed)
 
     #chooses random result and tells you if you are gay :)
-    @commands.max_concurrency(1, per=BucketType.user, wait=False)
-    @commands.guild_only()
-    @commands.command(help=('beep beep.'))
-    async def gaydar(self, ctx, *, user):
-        msg = await ctx.send('Beep Beep Beep....')
-        await asyncio.sleep(1)
-        await msg.edit(content='Results processed.')
-        await asyncio.sleep(1)
-        await msg.edit(content=f'{ctx.author.mention} Are you sure you want to know the truth? (say yes)')
+    # @commands.max_concurrency(1, per=BucketType.user, wait=False)
+    # @commands.guild_only()
+    # @commands.command(help=('beep beep.'))
+    # async def gaydar(self, ctx, *, user):
+    #     msg = await ctx.send('Beep Beep Beep....')
+    #     await asyncio.sleep(1)
+    #     await msg.edit(content='Results processed.')
+    #     await asyncio.sleep(1)
+    #     await msg.edit(content=f'{ctx.author.mention} Are you sure you want to know the truth? (say yes)')
         
-        def check(m):
-            return (m.content.lower() == 'yes') and (m.author.id == ctx.author.id)
+    #     def check(m):
+    #         return (m.content.lower() == 'yes') and (m.author.id == ctx.author.id)
 
-        try:
-            await self.bot.wait_for('message', check=check, timeout=15)
-            isgaystring = ["They are confirmed ✨gay✨!!", "They are straight!","They are confirmed ✨gay✨!!", "They are straight!",
-                "They are confirmed ✨gay✨!!", "They are straight!","Ask again later, im low on battery :(","eighwph49w-g-j-5hw-gjr"]
-            await ctx.send(f'{random.choice(isgaystring)}')
-        except asyncio.exceptions.TimeoutError:
-            return await ctx.send(f'You did not decide in time, {ctx.author.mention}. ')
+    #     try:
+    #         await self.bot.wait_for('message', check=check, timeout=15)
+    #         isgaystring = ["They are confirmed ✨gay✨!!", "They are straight!","They are confirmed ✨gay✨!!", "They are straight!",
+    #             "They are confirmed ✨gay✨!!", "They are straight!","Ask again later, im low on battery :(","eighwph49w-g-j-5hw-gjr"]
+    #         await ctx.send(f'{random.choice(isgaystring)}')
+    #     except asyncio.exceptions.TimeoutError:
+    #         return await ctx.send(f'You did not decide in time, {ctx.author.mention}. ')
 
     #ask command from david's bot
     @commands.guild_only()
@@ -268,6 +268,7 @@ class fun(commands.Cog):
     #                 else:
     #                     await message.channel.send('incorrect password!!')
 
+    @commands.is_nsfw()
     @commands.command(help='Search urban dictionary for the given term.', aliases=['ud','urban'])
     @commands.guild_only()
     @commands.cooldown(3, 10, commands.BucketType.user)
