@@ -160,7 +160,6 @@ class moderation(commands.Cog):
 
             await sendlog(self, ctx.guild, embed)
 
-    
     # @commands.command(hidden=True)
     # @commands.is_owner()
     # async def gchp(self, ctx):
@@ -217,6 +216,50 @@ class moderation(commands.Cog):
                 return await ctx.send('<a:x_:826577785173704754> User is not muted!')
         else:
             return await ctx.send('<a:x_:826577785173704754> No muted role has been created for this server! Mute someone to create one.')
+
+    @bot_has_permissions(manage_roles=True)
+    @has_permissions(manage_messages=True)
+    @commands.command(help="\"Mute\" someone who is not currently in the server.")
+    async def hackmute(self, ctx, user: discord.User, *,reason = None):
+        async with self.bot.db.acquire() as connection:
+            existing = await connection.fetchrow("SELECT * FROM pmuted_users WHERE guild_id = $1 AND user_id = $2", ctx.guild.id, user.id)
+            if existing:
+                return await ctx.send(f'<a:x_:826577785173704754> {user} is already muted.')
+
+            await connection.execute("INSERT INTO pmuted_users VALUES($1, $2)", ctx.guild.id, user.id) 
+            
+            await ctx.send(f"**{user}** has been hack-muted. <a:check:826577847023829032>")
+            
+            embed = discord.Embed(color=0x979c9f)
+            embed.title = f"{user} hack-muted" 
+            embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
+            embed.timestamp = datetime.datetime.utcnow()
+            embed.set_thumbnail(url=user.avatar_url) 
+            embed.set_footer(text=f'ID: {user.id}' + '\u200b')
+
+            await sendlog(self, ctx.guild, embed)
+
+    @bot_has_permissions(manage_roles=True)
+    @has_permissions(manage_messages=True)
+    @commands.command(help="\"Unmute\" someone who is not currently in the server.")
+    async def unhackmute(self, ctx, user: discord.User, *,reason = None):
+        async with self.bot.db.acquire() as connection:
+            existing = await connection.fetchrow("SELECT * FROM pmuted_users WHERE guild_id = $1 AND user_id = $2", ctx.guild.id, user.id)
+            if not existing:
+                return await ctx.send(f'<a:x_:826577785173704754> {user} is not muted.')
+
+            await connection.execute("DELETE FROM pmuted_users WHERE guild_id = $1 AND user_id = $2", ctx.guild.id, user.id) 
+            
+            await ctx.send(f"**{user}** has been UN-hack-muted. <a:check:826577847023829032>")
+            
+            embed = discord.Embed(color=0x979c9f)
+            embed.title = f"{user} UN-hack-muted" 
+            embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
+            embed.timestamp = datetime.datetime.utcnow()
+            embed.set_thumbnail(url=user.avatar_url) 
+            embed.set_footer(text=f'ID: {user.id}' + '\u200b')
+
+            await sendlog(self, ctx.guild, embed)
 
 
     #event to check if the user is still muted upon joining a server

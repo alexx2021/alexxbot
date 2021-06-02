@@ -133,6 +133,23 @@ class reminders(commands.Cog, command_attrs=dict(hidden=False)):
         await ctx.send(f'<a:check:826577847023829032> Cancelled any reminders that belong to you with the ID `{reminderID}`.')
 
 
+    @commands.cooldown(4, 8, commands.BucketType.user)
+    @commands.command(help='Subscribe to someone else\'s reminder!')
+    async def subscribe(self, ctx, reminderID: int):
+        async with self.bot.db.acquire() as connection:
+            row = await connection.fetchrow('SELECT * FROM reminders WHERE ctx_id = $1', reminderID)
+            if row:
+                if row["user_id"] == ctx.author.id:
+                    return await ctx.send(f'You cannot subscribe to yourself!')
+
+                await connection.execute("INSERT INTO reminders VALUES($1, $2, $3, $4)", ctx.author.id, ctx.message.id, row["future"], row["remindtext"])
+                await ctx.send(f'<a:check:826577847023829032> Subscribed to reminder ID `{reminderID}`.')
+            else:
+                await ctx.send(f'<a:x_:826577785173704754> Reminder with ID `{reminderID}` does not exist.')
+
+
+
+
 
     # @commands.is_owner()
     # @commands.command(hidden=True)
