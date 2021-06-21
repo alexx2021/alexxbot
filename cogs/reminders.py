@@ -1,3 +1,4 @@
+from utils.utils import convertTime
 import discord
 from discord.ext import commands
 from discord.ext import tasks
@@ -29,35 +30,18 @@ class reminders(commands.Cog, command_attrs=dict(hidden=False)):
 
     @commands.cooldown(2, 5, commands.BucketType.user)
     @commands.command(help='Reminds you about something after the time you choose!', aliases=["rm","remind"])
-    async def remindme(self, ctx,  timeinput, *, text):
-        err = f'<a:x_:826577785173704754> An error occurred. Please check the following:\n\n1. The time cannot be more than 2 years, or less than 10 seconds\n2. The text you input was absurdly long\n3. The formatting for the time might be incorrect. `s|m|h|d` are valid time unit arguments.\n\nExample: `_remindme 1h do the thing`'
+    async def remindme(self, ctx, *, text):
 
-        seconds = 0
-        try: 
-            if timeinput.lower().endswith("d"):
-                seconds += int(timeinput[:-1]) * 60 * 60 * 24
-                counter = f"**{seconds // 60 // 60 // 24} day(s)**"
-            if timeinput.lower().endswith("h"):
-                seconds += int(timeinput[:-1]) * 60 * 60
-                counter = f"**{seconds // 60 // 60} hour(s)**"
-            elif timeinput.lower().endswith("m"):
-                seconds += int(timeinput[:-1]) * 60
-                counter = f"**{seconds // 60} minute(s)**"
-            elif timeinput.lower().endswith("s"):
-                seconds += int(timeinput[:-1])
-                counter = f"**{seconds} second(s)**"
-            
-            if seconds < 10:
-                await ctx.send(err)
-                return
-            if seconds > 63072000:
-                await ctx.send(err)
-                return
-            if len(text) > 1500:
-                await ctx.send(err)
-                return
-        except ValueError:
-            return await ctx.send(err)
+
+        seconds = await convertTime(self, ctx, text)
+        if seconds < 10 and seconds != 0:
+            return await ctx.send('<a:x_:826577785173704754> Time cannot be less than 10 seconds.')
+        elif seconds == 0:
+            return await ctx.send('<a:x_:826577785173704754> Please make sure you have a valid time duration somewhere in your reminder. \nValid examples: `10h 5m 2s` | `3h` | `10m 30s` | `10d 12h 3m`. \n"days" instead of "d" eg. `30days` works as well.')
+        elif seconds > 63072000:
+            return await ctx.send('<a:x_:826577785173704754> Time cannot be more than 2 years.')
+        elif len(text) > 1500:
+            return await ctx.send('<a:x_:826577785173704754> Too long! Must be under 1500 characters long.')
         
         future = int(time.time()+seconds)
         id = int(ctx.author.id)
@@ -75,7 +59,7 @@ class reminders(commands.Cog, command_attrs=dict(hidden=False)):
             await connection.execute("INSERT INTO reminders VALUES($1, $2, $3, $4)", id, ctx.message.id, future, remindtext)
         
 
-        await ctx.send(f"{ctx.author.mention}, I will remind you of `{text}` in {counter}. Reminder ID: {ctx.message.id}")
+        await ctx.send(f"{ctx.author.mention}, I will remind you of `{text}`. Reminder ID: {ctx.message.id}")
 
 
     @bot_has_permissions(add_reactions=True)
@@ -146,6 +130,12 @@ class reminders(commands.Cog, command_attrs=dict(hidden=False)):
                 await ctx.send(f'<a:check:826577847023829032> Subscribed to reminder ID `{reminderID}`.')
             else:
                 await ctx.send(f'<a:x_:826577785173704754> Reminder with ID `{reminderID}` does not exist.')
+    
+    
+    
+    # @commands.command()
+    # async def rt(self, ctx,*, reason):
+    #     await ctx.send(f'TIME [{await TimeConverter.convert(self, ctx, reason)}] REASON [{reason}]')
 
 
 

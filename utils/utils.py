@@ -2,6 +2,7 @@ import asyncio
 import discord
 import logging
 import time
+import re
 
 from discord.ext import commands
 
@@ -394,23 +395,6 @@ async def check_reaction_type(self, bot):
             pass
 ########################WHITELIST###########################
 async def is_wl(ctx):
-    # guildlist = [
-    # 741054230370189343,
-    # 812951618945286185,
-    # 704554442153787453,
-    # 783345613860372480,
-    # 812520226603794432,
-    # 597965043333726220,
-    # 796212175693152256,
-    # ]
-    #iridescent
-     #alexx support
-      #sniper kingdom
-       #burrow's resource pack
-        #minty
-         #server
-          #math pre cal 1
-    
     bot = ctx.bot
     
     if (bot.cache_whitelist[ctx.guild.id] == True) or (ctx.author.id == 247932598599417866):
@@ -443,3 +427,19 @@ async def on_level_up(self, level: int, message: discord.Message):
     if perms.send_messages: #only send if we can
         await message.channel.send(
             f"Nice job {message.author.mention}, you are now level **{level}**!")
+
+############################TIME CONVERTER##################################
+async def convertTime(self, ctx, argument):
+    time_regex = re.compile("(?:(\d{1,5})(h|s|m|d))+?")
+    time_dict = {"h":3600, "s":1, "m":60, "d":86400}
+    args = argument.lower()
+    matches = re.findall(time_regex, args)
+    time = 0
+    for v, k in matches:
+        try:
+            time += time_dict[k]*float(v)
+        except KeyError:
+            raise commands.BadArgument("{} is an invalid time-key! h/m/s/d are valid!".format(k))
+        except ValueError:
+            raise commands.BadArgument("{} is not a number!".format(v))
+    return time
