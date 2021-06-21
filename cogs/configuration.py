@@ -531,7 +531,7 @@ class configuration(commands.Cog):
 
     @bot_has_permissions(manage_roles=True)
     @has_permissions(manage_roles=True)    
-    @autorole.command(aliases=["autorole"],help='Sets the role that new users get on join. Respects the discord rule verification menu.')
+    @autorole.command(help='Sets the role that new users get on join. Respects the discord rule verification menu.')
     async def set(self, ctx, role: discord.Role):
         if ctx.author.top_role.position <= role.position:
             return await ctx.send('<a:x_:826577785173704754> The role you chose is above your highest role.')
@@ -675,8 +675,8 @@ class configuration(commands.Cog):
 
     @has_permissions(manage_guild=True)
     @bot_has_permissions(add_reactions=True, manage_roles=True)
-    @reactionrole.command(help='Associate a reaction on a message with a role to be given.')
-    async def set(self, ctx, channelMention: discord.TextChannel, msgID: int, emoji: str, role: discord.Role):
+    @reactionrole.command(help='Associate a reaction on a message with a role to be given.', aliases=['set'])
+    async def create(self, ctx, channelMention: discord.TextChannel, msgID: int, emoji: str, role: discord.Role):
         try:
             async with self.bot.db.acquire() as connection:
                 rows = await connection.fetch('SELECT * FROM reactionroles WHERE guild_id = $1', ctx.guild.id)
