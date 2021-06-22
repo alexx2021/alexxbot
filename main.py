@@ -70,7 +70,7 @@ bot.launch_time = datetime.datetime.utcnow()
 class MyHelp(commands.HelpCommand):
     def __init__(self, **options):
         super().__init__(command_attrs={
-        'cooldown': commands.Cooldown(1, 5, commands.BucketType.user), 
+        'cooldown': commands.Cooldown(1, 2, commands.BucketType.user), 
         'max_concurrency': commands.MaxConcurrency(2, per=commands.BucketType.user, wait=False)})
     
     bot.linksString = 'ℹ️ [Support Server](https://discord.gg/zPWMRMXQ7H)\n🎉 [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
@@ -91,15 +91,10 @@ class MyHelp(commands.HelpCommand):
                 counter = 0
 
             if counter != 0:
-                if perms.add_reactions:
-                    cmdHelp = ''
-                    e.set_footer(text='React below to view help for each category!')
-                else:
-                    cmdHelp = f'`{self.clean_prefix}help {cog}`\n'
+                cmdHelp = f'`{self.clean_prefix}help {cog}`\n'
                 cogObj = bot.get_cog(cog)
                 e.add_field(name=f'{cog[0].upper()}{cog[1:]}', value=f'{cmdHelp}{cogObj.description}', inline = False)
-        helpMessage = await self.context.reply(embed=e)
-        await help_paginate(self, bot, helpMessage)
+        await self.context.reply(embed=e)
        
    # help <command>
     async def send_command_help(self, command):
@@ -182,8 +177,6 @@ bot.cache_mediaonly = {}
 #users who spam get added to a dict, and if they spam 5 times they get auto-blacklisted from the bot
 bot._auto_spam_count = Counter()
 
-#help command dict LOL
-bot.help_menu_counter = Counter()
 
 #reaction role anti spam dict LOL
 bot.reaction_spam = {}
