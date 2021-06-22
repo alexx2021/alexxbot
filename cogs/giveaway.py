@@ -27,7 +27,7 @@ class Giveaways(commands.Cog, command_attrs=dict(hidden=True)):
         
         await ctx.channel.send('done.')
 
-    @tasks.loop(seconds=2.0)
+    @tasks.loop(seconds=12.0)
     async def check_giveaways(self):
         current_time1 = int(time.time())
         async with self.bot.db.acquire() as connection:

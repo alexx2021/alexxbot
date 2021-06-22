@@ -1,4 +1,5 @@
 from io import BytesIO
+import random
 import discord
 import datetime
 from discord.ext.commands.core import bot_has_permissions, command, has_permissions
@@ -300,13 +301,19 @@ class utility(commands.Cog):
 
     
 
+
+    @commands.group(help='Group of commands to manage giveaways.')
+    async def giveaway(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `create`, `reroll`.')
+
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @has_permissions(manage_messages=True)
     @bot_has_permissions(add_reactions=True)
     @commands.cooldown(2, 10, commands.BucketType.guild) 
     @commands.guild_only()
-    @commands.command(help='Create a giveaway!')
-    async def giveaway(self,ctx):
+    @giveaway.command(help='Create a giveaway! Delete it\'s respective message to cancel it!')
+    async def create(self,ctx):
 
         perms = ctx.channel.permissions_for(ctx.guild.me)
 
@@ -401,6 +408,33 @@ class utility(commands.Cog):
 
         async with self.bot.db.acquire() as connection:
             await connection.execute("INSERT INTO giveaways VALUES($1, $2, $3, $4, $5)", guild_id, channel_id, message_id, user_id, future)
+
+    @has_permissions(manage_messages=True)
+    @commands.cooldown(2, 10, commands.BucketType.guild) 
+    @commands.guild_only()
+    @giveaway.command(help='Rerolls to choose another winner.')
+    async def reroll(self, ctx, msgID: discord.Message):
+        users = None
+        
+        reactions = msgID.reactions
+        for r in reactions:
+            if r.emoji == "🎉":
+                users = await r.users().flatten()
+        if users == None:
+            return await ctx.send('The message does not have "🎉" reacted to it.')
+
+
+        try:
+            users.pop(users.index(self.bot.user))
+        except ValueError:
+            pass
+
+        if len(users) == 0:
+            await ctx.send("No winner was decided")
+        else:
+            winner = random.choice(users)
+
+            await ctx.send(f"**Congrats {winner.mention}!**\nPlease contact {msgID.author.mention} about your prize.")
 
 
 
