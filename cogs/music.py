@@ -69,17 +69,6 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
                 await ctx.send(f':ok_hand: {guild} ({guild.id}) stopped!')
                 asyncio.sleep(0.5)
 
-    @commands.check(check_in_vc) 
-    @commands.check(is_wl)    
-    @commands.command(aliases=["l"])
-    async def leave(self, ctx):
-        
-        if ctx.author.voice:
-            player = self.music.get_player(guild_id=ctx.guild.id)
-            if player:
-                await player.stop()
-            await ctx.voice_client.disconnect()
-        
     
     @commands.check(check_in_vc)
     @commands.check(is_wl)    
@@ -175,7 +164,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
 
     @commands.check(check_in_vc)
     @commands.check(is_wl)       
-    @commands.command()
+    @commands.command(aliases=["leave"])
     async def stop(self, ctx):
         
 
