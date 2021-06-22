@@ -234,7 +234,6 @@ extensions = (
         "fun",
         "games",
         "giveaway",
-        "invites",
         "logging",
         "misc",
         "moderation",
@@ -268,8 +267,8 @@ async def on_ready():
     print(f'{count} total extensions loaded')
     print(f"Servers - {str(len(bot.guilds))}")
     print('--------------------------')
+    print('Bot is ready!')
 
-    # the rest  of the startup output is in Invites.py
 
 async def log_spammer(ctx, message, retry_after, *, autoblock=False):
     ch = await gech_main(bot, 813600852576829470)

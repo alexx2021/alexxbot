@@ -8,6 +8,49 @@ from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 
 
+async def on_guild_join_bl_check(self, guild):
+    god = guild.owner.id
+    async with self.bot.db.acquire() as connection:
+        rows = await connection.fetchrow("SELECT user_id FROM userblacklist WHERE user_id = $1", god) #checks if a user in BL owns the server
+        if rows:
+            await guild.leave()
+            
+            embed = discord.Embed(colour=0xe74c3c)
+            embed.set_author(name=f"Left guild with blacklisted owner")
+            embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
+            "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
+            "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
+            "\n" + "Created at " + str(guild.created_at), inline=False)
+            embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
+            embed.set_thumbnail(url=guild.icon_url)
+            
+            chID = 813600852576829470
+            ch = await get_or_fetch_channel(self, chID)
+            await ch.send(embed=embed)
+            
+            return
+
+    async with self.bot.db.acquire() as connection:
+        rows = await connection.fetchrow("SELECT guild_id FROM guildblacklist WHERE guild_id = $1", guild.id)#checks if its a guild in the BL 
+        if rows:
+            await guild.leave()
+            
+            embed = discord.Embed(colour=0xe74c3c)
+            embed.set_author(name=f"Left blacklisted guild")
+            embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
+            "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
+            "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
+            "\n" + "Created at " + str(guild.created_at), inline=False)
+            embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
+            embed.set_thumbnail(url=guild.icon_url)
+            
+            chID = 813600852576829470
+            ch = await get_or_fetch_channel(self, chID)
+            await ch.send(embed=embed)
+            
+            return
+
+
 async def pop_all(self, guild):
     try:
         self.bot.cache_prefixes.pop(guild.id)
@@ -143,7 +186,9 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
         ch = await get_or_fetch_channel(self, 827244995576332288)
         if ch:
             await ch.send(embed=embed)
-
+    
+        await on_guild_join_bl_check(self, guild)
+        
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         try:
@@ -212,52 +257,7 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
             await ctx.send('I am missing permisions to send embeds :(')
         
 
-    
-    # @commands.Cog.listener()
-    # async def on_message(self, message):
-    #     #await self.bot.process_commands(message)
-    #     message.content = message.content.lower()
-    #     if message.author == self.bot.user:
-    #         return
 
-        # #checks if the channel is blacklisted for on_message reactions/functions
-        # if message.channel.id in [741054231661903907, 778760950836494336]:
-        #     return
-
-        # if 'alex' in message.content:
-            
-        #     user = self.bot.get_user(247932598599417866)
-
-        #     if not message.guild:
-        #         await user.send(f'`{message.author}` mentioned you in dms with the bot! \n [{message.content}]')
-
-        #     else:
-        #         embed = discord.Embed(color=0x7289da)
-        #         embed.set_author(name=f"{message.author}", icon_url=message.author.avatar_url)
-        #         embed.title = f"You were mentioned in #{message.channel.name}" 
-        #         embed.description = f'{message.content}'
-        #         embed.add_field(name='Message link', value=f'[Click here]({message.jump_url})')
-        #         embed.timestamp = datetime.datetime.utcnow()
-        #         embed.set_footer(text=f'guild = {message.guild.name}'+ '\u200b')
-        #         await user.send(embed=embed)
-
-        # if 'smacc' in message.content:
-        #     try:
-        #         await message.add_reaction('<:smacc:778433548909674497>') 
-        #     except:
-        #         return
-
-        # if ':(' in message.content:
-        #     try:
-        #         await message.add_reaction('😦') 
-        #     except:
-        #         return
-       
-        # if 'hmm' in message.content:
-        #     try:
-        #         await message.add_reaction('<:ThinkEyes:411392266851057675>')  
-        #     except:
-        #         return
         
 def setup(bot):
 	bot.add_cog(Events(bot))

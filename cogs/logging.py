@@ -155,27 +155,24 @@ class Logging(commands.Cog, command_attrs=dict(hidden=True)):
             await sendlog(self, message_before.guild, embed) 
 
 
-     #currently moved to invites.py so that I can send this embed and the invite one in the same webhook send   
 
-    # #attempt at a join message in logs
-    # @commands.Cog.listener()
-    # async def on_member_join(self, member):
-		
-    #     created_at = member.created_at.strftime("%b %d, %Y")
+    #attempt at a join message in logs
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        if await check_if_log(self, member.guild):
+            if member == self.bot.user:
+                return
 
-    #     embed = discord.Embed(color=0x00FF00)
-    #     embed.set_author(name=f"{member}", icon_url=member.avatar_url)
-    #     embed.title = f"Member joined" 
-    #     embed.description = f'Account created on {created_at}'
-    #     embed.timestamp = datetime.datetime.utcnow()
-    #     embed.set_footer(text=f'ID: {member.id}' + '\u200b')
-        
-    #     server = member.guild.id
-    #     rows = self.c.execute("SELECT server_id, log_channel, whURL FROM logging WHERE server_id = ?",(server,),).fetchall()
-    #     if rows != []:
-    #         toprow = rows[0] 
-    #         whURL = toprow[2]
-    #         await send_wh(whURL, embed)
+            created_at = member.created_at.strftime("%b %d, %Y")
+
+            embed1 = discord.Embed(color=0x00FF00)
+            embed1.set_author(name=f"{member}", icon_url=member.avatar_url)
+            embed1.title = f"Member joined" 
+            embed1.description = f'Account created on {created_at}'
+            embed1.timestamp = datetime.datetime.utcnow()
+            embed1.set_footer(text=f'ID: {member.id}' + '\u200b')  
+
+            await sendlog(self, member.guild, embed1)      
 
 
     #attempt at a leave message in logs
