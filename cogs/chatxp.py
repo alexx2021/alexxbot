@@ -90,9 +90,6 @@ class levels(commands.Cog):
                             new_xp = xp + randint(1, 2)
                     else:
                         new_xp = xp + randint(15, 25)
-
-                    if self.bot.doublexp[message.guild.id] == True:
-                        new_xp = new_xp + 30
                      
                     await connection.execute('UPDATE xp SET user_xp = $1 WHERE guild_id = $2 AND user_id = $3', new_xp, message.guild.id, message.author.id)
 
@@ -128,7 +125,7 @@ class levels(commands.Cog):
     @commands.group(help='Use this to manage xp. (set, reset or import from mee6)')
     async def xp(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `set`, `reset`, `import`, `double`.')
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `set`, `reset`, `import`.')
 
     @commands.max_concurrency(1, per=BucketType.user, wait=False)
     @xp.command(help="Reset a member's XP and level.")
@@ -249,26 +246,26 @@ class levels(commands.Cog):
             if await import_meesix(self, ctx): #insert data here
                 await cmd.invoke(ctx) #enable
 
-    @has_permissions(manage_guild=True)
-    @xp.command(help='Double xp in your server for a duration of your choice.')
-    async def double(self, ctx, hours:int=None):
-        if hours is None:
-            if self.bot.doublexp[ctx.guild.id] == False:
-                return await ctx.send('<a:check:826577847023829032> Double XP is already disabled for this guild. Add a number (hours) as an argument to enable it. eg. `xp double 2`')
+    # @has_permissions(manage_guild=True)
+    # @xp.command(help='Double xp in your server for a duration of your choice.')
+    # async def double(self, ctx, hours:int=None):
+    #     if hours is None:
+    #         if self.bot.doublexp[ctx.guild.id] == False:
+    #             return await ctx.send('<a:check:826577847023829032> Double XP is already disabled for this guild. Add a number (hours) as an argument to enable it. eg. `xp double 2`')
             
-            self.bot.doublexp[ctx.guild.id] = False
-            await ctx.send('<a:check:826577847023829032> Disabled double XP for this guild.')
-        else:
-            if self.bot.doublexp[ctx.guild.id] == True:
-                return await ctx.send('<a:check:826577847023829032> Double XP is already enabled for this guild. Run the commands without a time argument to disable it. eg. `xp double`')
+    #         self.bot.doublexp[ctx.guild.id] = False
+    #         await ctx.send('<a:check:826577847023829032> Disabled double XP for this guild.')
+    #     else:
+    #         if self.bot.doublexp[ctx.guild.id] == True:
+    #             return await ctx.send('<a:check:826577847023829032> Double XP is already enabled for this guild. Run the commands without a time argument to disable it. eg. `xp double`')
 
-            if hours > 72:
-                return await ctx.send('Duration cannot be longer than 72 hours.')
-            self.bot.doublexp[ctx.guild.id] = True
-            await ctx.send(f'<a:check:826577847023829032> Enabled double XP for this guild with a duration of `{hours}` hours.')
-            realHours = hours * 3600
-            await asyncio.sleep(realHours)
-            self.bot.doublexp[ctx.guild.id] = False
+    #         if hours > 72:
+    #             return await ctx.send('Duration cannot be longer than 72 hours.')
+    #         self.bot.doublexp[ctx.guild.id] = True
+    #         await ctx.send(f'<a:check:826577847023829032> Enabled double XP for this guild with a duration of `{hours}` hours.')
+    #         realHours = hours * 3600
+    #         await asyncio.sleep(realHours)
+    #         self.bot.doublexp[ctx.guild.id] = False
 
     
 

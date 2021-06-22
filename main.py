@@ -191,8 +191,6 @@ bot.reaction_spam = {}
 # keeps track of last sent minigame automsg + also if its enabled
 bot.autogames = {}
 
-#keeps track of what servers have double XP going
-bot.doublexp = defaultdict(def_value)
 
 # :eyes:
 bot.sp = {}
