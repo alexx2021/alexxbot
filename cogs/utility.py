@@ -305,7 +305,7 @@ class utility(commands.Cog):
     @commands.group(help='Group of commands to manage giveaways.')
     async def giveaway(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `create`, `reroll`.')
+            await ctx.send('<a:x_:826577785173704754> Invalid subcommand. Options: `setup`, `reroll`.')
 
     @commands.max_concurrency(1, per=BucketType.channel, wait=False)
     @has_permissions(manage_messages=True)
@@ -313,7 +313,7 @@ class utility(commands.Cog):
     @commands.cooldown(2, 10, commands.BucketType.guild) 
     @commands.guild_only()
     @giveaway.command(help='Create a giveaway! Delete it\'s respective message to cancel it!')
-    async def create(self,ctx):
+    async def setup(self,ctx):
 
         perms = ctx.channel.permissions_for(ctx.guild.me)
 
