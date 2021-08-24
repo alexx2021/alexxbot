@@ -199,6 +199,16 @@ credentials = {
     "host": "127.0.0.1",
 }
 
+W_DBPASS = os.getenv("W_DB_PASS")
+W_USER = os.getenv("W_DB_USER")
+W_DB = os.getenv("W_DB")
+credentialsW = {
+    "user": W_USER,
+    "database": W_DB,
+    "host": "127.0.0.1",
+    "password": W_DBPASS,
+}
+
 DBPASS = os.getenv("DB_PASS")
 credentialsVPS = {
     "user": "alexx",
@@ -212,7 +222,7 @@ credentialsVPS = {
 #global database connections
 loop = asyncio.get_event_loop()
 
-bot.db = loop.run_until_complete(asyncpg.create_pool(**credentials))
+bot.db = loop.run_until_complete(asyncpg.create_pool(**credentialsW))
 
 
 
