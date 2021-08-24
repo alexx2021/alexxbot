@@ -189,18 +189,18 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     
         await on_guild_join_bl_check(self, guild)
         
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        try:
-            enabled = self.bot.cache_lvlsenabled[member.guild.id]
-            if 'TRUE' in enabled:
-                pass
-            else:
-                return
-        except KeyError:
-            return
-        async with self.bot.db.acquire() as connection:
-            await connection.execute('DELETE FROM xp WHERE guild_id = $1 AND user_id = $2', member.guild.id, member.id)
+    # @commands.Cog.listener()
+    # async def on_member_remove(self, member):
+    #     try:
+    #         enabled = self.bot.cache_lvlsenabled[member.guild.id]
+    #         if 'TRUE' in enabled:
+    #             pass
+    #         else:
+    #             return
+    #     except KeyError:
+    #         return
+    #     async with self.bot.db.acquire() as connection:
+    #         await connection.execute('DELETE FROM xp WHERE guild_id = $1 AND user_id = $2', member.guild.id, member.id)
 
 
     @commands.Cog.listener()

@@ -45,7 +45,7 @@ class utility(commands.Cog):
             if count == 2:
                 await msg.add_reaction('👍')
                 await msg.add_reaction('👎')
-                await ctx.send('<a:check:826577847023829032> reactions added!', delete_after=2.0)
+                await ctx.send('<a:check:826577847023829032> Reactions added!', delete_after=2.0)
         perms = ctx.channel.permissions_for(ctx.guild.me)
         if perms.manage_messages:
             await ctx.message.delete()
@@ -54,7 +54,7 @@ class utility(commands.Cog):
     @has_permissions(manage_messages=True)
     @commands.guild_only()
     @poll.command(help='Create a poll!')
-    async def create(self, ctx: commands.Context, *,question: str):
+    async def create(self, ctx, *,question: str):
         e = discord.Embed(color = discord.Color.blurple(), title = 'Poll', description=question)
         e.set_footer(icon_url=ctx.author.avatar_url, text=f'Created by {ctx.author}')
         msg = await ctx.send(embed=e)
