@@ -195,18 +195,16 @@ class Logging(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
         if before.name != after.name:
-            guilds = self.bot.guilds
-            for guild in guilds: # I would prefer another method but this is the best I can do right now
-                if guild.get_member(before.id):
-                    if await check_if_log(self, guild):
-                        embed = discord.Embed(color=0x9b59b6)
-                        embed.set_author(name=f"{before.name}#{before.discriminator}", icon_url=before.avatar_url)
-                        embed.title = f"Username changed"
-                        embed.description = f'**Before:** {before.name} \n+**After: ** {after.name}'
-                        embed.timestamp = datetime.datetime.utcnow()
-                        embed.set_footer(text=f'ID: {before.id}' + '\u200b')
+            for guild in before.mutual_guilds:
+                if await check_if_log(self, guild):
+                    embed = discord.Embed(color=0x9b59b6)
+                    embed.set_author(name=f"{before.name}#{before.discriminator}", icon_url=before.avatar_url)
+                    embed.title = f"Username changed"
+                    embed.description = f'**Before:** {before.name} \n+**After: ** {after.name}'
+                    embed.timestamp = datetime.datetime.utcnow()
+                    embed.set_footer(text=f'ID: {before.id}' + '\u200b')
 
-                        await sendlog(self, guild, embed)
+                    await sendlog(self, guild, embed)
 
         # elif before.avatar_url != after.avatar_url:
         #     guilds = self.bot.guilds
