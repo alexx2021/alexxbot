@@ -67,7 +67,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             if player:
                 await player.stop()
                 await ctx.send(f':ok_hand: {guild} ({guild.id}) stopped!')
-                asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)
 
     
     @commands.check(check_in_vc)
