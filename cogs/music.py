@@ -75,8 +75,9 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.max_concurrency(1, per=BucketType.guild, wait=True)
     @commands.command(aliases=["p"])
     async def play(self, ctx, *, songname):
-        if (("spotify") and ("http")) in songname:
-            return await ctx.send('<a:x_:826577785173704754> Spotify is not supported at the moment. sorry')
+        if "spotify" in songname:
+            if "https" in songname:
+                return await ctx.send('<a:x_:826577785173704754> Spotify is not supported at the moment. sorry')
         
 
         if ctx.voice_client:
@@ -97,7 +98,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
                 await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
 
         if "mau5" in songname:
-            await ctx.send(f'{ctx.author.mention} deadmau5 is cool - i approve')
+            await ctx.send(f'{ctx.author.mention} deadmau5 is cool - i approve :)')
 
 
 
