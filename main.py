@@ -8,7 +8,6 @@ import logging
 import asyncpg
 from dotenv import load_dotenv
 from collections import Counter, defaultdict
-from discord import Activity, ActivityType
 
 load_dotenv()
 
