@@ -1,8 +1,9 @@
 import asyncio
 from collections import defaultdict
+import aiohttp
 from utils.utils import on_level_up
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 from random import randint, shuffle
 import random
 import time
@@ -49,18 +50,24 @@ async def give_xp(self, message):
 ###########################################################################UNSCRAMBLE
 
 async def scramble_word():
-    words = ['hello', 'goodbye', 'discord', 'alex','boost',
-    'online','offline', 'nitro', 'bot', 'server','goat',
-    'apple', 'pear', 'strawberry', 'chocolate',
-    'love', 'button', 'boat', 'taco', 'elephant', 'bird',
-    'duck', 'fox', 'music', 'word', 'scramble', 'egg', 'potato',
-    'tomato','apple', 'lemon', 'carrot', 'cherry', 'pig', 'cow',
-    'math', 'coat', 'shirt', 'sad', 'smile', 'turkey', 'ant', 'cookie',
-    'chicken', 'cat', 'melon', 'mango', 'coffee', 'chicken',
-    'watermelon', 'wombat', 'parrot', 'minecraft', 'interesting', 'antelope',
-    'cantaloupe','donkey','ribbons','pottery','crackers','pendulum','saucepan'
-    ]
-    word = random.choice(words)
+#     words = ['hello', 'goodbye', 'discord', 'alex','boost',
+#     'online','offline', 'nitro', 'bot', 'server','goat',
+#     'apple', 'pear', 'strawberry', 'chocolate',
+#     'love', 'button', 'boat', 'taco', 'elephant', 'bird',
+#     'duck', 'fox', 'music', 'word', 'scramble', 'egg', 'potato',
+#     'tomato','apple', 'lemon', 'carrot', 'cherry', 'pig', 'cow',
+#     'math', 'coat', 'shirt', 'sad', 'smile', 'turkey', 'ant', 'cookie',
+#     'chicken', 'cat', 'melon', 'mango', 'coffee', 'chicken',
+#     'watermelon', 'wombat', 'parrot', 'minecraft', 'interesting', 'antelope',
+#     'cantaloupe','donkey','ribbons','pottery','crackers','pendulum','saucepan'
+#     ]
+    word = "error"
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get('https://api.alexx.lol/random/word') as r: 
+            data = await r.json()
+            if r.status != 200:
+                data = {"word":"error"}
+    word = data["word"]
     unscram = word
     word = list(word)
     shuffle(word)
