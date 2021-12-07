@@ -8,6 +8,12 @@ from discord.ext import commands
 
 logger = logging.getLogger('discord')
 
+async def getGuildIcon(self, guild):
+    try:
+        return guild.icon.url
+    except AttributeError:
+        return "https://i.alexx.lol/alexxPFP.png"
+
 async def blacklist_setup(bot):
     await bot.db.execute("CREATE TABLE IF NOT EXISTS userblacklist(user_id BIGINT)")
     await bot.db.execute("CREATE TABLE IF NOT EXISTS guildblacklist(guild_id BIGINT)")
