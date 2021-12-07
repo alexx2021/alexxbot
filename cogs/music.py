@@ -120,7 +120,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             embed = discord.Embed(color=0x7289da)
             embed.title = "Now playing:"
             embed.description = (f'{song.name} `{converted_time}`')
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
             await ctx.send(embed=embed)
         else:
             song = await player.queue(songname, search=True)
@@ -130,7 +130,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             embed = discord.Embed(color=0x7289da)
             embed.title = "Queued:"
             embed.description = (f'{song.name} `{converted_time}`')
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
             await ctx.send(embed=embed)
 
     @commands.check(check_in_vc)
@@ -145,7 +145,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             return
         song = await player.pause()
         embed = discord.Embed(description=(f'Paused **{song.name}**.'), color=0x7289da)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
 
     @commands.check(check_in_vc)
@@ -160,7 +160,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             return
         song = await player.resume()
         embed = discord.Embed(description=(f'Resumed playing **{song.name}**.'), color=0x7289da)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
 
     @commands.check(check_in_vc)
@@ -175,7 +175,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             return
         await player.stop()
         embed = discord.Embed(description=(f'Stopped playing audio.'), color=0x7289da)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
 
     @commands.check(check_in_vc)
@@ -191,11 +191,11 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
         song = await player.toggle_song_loop()
         if song.is_looping:
             embed = discord.Embed(description=(f'Enabled loop for **{song.name}**'), color=0x7289da)
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
             await ctx.send(embed=embed)
         else:
             embed = discord.Embed(description=(f'Disabled loop for **{song.name}**'), color=0x7289da)
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
             await ctx.send(embed=embed)
 
     @commands.check(is_wl) 
@@ -210,7 +210,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
 
         if len([song.name for song in player.current_queue()]) > 0:
             embed = discord.Embed(title=(f'Queue'), color=0x7289da)
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
             desc = []
             for rank, song in enumerate(player.current_queue(), start=1):
                 converted_time = await convertT(song.duration)
@@ -251,7 +251,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
         embed.title = "Now playing:"
         embed.description = (f'{song.name} `{converted_time}`')
         embed.add_field(name='Song link', value=(f'[Click here]({song.url})'), inline = True)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
 
     @commands.check(is_wl)
@@ -293,7 +293,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
         data = await player.skip(force=True)
         
         embed = discord.Embed(description=(f'Skipped **{data[0].name}**'), color=0x7289da)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
 
     @commands.check(check_in_vc)
@@ -312,7 +312,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             return
         song, volume = await player.change_volume(float(vol / 100))
         embed = discord.Embed(description=(f"Changed volume for **{song.name}** to `{volume*100}%`"), color=0x7289da)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
 
     @commands.check(check_in_vc)
@@ -336,7 +336,7 @@ class Music(commands.Cog, command_attrs=dict(hidden=True)):
             return
 
         embed = discord.Embed(description=(f'Removed **{song.name}** from the queue.'), color=0x7289da)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
 
 

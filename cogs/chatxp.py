@@ -312,7 +312,7 @@ class levels(commands.Cog):
             description=f"**Level: **{level}\n**Total XP:** {db_member_xp}\n**XP to next level:** {db_member_xp - round((level ** 3.25))} / {round(((level+ 1) ** 3.25) - (level ** 3.25))}",
             colour=discord.Colour.green(),
         )
-        embed.set_author(name=f"{member}", icon_url=member.avatar_url)
+        embed.set_author(name=f"{member}", icon_url=member.display_avatar.url)
         await ctx.send(embed=embed)
 
     #@commands.max_concurrency(1, per=BucketType.user, wait=False)

@@ -3,7 +3,7 @@ import io
 import textwrap
 from traceback import format_exception
 import asyncio
-from utils.utils import blacklist_user, unblacklist_user
+from utils.utils import blacklist_user, getGuildIcon, unblacklist_user
 import discord
 import time
 from discord.ext import commands
@@ -96,7 +96,7 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
         servers = self.bot.guilds
         for guild in servers:
             embed = discord.Embed(colour=0x7289DA)
-            embed.set_footer(text=f"Guild requested by {ctx.author}", icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=f"Guild requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
             embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
             "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
             "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
@@ -109,7 +109,7 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
                 admin = False
 
             embed.add_field(name='Permissions', value=f'Admin: {admin}') 
-            embed.set_thumbnail(url=guild.icon_url)
+            embed.set_thumbnail(url=await getGuildIcon(self, guild))
             
             await ctx.send(embed=embed)
             await asyncio.sleep(1)

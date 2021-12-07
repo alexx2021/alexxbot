@@ -84,7 +84,7 @@ class games(commands.Cog):
 
                             
                             e = discord.Embed(color=c, title='Nice punch!')
-                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
+                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.display_avatar.url)
                             e.description=(f'{ctx.author.name} did {dmgdone} damage!')
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -111,7 +111,7 @@ class games(commands.Cog):
                                 d = f'{ctx.author.name} lost health due to a failed prayer :('
 
                             e = discord.Embed(color=c, title=t)
-                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
+                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.display_avatar.url)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -144,7 +144,7 @@ class games(commands.Cog):
 
                             
                             e = discord.Embed(color=c, title=t)
-                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.avatar_url)
+                            e.set_author(name=f"{ctx.author}", icon_url=ctx.author.display_avatar.url)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -176,7 +176,7 @@ class games(commands.Cog):
                             c = 0xffa500
                             
                             e = discord.Embed(color=c, title='Nice punch!')
-                            e.set_author(name=f"{user}", icon_url=user.avatar_url)
+                            e.set_author(name=f"{user}", icon_url=user.display_avatar.url)
                             e.description=(f'{user.name} did {dmgdone} damage!')
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -205,7 +205,7 @@ class games(commands.Cog):
 
                             
                             e = discord.Embed(color=c, title=t)
-                            e.set_author(name=f"{user}", icon_url=user.avatar_url)
+                            e.set_author(name=f"{user}", icon_url=user.display_avatar.url)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')
@@ -238,7 +238,7 @@ class games(commands.Cog):
 
                             
                             e = discord.Embed(color=c, title=t)
-                            e.set_author(name=f"{user}", icon_url=user.avatar_url)
+                            e.set_author(name=f"{user}", icon_url=user.display_avatar.url)
                             e.description=(d)
                             e.add_field(name=f'{ctx.author.name}', value=f'{authorhealth} HP')
                             e.add_field(name=f'{user.name}', value=f'{userhealth} HP')

@@ -1,5 +1,5 @@
 import asyncio
-import datetime
+from discord.ext.commands.cooldowns import CooldownMapping
 from utils.utils import blacklist_user_main, gech_main, help_paginate, setup_stuff
 import discord
 from discord.ext import commands
@@ -17,7 +17,7 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 intents.messages = True
 intents.typing = False
@@ -63,14 +63,18 @@ intents=intents,
 allowed_mentions=discord.AllowedMentions(roles=False, users=True, everyone=False), 
 activity=discord.Streaming(name=f"_help", url='https://www.twitch.tv/alexxwastakenlol')
 )
-bot.launch_time = datetime.datetime.utcnow()
+bot.launch_time = discord.utils.utcnow()
+
 
 
 class MyHelp(commands.HelpCommand):
     def __init__(self, **options):
-        super().__init__(command_attrs={
-        'cooldown': commands.Cooldown(1, 2, commands.BucketType.user), 
-        'max_concurrency': commands.MaxConcurrency(2, per=commands.BucketType.user, wait=False)})
+        super().__init__(command_attrs=
+        {
+        'cooldown': CooldownMapping.from_cooldown(1, 2, commands.BucketType.user), 
+        'max_concurrency': commands.MaxConcurrency(2, per=commands.BucketType.user, wait=False)
+        }
+            )
     
     bot.linksString = 'ℹ️ [Support Server](https://discord.gg/zPWMRMXQ7H)\n🎉 [Invite Me!](https://discord.com/api/oauth2/authorize?client_id=752585938630082641&permissions=2080763127&scope=bot)'
     # help
@@ -90,7 +94,7 @@ class MyHelp(commands.HelpCommand):
                 counter = 0
 
             if counter != 0:
-                cmdHelp = f'`{self.clean_prefix}help {cog}`\n'
+                cmdHelp = f'`{self.context.clean_prefix}help {cog}`\n'
                 cogObj = bot.get_cog(cog)
                 e.add_field(name=f'{cog[0].upper()}{cog[1:]}', value=f'{cmdHelp}{cogObj.description}', inline = False)
         await self.context.reply(embed=e)
@@ -99,7 +103,7 @@ class MyHelp(commands.HelpCommand):
     async def send_command_help(self, command):
         """ Generates a string of how to use a command """
         e = discord.Embed(title=f"Alexx-bot Help", color = discord.Color.blurple())
-        temp = f'**Command**\n`{self.clean_prefix}'
+        temp = f'**Command**\n`{self.context.clean_prefix}'
         # Aliases
         if len(command.aliases) == 0:
             temp += f'{command.name}'
@@ -127,12 +131,12 @@ class MyHelp(commands.HelpCommand):
             if command.hidden:
                 temp += ''
             elif command.help is None:
-                temp += f'`{self.clean_prefix}{command}`\n'
+                temp += f'`{self.context.clean_prefix}{command}`\n'
             else:
-                temp += f'`{self.clean_prefix}{command}` '
+                temp += f'`{self.context.clean_prefix}{command}` '
                 temp += f'{command.help}\n'
         e.description = temp
-        e.set_footer(text=f'Use "{self.clean_prefix}help <command>" for info on a specific command')
+        e.set_footer(text=f'Use "{self.context.clean_prefix}help <command>" for info on a specific command')
         await self.context.reply(embed = e)
         
     
@@ -145,12 +149,12 @@ class MyHelp(commands.HelpCommand):
             if command.hidden:
                 temp += ''
             elif command.help is None:
-                temp += f'`{self.clean_prefix}{command}`\n'
+                temp += f'`{self.context.clean_prefix}{command}`\n'
             else:
-                temp += f'`{self.clean_prefix}{command}` '
+                temp += f'`{self.context.clean_prefix}{command}` '
                 temp += f'{command.help}\n'
         e.description = temp
-        e.set_footer(text=f'Use "{self.clean_prefix}help <command>" for info on a specific command')
+        e.set_footer(text=f'Use "{self.context.clean_prefix}help <command>" for info on a specific command')
         await self.context.reply(embed = e)
 
 bot.help_command = MyHelp()
@@ -285,7 +289,7 @@ async def log_spammer(ctx, message, retry_after, *, autoblock=False):
     embed.add_field(name='Member', value=f'{message.author} (ID: {message.author.id})', inline=False)
     embed.add_field(name='Guild Info', value=f'{guild_name} (ID: {guild_id})', inline=False)
     embed.add_field(name='Channel Info', value=f'{message.channel} (ID: {message.channel.id}', inline=False)
-    embed.timestamp = datetime.datetime.utcnow()
+    embed.timestamp = discord.utils.utcnow()
     return await ch.send(embed=embed)
 
 
@@ -359,28 +363,6 @@ async def on_message(message: discord.Message):
                         await message.channel.send(embed=e) #send embed if all is good
 
     await bot.process_commands(message)
-
-
-
-bot.socketStats = Counter()
-@bot.listen()
-async def on_socket_response(message):  # this event isn't documented
-    msg = message["t"] #is the event name
-    #update the counter with this event name
-    bot.socketStats[msg] += 1
-    #print(msg)
-
-@commands.is_owner()
-@bot.command(hidden=True)
-async def socket(ctx):
-    content = ''
-    for item in list(bot.socketStats):
-        if not item == None:
-            content += f"{item} {bot.socketStats[item]}\n"
-    await ctx.send(content)
-    await ctx.send(bot.gech)
-
-
 
 
 @commands.is_owner()

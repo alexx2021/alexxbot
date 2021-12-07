@@ -53,14 +53,14 @@ class moderation(commands.Cog):
             if limit >= 501:
                 return await ctx.send('Maximum number is 500 messages!')
             try:
-                deleted = await ctx.channel.purge(limit=limit + 1, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+                deleted = await ctx.channel.purge(limit=limit + 1, after=discord.utils.utcnow() - datetime.timedelta(days=13))
             except discord.errors.NotFound:
                 pass
             if (len(deleted)-1) > 0:
                 await ctx.send(f'Deleted {(len(deleted)) - 1} messages! `:P`', delete_after=2.0)
             if (len(deleted)-1) == 0:
                 await ctx.send('No messages were deleted. Are they older than 2 weeks?')
-            # await ctx.channel.purge(limit=limit + 1, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+            # await ctx.channel.purge(limit=limit + 1, after=discord.utils.utcnow() - datetime.timedelta(days=13))
             # await ctx.send(f'Deleted {limit} messages! `:P`', delete_after=2.0)
 
 
@@ -129,15 +129,15 @@ class moderation(commands.Cog):
             embedSummary.add_field(name='Success', value=f'{successfulchannels} channels')
             embedSummary.add_field(name='Failure', value=f'{failedchannels} channels')
             embedSummary.add_field(name='Possible reasons for failure', value='1. I cannot view the channel\n 2. I cannot manage permissions in the channel')
-            embedSummary.timestamp = datetime.datetime.utcnow()
+            embedSummary.timestamp = discord.utils.utcnow()
             await ctx.send(embed=embedSummary)
             
 
             embed = discord.Embed(color=0x979c9f)
             embed.title = f"{member} muted" 
             embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=member.avatar_url) 
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_thumbnail(url=member.display_avatar.url) 
             embed.set_footer(text=f'ID: {member.id}' + '\u200b')
 
             await sendlog(self, ctx.guild, embed)
@@ -154,8 +154,8 @@ class moderation(commands.Cog):
             embed = discord.Embed(color=0x979c9f)
             embed.title = f"{member} muted" 
             embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=member.avatar_url) 
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_thumbnail(url=member.display_avatar.url) 
             embed.set_footer(text=f'ID: {member.id}' + '\u200b')
 
             await sendlog(self, ctx.guild, embed)
@@ -206,8 +206,8 @@ class moderation(commands.Cog):
                 embed = discord.Embed(color=0x979c9f)
                 embed.title = f"{member} unmuted" 
                 embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-                embed.timestamp = datetime.datetime.utcnow()
-                embed.set_thumbnail(url=member.avatar_url) 
+                embed.timestamp = discord.utils.utcnow()
+                embed.set_thumbnail(url=member.display_avatar.url) 
                 embed.set_footer(text=f'ID: {member.id}' + '\u200b')
 
                 await sendlog(self, ctx.guild, embed)    	
@@ -233,8 +233,8 @@ class moderation(commands.Cog):
             embed = discord.Embed(color=0x979c9f)
             embed.title = f"{user} hack-muted" 
             embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=user.avatar_url) 
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_thumbnail(url=user.display_avatar.url) 
             embed.set_footer(text=f'ID: {user.id}' + '\u200b')
 
             await sendlog(self, ctx.guild, embed)
@@ -255,8 +255,8 @@ class moderation(commands.Cog):
             embed = discord.Embed(color=0x979c9f)
             embed.title = f"{user} UN-hack-muted" 
             embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=user.avatar_url) 
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_thumbnail(url=user.display_avatar.url) 
             embed.set_footer(text=f'ID: {user.id}' + '\u200b')
 
             await sendlog(self, ctx.guild, embed)
@@ -315,8 +315,8 @@ class moderation(commands.Cog):
             embed = discord.Embed(color=0x546e7a)
             embed.title = f"{user} banned" 
             embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=user.avatar_url) 
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_thumbnail(url=user.display_avatar.url) 
             embed.set_footer(text=f'ID: {user.id}' + '\u200b') 
             
             await sendlog(self, ctx.guild, embed)      
@@ -351,8 +351,8 @@ class moderation(commands.Cog):
             embed = discord.Embed(color=0x546e7a)
             embed.title = f"{member} kicked" 
             embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=member.avatar_url) 
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_thumbnail(url=member.display_avatar.url) 
             embed.set_footer(text=f'ID: {member.id}' + '\u200b') 
             
             await sendlog(self, ctx.guild, embed)   
@@ -392,8 +392,8 @@ class moderation(commands.Cog):
             embed = discord.Embed(color=0x546e7a)
             embed.title = f"{user} softbanned" 
             embed.description = f'**Staff member:** {ctx.author.mention} \n**Reason:** {reason}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=user.avatar_url) 
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_thumbnail(url=user.display_avatar.url) 
             embed.set_footer(text=f'ID: {user.id}' + '\u200b') 
             
             await sendlog(self, ctx.guild, embed)
@@ -420,8 +420,8 @@ class moderation(commands.Cog):
             embed = discord.Embed(color=0x546e7a)
             embed.title = f"{user} unbanned" 
             embed.description = f'**Staff member:** {ctx.author.mention}'
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_thumbnail(url=user.avatar_url) 
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_thumbnail(url=user.display_avatar.url) 
             embed.set_footer(text=f'ID: {user.id}' + '\u200b') 
             
             await sendlog(self, ctx.guild, embed)     
@@ -460,7 +460,7 @@ class moderation(commands.Cog):
             return m.author.bot
         with ctx.channel.typing():
             try:
-                deleted = await ctx.channel.purge(limit=100, check=is_bot, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+                deleted = await ctx.channel.purge(limit=100, check=is_bot, after=discord.utils.utcnow() - datetime.timedelta(days=13))
             except discord.errors.NotFound:
                 return
             await ctx.send(f'Deleted {(len(deleted))} messages belonging to bots! `:P`', delete_after=3.0)
@@ -474,7 +474,7 @@ class moderation(commands.Cog):
             return m.attachments
         with ctx.channel.typing():
             try:
-                deleted = await ctx.channel.purge(limit=100, check=is_att, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+                deleted = await ctx.channel.purge(limit=100, check=is_att, after=discord.utils.utcnow() - datetime.timedelta(days=13))
             except discord.errors.NotFound:
                 return
             await ctx.send(f'Deleted {(len(deleted))} messages with attachments! `:P`', delete_after=3.0)
@@ -490,7 +490,7 @@ class moderation(commands.Cog):
             return string.lower() in m.content.lower()
         with ctx.channel.typing():
             try:
-                deleted = await ctx.channel.purge(limit=100, check=m_contains, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+                deleted = await ctx.channel.purge(limit=100, check=m_contains, after=discord.utils.utcnow() - datetime.timedelta(days=13))
             except discord.errors.NotFound:
                 return
             await ctx.send(f'Deleted {(len(deleted))} messages containing **{string}**! `:P`', delete_after=3.0)
@@ -506,7 +506,7 @@ class moderation(commands.Cog):
             return m.author == user
         with ctx.channel.typing():
             try:
-                deleted = await ctx.channel.purge(limit=100, check=is_user, after=datetime.datetime.utcnow() - datetime.timedelta(days=13))
+                deleted = await ctx.channel.purge(limit=100, check=is_user, after=discord.utils.utcnow() - datetime.timedelta(days=13))
             except discord.errors.NotFound:
                 return
             await ctx.send(f'Deleted {(len(deleted))} messages belonging to {user}! `:P`', delete_after=3.0)

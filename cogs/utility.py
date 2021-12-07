@@ -7,7 +7,7 @@ import asyncio
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 import time
-from utils.utils import get_or_fetch_member
+from utils.utils import get_or_fetch_member, getGuildIcon
 
 def to_emoji(c):
     base = 0x1f1e6
@@ -56,7 +56,7 @@ class utility(commands.Cog):
     @poll.command(help='Create a poll!')
     async def create(self, ctx, *,question: str):
         e = discord.Embed(color = discord.Color.blurple(), title = 'Poll', description=question)
-        e.set_footer(icon_url=ctx.author.avatar_url, text=f'Created by {ctx.author}')
+        e.set_footer(icon_url=ctx.author.display_avatar.url, text=f'Created by {ctx.author}')
         msg = await ctx.send(embed=e)
         await msg.add_reaction('👍')
         await msg.add_reaction('👎')
@@ -89,7 +89,7 @@ class utility(commands.Cog):
         body = "\n".join(f"{key}: {c}" for key, c in choices)
 
         e = discord.Embed(color = discord.Color.blurple(), title = 'Poll', description=f"{question}\n\n{body}")
-        e.set_footer(icon_url=ctx.author.avatar_url, text=f'Created by {ctx.author}')
+        e.set_footer(icon_url=ctx.author.display_avatar.url, text=f'Created by {ctx.author}')
         poll = await ctx.send(embed=e)
 
         for emoji, _ in choices:
@@ -104,7 +104,7 @@ class utility(commands.Cog):
         # embed = discord.Embed(color = discord.Colour.random())
         # embed.title = "Pong! 🏓"
         # embed.description = (f'**Bot Latency:** {round(((end - start)*1000), 5)}ms\n**Websocket Latency:** {round(self.bot.latency*1000)}ms')
-        # embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        # embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         # await ctx.send(embed=embed)
 
     #profile picture getter command
@@ -113,8 +113,8 @@ class utility(commands.Cog):
     async def pfp(self, ctx, *,  user : discord.User=None):
         if user is None:
             user = ctx.author
-        ext = 'gif' if user.is_avatar_animated() else 'png'
-        await ctx.send(file=discord.File(BytesIO(await user.avatar_url.read()), f"{user.id}.{ext}"))
+        ext = 'gif' if user.display_avatar.is_animated() else 'png'
+        await ctx.send(file=discord.File(BytesIO(await user.display_avatar.read()), f"{user.id}.{ext}"))
 
 
     #userinfo command
@@ -127,9 +127,9 @@ class utility(commands.Cog):
             roles = [role for role in user.roles]
             del roles[0]
             embed = discord.Embed(color=0x7289da, title=f"User Information")
-            embed.set_author(name=f"{user}", icon_url=user.avatar_url)
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed.set_author(name=f"{user}", icon_url=user.display_avatar.url)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
 
             embed.add_field(name="ID:", value=user.id)
             embed.add_field(name="Joined Server On:", value=user.joined_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
@@ -154,9 +154,9 @@ class utility(commands.Cog):
             roles = [role for role in user.roles]
             del roles[0]
             embed = discord.Embed(color=0x7289da, title=f"User Information")
-            embed.set_author(name=f"{user}", icon_url=user.avatar_url)
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed.set_author(name=f"{user}", icon_url=user.display_avatar.url)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
 
             embed.add_field(name="ID:", value=user.id)
             embed.add_field(name="Joined Server On:", value=user.joined_at.strftime("%a, %D %B %Y, %I:%M %p UTC"))
@@ -176,9 +176,9 @@ class utility(commands.Cog):
             return
         else:
             embed = discord.Embed(color=0x7289da, title=f"User Information")
-            embed.set_author(name=f"{user} (not in this server)", icon_url=user.avatar_url)
-            embed.timestamp = datetime.datetime.utcnow()
-            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            embed.set_author(name=f"{user} (not in this server)", icon_url=user.display_avatar.url)
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
 
             embed.add_field(name="ID:", value=user.id)
 
@@ -189,9 +189,9 @@ class utility(commands.Cog):
 	#server info command
     @commands.command(help='Get information about this server.')
     async def serverinfo(self, ctx):
-        embed = discord.Embed(title="Server Information", colour=0x7289da, timestamp=datetime.datetime.utcnow())
-        embed.set_thumbnail(url=ctx.guild.icon_url)
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed = discord.Embed(title="Server Information", colour=0x7289da, timestamp=discord.utils.utcnow())
+        embed.set_thumbnail(url=await getGuildIcon(self, ctx.guild))
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         # statuses = [len(list(filter(lambda m: str(m.status) == "online", ctx.guild.members))),
         # # len(list(filter(lambda m: str(m.status) == "idle", ctx.guild.members))),
         # # len(list(filter(lambda m: str(m.status) == "dnd", ctx.guild.members))),
@@ -265,7 +265,7 @@ class utility(commands.Cog):
     #                 embed.add_field(name="Artist", value=activity.artist)
     #                 embed.add_field(name="Album", value=activity.album)
     #                 embed.add_field(name="Track Link", value=f"[{activity.title}](https://open.spotify.com/track/{activity.track_id})")
-    #                 embed.timestamp = datetime.datetime.utcnow()
+    #                 embed.timestamp = discord.utils.utcnow()
     #                 embed.set_thumbnail(url=activity.album_cover_url)
     #                 embed.set_footer(text=f'Requested by {ctx.author}' + '\u200b')
     #                 await ctx.send(embed=embed)
@@ -275,7 +275,7 @@ class utility(commands.Cog):
     #about command
     @commands.command(aliases=["info", "about"],help="Bot stats.")
     async def stats(self, ctx):
-        delta_uptime = datetime.datetime.utcnow() - self.bot.launch_time
+        delta_uptime = discord.utils.utcnow() - self.bot.launch_time
         hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
         minutes, seconds = divmod(remainder, 60)
         days, hours = divmod(hours, 24)
@@ -287,8 +287,8 @@ class utility(commands.Cog):
         embed.add_field(name='Total users', value = f'{len(set(self.bot.get_all_members()))}', inline = True)
         #embed.add_field(name='Ping', value=f'{round(self.bot.latency * 1000)}ms', inline = True)
         embed.add_field(name='Uptime', value=f"{days}d, {hours}h, {minutes}m, {seconds}s", inline=True)
-        embed.timestamp = datetime.datetime.utcnow()
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+        embed.timestamp = discord.utils.utcnow()
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
     
     @commands.command(hidden=True)

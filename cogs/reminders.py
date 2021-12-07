@@ -186,7 +186,7 @@ class reminders(commands.Cog, command_attrs=dict(hidden=False)):
                 embed.title = f"You asked me to remind you about:" 
                 embed.description = f'{themessagecontent}'
                 embed.set_footer(text=f'Reminder ID: {ctx_}')
-                embed.timestamp = datetime.datetime.utcnow()
+                embed.timestamp = discord.utils.utcnow()
                 await user.send(embed=embed)
             except:
                 pass

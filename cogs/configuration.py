@@ -26,7 +26,7 @@ class configuration(commands.Cog):
     async def dashboard(self, ctx):
         e = discord.Embed(title=f'Dashboard for {ctx.guild.name}', 
         color=discord.Color.blurple(),
-            ).set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+            ).set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
         async def _log():
             if await check_if_log(self, ctx.guild):
                 ch = self.bot.cache_logs[ctx.guild.id]

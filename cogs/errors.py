@@ -75,7 +75,7 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
             # embed.add_field(name='Who', value=f'{ctx.author} ({ctx.author.id})')
             # embed.add_field(name=f"Command:", value=f"{ctx.message.clean_content}")
             # embed.description = '```py\n%s\n```' % traceback.format_exc()
-            # embed.timestamp = datetime.datetime.utcnow()
+            # embed.timestamp = discord.utils.utcnow()
             # owner = self.bot.get_user(247932598599417866)
             # if not owner:
             #     owner = await self.bot.fetch_user(247932598599417866)
@@ -93,7 +93,7 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
         # embed = discord.Embed(title=':x: Event Error', colour=0xe74c3c) #Red
         # embed.add_field(name='Event', value=event)
         # embed.description = '```py\n%s\n```' % traceback.format_exc()
-        # embed.timestamp = datetime.datetime.utcnow()
+        # embed.timestamp = discord.utils.utcnow()
         # owner = self.bot.get_user(247932598599417866)
         # if not owner:
         #     owner = await self.bot.fetch_user(247932598599417866)

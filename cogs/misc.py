@@ -3,7 +3,7 @@ import datetime
 import asyncio
 from discord import Activity, ActivityType
 from discord.raw_models import RawMessageDeleteEvent
-from utils.utils import check_if_important_msg, get_or_fetch_channel
+from utils.utils import check_if_important_msg, get_or_fetch_channel, getGuildIcon
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 
@@ -22,7 +22,7 @@ async def on_guild_join_bl_check(self, guild):
             "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
             "\n" + "Created at " + str(guild.created_at), inline=False)
             embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
-            embed.set_thumbnail(url=guild.icon_url)
+            embed.set_thumbnail(url=await getGuildIcon(self, guild))
             
             chID = 813600852576829470
             ch = await get_or_fetch_channel(self, chID)
@@ -42,7 +42,7 @@ async def on_guild_join_bl_check(self, guild):
             "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
             "\n" + "Created at " + str(guild.created_at), inline=False)
             embed.add_field(name='Server Owner', value=(f'{guild.owner} ({guild.owner.id})')) 
-            embed.set_thumbnail(url=guild.icon_url)
+            embed.set_thumbnail(url=await getGuildIcon(self, guild))
             
             chID = 813600852576829470
             ch = await get_or_fetch_channel(self, chID)
@@ -137,10 +137,10 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         embed = discord.Embed(colour=discord.Color.red(), title = 'Left a server :(')
-        embed.timestamp = datetime.datetime.utcnow()
+        embed.timestamp = discord.utils.utcnow()
         embed.add_field(name=(str(guild.name)), value=str(guild.id),inline=False)
         embed.add_field(name='Server Owner', value=(f'{guild.owner}\n{guild.owner.id}'))
-        embed.set_thumbnail(url=guild.icon_url)
+        embed.set_thumbnail(url=await getGuildIcon(self, guild))
         
         ch = await get_or_fetch_channel(self, 827244995576332288)
         if ch:
@@ -175,13 +175,13 @@ class Events(commands.Cog, command_attrs=dict(hidden=True)):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         embed = discord.Embed(colour=discord.Color.green(), title = 'New server!')
-        embed.timestamp = datetime.datetime.utcnow()
+        embed.timestamp = discord.utils.utcnow()
         embed.add_field(name=(str(guild.name)), value=str(guild.id) + 
         "\n" + str(len(list(filter(lambda m: m.bot, guild.members)))) + " bots" + 
         "\n" + str(len(list(filter(lambda m: not m.bot, guild.members)))) + " humans" + 
         "\n" + "Created at " + str(guild.created_at), inline=False)
         embed.add_field(name='Server Owner', value=(f'{guild.owner}\n{guild.owner.id}'))
-        embed.set_thumbnail(url=guild.icon_url)
+        embed.set_thumbnail(url=await getGuildIcon(self, guild))
         
         ch = await get_or_fetch_channel(self, 827244995576332288)
         if ch:
