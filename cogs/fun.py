@@ -37,7 +37,7 @@ class fun(commands.Cog):
     #         embed = discord.Embed(title=data["title"], colour=0x7289da)
     #         embed.set_image(url=data["url"])
     #         embed.set_footer(
-    #             text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
+    #             text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url
     #         )
     #         await ctx.send(embed=embed)        
         
@@ -49,7 +49,7 @@ class fun(commands.Cog):
     #         embed = discord.Embed(title='Meme', colour=0x7289da)
     #         embed.set_image(url=data["url"])
     #         embed.set_footer(
-    #             text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar_url
+    #             text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url
     #         )
     #         await ctx.send(embed=embed)
 
@@ -63,7 +63,7 @@ class fun(commands.Cog):
                 embed = discord.Embed(color=0x7289da)
                 embed.title = "Random Fact" 
                 embed.description = (data['fact'])
-                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
                 await ctx.send(embed=embed)
 
     #rickrolls the person mentioned in dms
@@ -96,7 +96,7 @@ class fun(commands.Cog):
     #                 embed = discord.Embed(color=0x7289da)
     #                 embed.title = f"{ctx.author} hugged themselves!" 
     #                 embed.set_image(url=(data['url']))
-    #                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    #                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
     #                 await ctx.send(embed=embed)
     #                 return
             
@@ -106,7 +106,7 @@ class fun(commands.Cog):
     #             embed = discord.Embed(color=0x7289da)
     #             embed.title = f"{ctx.author} hugged {member} <3!" 
     #             embed.set_image(url=(data['url']))
-    #             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    #             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
     #             await ctx.send(embed=embed)
 
     # @commands.guild_only()
@@ -119,7 +119,7 @@ class fun(commands.Cog):
     #                 embed = discord.Embed(color=0x7289da)
     #                 embed.title = f"{ctx.author} slapped themselves!" 
     #                 embed.set_image(url=(data['url']))
-    #                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    #                 embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
     #                 await ctx.send(embed=embed)
     #                 return
             
@@ -129,30 +129,30 @@ class fun(commands.Cog):
     #             embed = discord.Embed(color=0x7289da)
     #             embed.title = f"{ctx.author} slapped {member}!" 
     #             embed.set_image(url=(data['url']))
-    #             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+    #             embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
     #             await ctx.send(embed=embed)
 
     #chooses random result and tells you if you are gay :)
-    # @commands.max_concurrency(1, per=BucketType.user, wait=False)
-    # @commands.guild_only()
-    # @commands.command(help=('beep beep.'))
-    # async def gaydar(self, ctx, *, user):
-    #     msg = await ctx.send('Beep Beep Beep....')
-    #     await asyncio.sleep(1)
-    #     await msg.edit(content='Results processed.')
-    #     await asyncio.sleep(1)
-    #     await msg.edit(content=f'{ctx.author.mention} Are you sure you want to know the truth? (say yes)')
+    @commands.max_concurrency(1, per=BucketType.user, wait=False)
+    @commands.guild_only()
+    @commands.command(help=('beep beep.'))
+    async def gaydar(self, ctx, *, user):
+        msg = await ctx.send('Beep Beep Beep....')
+        await asyncio.sleep(1)
+        await msg.edit(content='Results processed.')
+        await asyncio.sleep(1)
+        await msg.edit(content=f'{ctx.author.mention} Are you sure you want to know the truth? (say yes)')
         
-    #     def check(m):
-    #         return (m.content.lower() == 'yes') and (m.author.id == ctx.author.id)
+        def check(m):
+            return (m.content.lower() == 'yes') and (m.author.id == ctx.author.id)
 
-    #     try:
-    #         await self.bot.wait_for('message', check=check, timeout=15)
-    #         isgaystring = ["They are confirmed ✨gay✨!!", "They are straight!","They are confirmed ✨gay✨!!", "They are straight!",
-    #             "They are confirmed ✨gay✨!!", "They are straight!","Ask again later, im low on battery :(","eighwph49w-g-j-5hw-gjr"]
-    #         await ctx.send(f'{random.choice(isgaystring)}')
-    #     except asyncio.exceptions.TimeoutError:
-    #         return await ctx.send(f'You did not decide in time, {ctx.author.mention}. ')
+        try:
+            await self.bot.wait_for('message', check=check, timeout=15)
+            isgaystring = ["They are confirmed ✨gay✨!!", "They are straight!","They are confirmed ✨gay✨!!", "They are straight!",
+                "They are confirmed ✨gay✨!!", "They are straight!","Ask again later, im low on battery :(","eighwph49w-g-j-5hw-gjr"]
+            await ctx.send(f'{random.choice(isgaystring)}')
+        except asyncio.exceptions.TimeoutError:
+            return await ctx.send(f'You did not decide in time, {ctx.author.mention}. ')
 
     #ask command from david's bot
     @commands.guild_only()
@@ -174,7 +174,7 @@ class fun(commands.Cog):
                 embed = discord.Embed(color=0x7289da)
                 embed.title = "Kitty! 🐱" 
                 embed.set_image(url=(data['url']))
-                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
                 await ctx.send(embed=embed)
 
     #cat command
@@ -187,7 +187,7 @@ class fun(commands.Cog):
                 embed = discord.Embed(color=0x7289da)
                 embed.title = "Doggo! 🐶" 
                 embed.set_image(url=(data['url']))
-                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
                 await ctx.send(embed=embed)
 
     #goose command 
@@ -201,7 +201,7 @@ class fun(commands.Cog):
                     embed = discord.Embed(color=0x7289da)
                     embed.title = "Gooses ;)" 
                     embed.set_image(url=(data['url']))
-                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
                     await ctx.send(embed=embed)
 
     #duck command
@@ -215,7 +215,7 @@ class fun(commands.Cog):
                     embed = discord.Embed(color=0x7289da)
                     embed.title = "Duckies :3" 
                     embed.set_image(url=(data['url']))
-                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
                     await ctx.send(embed=embed)
 
     #bunny command
@@ -236,7 +236,7 @@ class fun(commands.Cog):
                     embed = discord.Embed(color=0x7289da)
                     embed.title = "Bunnies!" 
                     embed.set_image(url=(picURL))
-                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.avatar_url)
+                    embed.set_footer(text=f'Requested by {ctx.author}', icon_url=ctx.author.display_avatar.url)
                     await ctx.send(embed=embed)
 
 
