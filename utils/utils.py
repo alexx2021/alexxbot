@@ -403,7 +403,7 @@ async def check_reaction_type(self, bot):
 async def is_wl(ctx):
     bot = ctx.bot
     
-    if (bot.cache_whitelist[ctx.guild.id] == True) or (ctx.author.id == 247932598599417866):
+    if (bot.cache_whitelist[ctx.guild.id] == True) or (ctx.author.id == 982849405357019166):
         return True
     else:
         await ctx.send('<a:x_:826577785173704754> This guild is not whitelisted to use this command.')

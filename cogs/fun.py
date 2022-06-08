@@ -73,7 +73,7 @@ class fun(commands.Cog):
     # async def rickroll(self, ctx, user: discord.User):
     #     if ctx.guild.me.guild_permissions.manage_messages:
     #         await ctx.message.delete()
-    #     if user.id == 247932598599417866:
+    #     if user.id == 982849405357019166:
     #     	await ctx.send(f'{ctx.author.mention} OOP! You cannot rickroll this user >:)', delete_after=3.0)
     #     else:
     #         try:

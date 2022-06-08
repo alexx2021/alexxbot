@@ -310,7 +310,7 @@ async def can_do_stuff(ctx: commands.Context):
         else:
             bucket = spam_control.get_bucket(ctx.message)
             retry_after = bucket.update_rate_limit()
-            if retry_after and ctx.message.author.id != 247932598599417866: # last number is 6
+            if retry_after and ctx.message.author.id != 982849405357019166: # last number is 6
                 bot._auto_spam_count[ctx.message.author.id] += 1
                 if bot._auto_spam_count[ctx.message.author.id] >= 5:
                     del bot._auto_spam_count[ctx.message.author.id]

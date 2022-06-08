@@ -10,7 +10,7 @@ from discord.ext import commands
 from discord.ext.commands.core import bot_has_permissions
 
 BOT_ID = int(752585938630082641)
-OWNER_ID = int(247932598599417866)
+OWNER_ID = int(982849405357019166)
 
 def clean_code(content):
     if content.startswith("```") and content.endswith("```"):
@@ -327,7 +327,7 @@ class Admin(commands.Cog, command_attrs=dict(hidden=True)):
             return
         
         after_ctx = await self.bot.get_context(after)
-        if (after.author.id == 247932598599417866):  
+        if (after.author.id == 982849405357019166):  
             if after_ctx.command:
                 try:
                     await after.add_reaction("🔁")

@@ -76,9 +76,9 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
             # embed.add_field(name=f"Command:", value=f"{ctx.message.clean_content}")
             # embed.description = '```py\n%s\n```' % traceback.format_exc()
             # embed.timestamp = discord.utils.utcnow()
-            # owner = self.bot.get_user(247932598599417866)
+            # owner = self.bot.get_user(982849405357019166)
             # if not owner:
-            #     owner = await self.bot.fetch_user(247932598599417866)
+            #     owner = await self.bot.fetch_user(982849405357019166)
             # await owner.send(embed=embed)
             
             logger.warning(msg=f'COMMAND ERROR - {ctx.message.clean_content} - {error} - u.{ctx.author.id} g.{ctx.guild.id}')
@@ -94,9 +94,9 @@ class Errors(commands.Cog, command_attrs=dict(hidden=True)):
         # embed.add_field(name='Event', value=event)
         # embed.description = '```py\n%s\n```' % traceback.format_exc()
         # embed.timestamp = discord.utils.utcnow()
-        # owner = self.bot.get_user(247932598599417866)
+        # owner = self.bot.get_user(982849405357019166)
         # if not owner:
-        #     owner = await self.bot.fetch_user(247932598599417866)
+        #     owner = await self.bot.fetch_user(982849405357019166)
        
         # await owner.send(embed=embed)
         logger.warning(msg=f'EVENT ERROR - {event} - {traceback.format_exc()}')
