@@ -61,18 +61,25 @@ class Giveaways(commands.Cog, command_attrs=dict(hidden=True)):
             #users.pop(users.index(author))
 
             if len(users) == 0:
-                await message.channel.send("No winner was decided")
-            else:
-                winner = random.choice(users)
-
-                await message.channel.send(f"**Congrats {winner.mention}!**\nPlease contact <@{theuserid}> about your prize.")                                       
-
                 async with self.bot.db.acquire() as connection:
                     await connection.execute("DELETE FROM giveaways WHERE message_id = $1",(themessageid))
 
             
                     current_time = int(time.time())
                     rows = await connection.fetch("SELECT * FROM giveaways WHERE future <= $1",(current_time))
+
+                await message.channel.send("No winner was decided")
+
+            else:
+                winner = random.choice(users)
+                async with self.bot.db.acquire() as connection:
+                    await connection.execute("DELETE FROM giveaways WHERE message_id = $1",(themessageid))
+                    
+            
+                    current_time = int(time.time())
+                    rows = await connection.fetch("SELECT * FROM giveaways WHERE future <= $1",(current_time))
+                    
+                await message.channel.send(f"**Congrats {winner.mention}!**\nPlease contact <@{theuserid}> about your prize.") 
     
     @check_giveaways.before_loop
     async def wait(self):
